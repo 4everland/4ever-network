@@ -1,4 +1,4 @@
-# 4ever-login
+# 4ever-network
 
 ## Project setup
 ```
