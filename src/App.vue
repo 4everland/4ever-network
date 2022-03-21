@@ -21,3 +21,7 @@ export default {
   }),
 };
 </script>
+<style lang="less" scoped>
+/deep/ .v-main__wrap {
+}
+</style>
