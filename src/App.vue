@@ -23,5 +23,12 @@ export default {
 </script>
 <style lang="less" scoped>
 /deep/ .v-main__wrap {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #e5efff 5%,
+    #ffffff 40%,
+    #fef4ff 100%
+  );
 }
 </style>

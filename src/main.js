@@ -3,8 +3,10 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
+import "./styles/reset.css";
 Vue.config.productionTip = false;
-
+import * as echarts from "echarts";
+Vue.prototype.$echarts = echarts;
 new Vue({
   router,
   store,

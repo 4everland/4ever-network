@@ -1,28 +1,41 @@
 <template>
   <div class="table-container">
     <v-data-table
-      :headers="headers"
-      :items="desserts"
+      :headers="tableHeaderData"
+      :items="tableContentData"
+      item-class="row-item"
       :hide-default-footer="true"
+      :items-per-page="50"
       class="elevation-1"
-    ></v-data-table>
-    <v-row justify="center">
-      <!-- <v-col cols="2"> Total 85 items </v-col> -->
-      <v-col cols="12">
-        <v-container class="max-width d-flex align-center">
-          <span>Total 85 items</span>
-          <v-pagination
-            v-model="page"
-            class="my-4"
-            :length="15"
-            :total-visible="7"
-          ></v-pagination>
-          <v-select :items="sizeList" label="Solo field" solo></v-select>
-          <div>
-            <span>Goto</span>
-            <v-input></v-input>
-          </div>
-        </v-container>
+    >
+      <template v-slot:item.view="{ item }">
+        <!-- {{ item }} -->
+        <img
+          style="width: 20px; height: 12px; cursor: pointer"
+          @click="handleToDetail(item)"
+          src="../assets/imgs/home/eyes.png"
+          alt=""
+        />
+      </template>
+      <template v-slot:item.cidList="{ item }">
+        <!-- {{ item }} -->
+        <span class="view-item" @click="handleToDetail(item)">view</span>
+      </template>
+      <template v-slot:item.status="{ item }">
+        <span :class="item.status ? 'pin' : 'unpin'">
+          {{ item.status ? "pin" : "unpin" }}
+        </span>
+      </template>
+    </v-data-table>
+
+    <v-row class="max-width d-flex align-center" v-if="pagination">
+      <v-col>
+        <v-pagination
+          v-model="page"
+          class="my-4"
+          :length="15"
+          :total-visible="7"
+        ></v-pagination>
       </v-col>
     </v-row>
   </div>
@@ -30,25 +43,46 @@
 
 <script>
 export default {
+  props: {
+    pagination: {
+      type: Boolean,
+      default: true,
+    },
+    tableHeaderData: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+    tableContentData: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+  },
   data() {
     return {
+      whichPage: "",
       sizeList: [
         { text: "10/page", value: 10 },
         { text: "20/page", value: 20 },
         { text: "30/page", value: 30 },
       ],
+      selectValue: 10,
       headers: [
         {
           text: "Dessert (100g serving)",
-          align: "start",
+          align: "center",
           sortable: false,
           value: "name",
         },
-        { text: "Calories", value: "calories" },
-        { text: "Fat (g)", value: "fat" },
-        { text: "Carbs (g)", value: "carbs" },
-        { text: "Protein (g)", value: "protein" },
-        { text: "Iron (%)", value: "iron" },
+        { text: "Calories", align: "center", value: "calories" },
+        { text: "Fat (g)", align: "center", value: "fat" },
+        { text: "Carbs (g)", align: "center", value: "carbs" },
+        { text: "Protein (g)", align: "center", value: "protein" },
+        { text: "Iron (%)", align: "center", value: "iron" },
+        { text: "view", align: "center", value: "view", sortable: false },
       ],
       desserts: [
         {
@@ -135,10 +169,32 @@ export default {
       page: 1,
     };
   },
+  methods: {
+    handleToDetail(item) {
+      this.$emit("handleViewClick", item);
+    },
+  },
 };
 </script>
 
 <style lang="less" scoped>
+/deep/ .v-pagination__item,
+/deep/ .v-pagination__navigation {
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/deep/ .v-data-table.elevation-1.theme--light {
+  box-shadow: none !important;
+}
+/deep/ td,
+/deep/ th {
+  border-bottom: none !important;
+  line-height: 48px;
+  font-size: 12px !important;
+  color: #495667;
+}
 /deep/ .v-input__control {
   width: 130px;
 }
@@ -147,5 +203,32 @@ export default {
 }
 /deep/ .v-text-field__details {
   display: none;
+}
+/deep/ .v-data-table__wrapper tbody tr:nth-of-type(odd) {
+  background: #f8f8f8;
+}
+/deep/ .v-data-table__wrapper .v-data-table-header tr {
+  background: #e6e8eb;
+}
+/deep/ .v-text-field.v-text-field--solo .v-input__control {
+  min-height: 30px;
+}
+/deep/ .v-input__slot {
+  margin: 0;
+}
+.jump-page /deep/ .v-input__slot,
+.jump-page /deep/ .v-input__control {
+  width: 50px;
+}
+.view-item {
+  color: #34a9ff;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pin {
+  color: #34a9ff;
+}
+.unpin {
+  color: #fb0505;
 }
 </style>
