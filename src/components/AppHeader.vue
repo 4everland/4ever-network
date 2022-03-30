@@ -40,9 +40,20 @@
               <p class="no-results-content">Please search by Nod</p>
             </div>
           </div>
-          <div class="connect-wallet ml-7">
+          <div
+            class="blance-container ml-7"
+            v-if="$store.state.account"
+            @click="handleClaim"
+          >
+            <p class="blance-content">
+              Available to Claim:
+              <span class="blance">{{ $store.state.balance }}</span>
+              4EVER
+            </p>
+          </div>
+          <div class="connect-wallet ml-7" v-else>
             <img src="../assets/imgs/header/link-icon.png" alt="" />
-            <span>Connect Wallet</span>
+            <span @click="connectWallet">Connect Wallet</span>
           </div>
         </div>
       </v-container>
@@ -52,11 +63,14 @@
 
 <script>
 import Logo from "../components/Logo.vue";
-
+import contracts from "@/contracts";
+import { mapActions, mapMutations } from "vuex";
 export default {
   components: { Logo },
   data() {
     return {
+      rewards: 0,
+      isLogin: false,
       isShow: false,
       data: {
         type: "TeeReport",
@@ -66,9 +80,51 @@ export default {
       status: false,
     };
   },
+  created() {
+    if (!window.ethereum) return;
+    this.updateChainId();
+    this.getAccount();
+    this.listen();
+  },
   methods: {
+    ...mapActions(["getAccount", "updateAccount", "updateChainId"]),
+    ...mapMutations(["UPDATE_ACCOUNT", "UPDATE_BALANCE"]),
+    async connectWallet() {
+      if (!window.ethereum) {
+        window.open("https://metamask.io/download.html", "_blank");
+        return "234";
+      }
+      const isUnlocked = await window.ethereum._metamask.isUnlocked();
+      if (!isUnlocked) {
+        return console.log("please locked");
+      }
+      await this.updateAccount();
+    },
+    async claim() {
+      const data = contracts.POSC.interface.encodeFunctionData("claim", [
+        "0xF1658C608708172655A8e70a1624c29F956Ee63D",
+      ]);
+      const tx = await contracts.sendTransaction({
+        to: contracts.contractAddress,
+        data,
+      });
+      const receipt = await tx.wait();
+      console.log("receipt", receipt);
+    },
+    handleClaim() {},
     handleSearch() {
       this.isShow = true;
+    },
+    listen() {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        window.location.reload();
+      });
+      window.ethereum.on("chainChanged", (chainId) => {
+        window.location.reload();
+      });
+      // window.ethereum.on("disconnect", () => {
+      //   console.log(1111);
+      // });
     },
   },
 };
@@ -86,6 +142,12 @@ export default {
 }
 /deep/ .nav-btn .v-btn__content {
   opacity: 1 !important;
+}
+.v-list {
+  width: 161px;
+}
+.v-list-item__title {
+  color: red;
 }
 .search-bar {
   position: relative;
@@ -167,6 +229,22 @@ export default {
   img {
     vertical-align: middle;
     margin-right: 6px;
+  }
+}
+.blance-container {
+  padding: 5px 15px;
+  background: #34a9ff;
+  border-radius: 4px;
+  cursor: pointer;
+  .blance-content {
+    height: 22px;
+    line-height: 22px;
+    color: #fff;
+    margin-bottom: 0;
+    font-size: 12px;
+    .blance {
+      font-size: 18px;
+    }
   }
 }
 </style>

@@ -19,7 +19,7 @@ export default {
     },
     yAxisLabelFormatter: {
       type: String || Function,
-      default: "{value}",
+      default: "{value}%",
     },
     grid: {
       type: Object,
@@ -35,7 +35,9 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      myLineChart: null,
+    };
   },
   mounted() {
     this.$nextTick(() => {
@@ -44,13 +46,16 @@ export default {
   },
   methods: {
     drawLine() {
-      let myLineChart = this.$echarts.init(
+      this.myLineChart = this.$echarts.init(
         document.getElementById(this.echarts)
       );
       window.addEventListener("resize", () => {
-        myLineChart.resize();
+        this.myLineChart.resize();
       });
-      myLineChart.setOption({
+      this.setEchartsOption();
+    },
+    setEchartsOption() {
+      this.myLineChart.setOption({
         tooltip: {
           trigger: "axis",
           axisPointer: {
@@ -109,6 +114,16 @@ export default {
   computed: {
     echarts() {
       return "echarts" + Math.random() * 10000;
+    },
+  },
+  watch: {
+    xAxisData() {
+      this.myLineChart.clear();
+      this.setEchartsOption();
+    },
+    yAxisData() {
+      this.myLineChart.clear();
+      this.setEchartsOption();
     },
   },
 };

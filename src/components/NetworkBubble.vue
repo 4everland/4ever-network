@@ -22,7 +22,7 @@ export default {
         id: "map",
         map: new Mapbox({
           pitch: 0,
-          style: "mapbox://styles/mapbox/outdoors-v11",
+          style: "light",
           center: [96.99215001469588, 29.281597225674773],
           zoom: 2.194613775109773,
           maxZoom: 10,

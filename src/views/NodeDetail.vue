@@ -10,47 +10,35 @@
           <ul class="node-info-list">
             <li class="node-info-item">
               <span class="node-text">Node ID : </span>
-              <span class="node-value">bafybeibvnnk7ikrnttpwxsdda2323d</span>
+              <span class="node-value">{{ nodeInfo.nodeId }}</span>
             </li>
             <li class="node-info-item">
-              <span class="node-text">Node ID: </span>
-              <span class="node-value">bafybeibvnnk7ikrnttpwxsdda2323d</span>
+              <span class="node-text">Regoin: </span>
+              <span class="node-value">{{ nodeInfo.Regoin }}</span>
             </li>
             <li class="node-info-item">
-              <span class="node-text">Disk: </span>
-              <span class="node-value">bafybeibvnnk7ikrnttpwxsdda2323d</span>
+              <span class="node-text right">Program Version: </span>
+              <span class="node-value">{{ nodeInfo.programVersion }}</span>
             </li>
             <li class="node-info-item">
-              <span class="node-text">CPU: </span>
-              <span class="node-value">bafybeibvnnk7ikrnttpwxsdda2323d</span>
+              <span class="node-text right">Mr_enclava: </span>
+              <span class="node-value">{{ nodeInfo.mrEnclave }}</span>
             </li>
             <li class="node-info-item">
-              <span class="node-text">Memory: </span>
-              <span class="node-value">bafybeibvnnk7ikrnttpwxsdda2323d</span>
+              <span class="node-text right">Total Reward: </span>
+              <span class="node-value">{{ nodeInfo.totalReward }}</span>
             </li>
           </ul>
         </v-col>
         <v-col sm="12" lg="5">
           <ul class="node-info-list">
             <li class="node-info-item">
-              <span class="node-text right">Program Version: </span>
-              <span class="node-value">3232323</span>
-            </li>
-            <li class="node-info-item">
-              <span class="node-text right">Mr_enclava: </span>
-              <span class="node-value">3232323</span>
-            </li>
-            <li class="node-info-item">
-              <span class="node-text right">Total Reward: </span>
-              <span class="node-value">3232323</span>
-            </li>
-            <li class="node-info-item">
               <span class="node-text right">Status: </span>
-              <span class="node-value">3232323</span>
+              <span class="node-value">{{ nodeInfo.status }}</span>
             </li>
             <li class="node-info-item">
               <span class="node-text right">CreateAt: </span>
-              <span class="node-value">3232323</span>
+              <span class="node-value">{{ nodeInfo.createdAt }}</span>
             </li>
           </ul>
         </v-col>
@@ -77,11 +65,41 @@
           <img src="@/assets/imgs/nodeDetail/node-icon.png" alt="" />
         </div>
         <div class="statistics-table mt-7">
-          <network-table
+          <!-- <network-table
             @handleViewClick="handleViewClick"
             :tableHeaderData="tableHeaderData"
             :tableContentData="tableContentData"
-          />
+          /> -->
+
+          <v-data-table
+            :headers="tableHeaderData"
+            :items="tableContentData"
+            item-class="row-item"
+            :hide-default-footer="true"
+            :items-per-page="50"
+            class="elevation-1"
+            :loading="loading"
+            loading-text="Loading... Please wait"
+          >
+            <template v-slot:item.blockNumber="{ item }">
+              <span># {{ item.blockNumber }}</span>
+            </template>
+            <template v-slot:item.cidList="{ item }">
+              <span class="view-text" @click="handleViewCid(item)">view</span>
+            </template>
+          </v-data-table>
+
+          <v-row class="max-width d-flex align-center">
+            <v-col>
+              <v-pagination
+                v-model="currentPage"
+                class="my-4"
+                @input="handlePagination"
+                :length="totalPageSize"
+                :total-visible="7"
+              ></v-pagination>
+            </v-col>
+          </v-row>
         </div>
       </div>
     </div>
@@ -97,11 +115,22 @@
         <v-card>
           <v-card-title>CID List</v-card-title>
           <v-card-text style="height: 500px">
-            <network-table
-              :pagination="false"
-              :tableHeaderData="dialogTableHeader"
-              :tableContentData="dialogTableContent"
-            />
+            <table class="dialog-table">
+              <tr>
+                <th class="cid">Node ID</th>
+                <th class="status">Status</th>
+              </tr>
+              <template v-for="item in dialogTableContent">
+                <tr :key="item.cid">
+                  <td class="cid" :class="item.state ? '' : 'unpin'">
+                    {{ item.cid }}
+                  </td>
+                  <td class="status" :class="item.state ? 'pin' : 'unpin'">
+                    {{ item.state ? "Pin" : "Unpin" }}
+                  </td>
+                </tr>
+              </template>
+            </table>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -110,23 +139,32 @@
 </template>
 
 <script>
+import { formart_date, formart_storage, formart_rewards } from "@/utils/utils";
 import NetworkLine from "@/components/NetworkLine.vue";
-import NetworkTable from "@/components/NetworkTable.vue";
+import { fetchNodeInfo, fetchNodeDetail } from "@/api/api";
 export default {
   data() {
     return {
+      nodeId: null,
       dialog: false,
+      loading: true,
+      totalPageSize: 0,
+      currentPage: 1,
+      listQuery: {
+        page: 1,
+        size: 10,
+      },
       tableHeaderData: [
         {
           text: "TeeReport",
           align: "center",
           sortable: false,
-          value: "teeReport",
+          value: "blockNumber",
         },
-        { text: "Size of Challenge File", align: "center", value: "size" },
-        { text: "Elapsed Time", align: "center", value: "time" },
-        { text: "PoSC Accuracy Rate", align: "center", value: "rate" },
-        { text: "CreateAt", align: "center", value: "createTime" },
+        { text: "Size of Challenge File", align: "center", value: "totalSize" },
+        { text: "Elapsed Time", align: "center", value: "elapsedTime" },
+        { text: "PoSC Accuracy Rate", align: "center", value: "accuracyRate" },
+        { text: "CreateAt", align: "center", value: "createdAt" },
         {
           text: "CID List",
           align: "center",
@@ -134,238 +172,93 @@ export default {
           sortable: false,
         },
       ],
-      dialogTableHeader: [
-        { text: "Node ID", value: "cid", align: "center", sortable: false },
-        {
-          text: "Status",
-          align: "center",
-          value: "status",
-          sortable: false,
-        },
-      ],
-      dialogTableContent: [
-        {
-          cid: "bafybeibvnnk7ikrnttpwxsdd12323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ikrnttp3xsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik4nttpwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibvnnkikrnt4pwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik2nttpwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibv4nk7ikrnttpwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik4nttpwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibvnnkikrnt4p455wxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik2ntt545pwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibv4nk7ikrntt454pwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik4544ntt5pwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibvnnkik545rnt4pwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk745ik2nttpwxsd23a2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibv4nk7ikrnt545tpwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik2nttpwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibv4nk7ikrnttpwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "233224343",
-          status: 0,
-        },
-        {
-          cid: "bafybeibv4nk7ikrn3232ttpwxsdda2323d",
-          status: 1,
-        },
-        {
-          cid: "bafybeibvnnk7ik2n232ttpwxsdda2323d",
-          status: 0,
-        },
-        {
-          cid: "bafybeibv4nk323ttpwxsdda2323d",
-          status: 1,
-        },
-      ],
-      tableContentData: [
-        {
-          teeReport: "Frozen Yogurt",
-          size: 132,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 32,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 43,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 54,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 159,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 656,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 656,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 656,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-        {
-          teeReport: "Frozen Yogurt",
-          size: 656,
-          time: 6.0,
-          rate: 24,
-          createTime: 4.0,
-        },
-      ],
-
-      xAxisData: [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19",
-        "20",
-        "21",
-        "22",
-        "23",
-        "24",
-        "25",
-        "26",
-        "27",
-        "28",
-        "29",
-        "30",
-      ],
-      yAxisData: [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18",
-        "19",
-        "20",
-        "21",
-        "22",
-        "23",
-        "24",
-        "25",
-        "26",
-        "27",
-        "28",
-        "29",
-        "30",
-      ],
+      tableContentData: [],
+      dialogTableContent: [],
+      nodeInfo: {},
+      xAxisData: [],
+      yAxisData: [],
     };
   },
+  created() {
+    console.log(this.$route.query.nodeId);
+    this.nodeId = this.$route.query.nodeId;
+    this.getNodeInfo();
+    this.getNodeDetail();
+    this.getChartsData();
+  },
   methods: {
-    handleViewClick(scoped) {
-      console.log(scoped);
+    getNodeInfo() {
+      fetchNodeInfo(this.nodeId).then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          console.log(res);
+          res.data.createdAt = formart_date(res.data.createdAt);
+          res.data.totalReward = formart_rewards(res.data.totalReward);
+          this.nodeInfo = res.data;
+        }
+      });
+    },
+    getNodeDetail() {
+      fetchNodeDetail(this.nodeId, this.listQuery).then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          // console.log(res);
+          this.loading = false;
+          this.tableContentData = res.data.item.map((item) => {
+            item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+            item.createdAt = formart_date(item.createdAt);
+            item.totalSize = formart_storage(item.totalSize);
+            item.elapsedTime = item.elapsedTime / 1000 + "S";
+            return item;
+          });
+          //  = res.data.item;
+          this.totalPageSize = Math.ceil(res.data.total / 10);
+        }
+      });
+    },
+    getChartsData() {
+      fetchNodeDetail(this.nodeId, { page: 1, size: 500 }).then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          console.log("getChartsData", res);
+          const time = Date.now() / 1000 - 24 * 60 * 60;
+          const data = res.data.item.filter((obj) => {
+            return obj.createdAt > time;
+          });
+          // console.log("data", data);
+          let timeMap = {};
+          const xArr = [];
+          data.forEach((item) => {
+            const key = new Date(item.createdAt * 1000).getHours();
+            if (!xArr.includes(key)) xArr.push(key);
+            if (timeMap[key]) {
+              timeMap[key].sum += item.accuracyRate;
+              timeMap[key].count++;
+            } else {
+              timeMap[key] = {
+                sum: item.accuracyRate,
+                count: 1,
+              };
+            }
+          });
+          console.log("timeMap", timeMap);
+          const yArr = xArr.map((key) => {
+            return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+          });
+          this.xAxisData = xArr;
+          this.yAxisData = yArr;
+        }
+      });
+    },
+    handlePagination(value) {
+      this.listQuery.page = value;
+      this.loading = true;
+      this.getNodeDetail();
+    },
+    handleViewCid(item) {
+      this.dialogTableContent = item.cids;
       this.dialog = true;
     },
   },
   components: {
     NetworkLine,
-    NetworkTable,
   },
 };
 </script>
@@ -407,18 +300,15 @@ export default {
           line-height: 40px;
           .node-text {
             display: inline-block;
-            width: 70px;
+            min-width: 130px;
           }
 
-          .node-text.right {
-            width: 130px;
-          }
           .node-value {
             flex: 1;
             text-overflow: ellipsis;
             overflow: hidden;
             word-wrap: none;
-            margin-left: 40px;
+            margin-left: 20px;
             color: #495667;
             line-height: 40px;
             font-weight: bold;
@@ -446,7 +336,84 @@ export default {
       height: 300px;
     }
   }
+  .statistics-table {
+    .view-text {
+      color: #34a9ff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    /deep/ .v-pagination__item,
+    /deep/ .v-pagination__navigation {
+      box-shadow: none;
+      font-size: 12px;
+      font-weight: 600;
+    }
 
+    /deep/ .v-data-table.elevation-1.theme--light {
+      box-shadow: none !important;
+    }
+    /deep/ td,
+    /deep/ th {
+      border-bottom: none !important;
+      line-height: 48px;
+      font-size: 12px !important;
+      color: #495667;
+    }
+    /deep/ .v-input__control {
+      width: 130px;
+    }
+    /deep/ .v-input__slot {
+      width: 130px;
+    }
+    /deep/ .v-text-field__details {
+      display: none;
+    }
+    /deep/ .v-data-table__wrapper tbody tr:nth-of-type(odd) {
+      background: #f8f8f8;
+    }
+    /deep/ .v-data-table__wrapper .v-data-table-header tr {
+      background: #e6e8eb;
+    }
+    /deep/ .v-text-field.v-text-field--solo .v-input__control {
+      min-height: 30px;
+    }
+    /deep/ .v-input__slot {
+      margin: 0;
+    }
+  }
+
+  .node-detail-dialog {
+    .dialog-table {
+      width: 100%;
+      tr {
+        display: flex;
+        justify-content: space-between;
+      }
+      td,
+      th {
+        height: 56px;
+        line-height: 56px;
+        font-size: 12px;
+      }
+      tr:nth-of-type(1) {
+        background: #e6e8eb;
+      }
+      .cid {
+        width: 400px;
+        text-align: center;
+      }
+      .status {
+        width: 120px;
+        text-align: center;
+      }
+      .pin {
+        color: #34a9ff;
+      }
+      .unpin {
+        color: #fb0505;
+      }
+    }
+  }
   .node-detail-dialog .v-card__title {
     position: relative;
     justify-content: center;

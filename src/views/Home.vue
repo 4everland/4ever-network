@@ -9,28 +9,37 @@
           <img src="../assets/imgs/home/node-bg.png" alt="" />
           <div class="item-content">
             <h3 class="item-title">Total Nodes</h3>
-            <div class="data" style="color: '#345AA7">120</div>
+            <div class="data" style="color: '#345AA7">
+              {{ overViewData.totalNode }}
+            </div>
           </div>
         </li>
         <li class="overview-item">
           <img src="../assets/imgs/home/networkfile-bg.png" alt="" />
           <div class="item-content">
-            <h3 class="item-title">Total Network filess</h3>
-            <div class="data" style="color: #6958b2">9,880</div>
+            <h3 class="item-title">Total Network files</h3>
+            <div class="data" style="color: #6958b2">
+              {{ overViewData.totalFiles }}
+            </div>
           </div>
         </li>
         <li class="overview-item">
           <img src="../assets/imgs/home/storage-bg.png" alt="" />
           <div class="item-content">
             <h3 class="item-title">Network Storage</h3>
-            <div class="data" style="color: #7784cc">102.43 T</div>
+            <div class="data" style="color: #7784cc">
+              {{ overViewData.totalStorage }}
+            </div>
           </div>
         </li>
         <li class="overview-item">
           <img src="../assets/imgs/home/reward-bg.png" alt="" />
           <div class="item-content">
             <h3 class="item-title">Node Reward</h3>
-            <div class="data">897,290</div>
+            <div class="data">
+              <span>{{ overViewData.totalReward }}</span>
+              <span class="text">4EVR</span>
+            </div>
           </div>
         </li>
       </ul>
@@ -47,45 +56,45 @@
           <span class="report-more" @click="handleToMore">More</span>
         </div>
         <ul class="report-list">
-          <template v-for="item in 4">
+          <template v-for="item in latestReportArr">
             <li
-              :key="item"
+              :key="item.nodeId"
               class="report-list-item d-flex justify-space-between"
             >
-              <span class="cid"
-                >12D3KooWS6GL7vpFQknW7FDMAEkbxm3hrRvr6fHXX4ehjR7jG3gf</span
-              >
-              <span class="rate">98,67%</span>
-              <span class="time">Feb 22,2022 16:00:00 UTC</span>
+              <span class="cid">{{ item.nodeId }}</span>
+              <span class="rate">{{ item.accuracyRate }}</span>
+              <span class="time">{{ item.createdAt }}</span>
             </li>
           </template>
         </ul>
       </v-col>
       <v-col xs="12" class="report-right">
-        <h3 class="report-right-header">PoSC CHALLENGE PSRAMENTERS</h3>
+        <div class="d-flex report-right-header">
+          <h3 class="report-right-title">TeeReport PSRAMENTERS</h3>
+        </div>
         <ul class="report-right-list">
           <li class="report-right-list-item d-flex justify-space-between">
             <span>Generation time per report</span>
-            <span>30 Mintute</span>
+            <span>{{ challenggeData.interval }} Mintute</span>
           </li>
           <li class="report-right-list-item d-flex justify-space-between">
-            <span>Generation time per report</span>
-            <span>30 Mintute</span>
+            <span>Number of CIDs per Posc</span>
+            <span>{{ challenggeData.checkNum }} Piece</span>
           </li>
           <li class="report-right-list-item d-flex justify-space-between">
-            <span>Generation time per report</span>
-            <span>30 Mintute</span>
+            <span>Report retention time</span>
+            <span>{{ challenggeData.retention }} Day</span>
           </li>
           <li class="report-right-list-item d-flex justify-space-between">
-            <span>Generation time per report</span>
-            <span>30 Mintute</span>
+            <span>Reward per block</span>
+            <span>{{ challenggeData.reward }} 4EVER</span>
           </li>
         </ul>
       </v-col>
     </v-row>
 
     <v-row class="storage d-flex justify-space-between">
-      <v-col
+      <!-- <v-col
         xs="12"
         sm="12"
         md="5"
@@ -99,25 +108,11 @@
         <div class="pie-chart">
           <network-pie />
         </div>
-        <!-- <ul class="pie-data">
-          <li class="d-flex justify-space-between align-center">
-            <span>Total Storage</span>
-            <span>100G</span>
-          </li>
-          <li class="d-flex justify-space-between align-center">
-            <span>Total Storage</span>
-            <span>100G</span>
-          </li>
-          <li class="d-flex justify-space-between align-center">
-            <span>Total Storage</span>
-            <span>100G</span>
-          </li>
-        </ul> -->
-      </v-col>
+      </v-col> -->
       <v-col
         xs="12"
         sm="12"
-        md="7"
+        md="12"
         class="storage-right card-border d-flex flex-column"
       >
         <div
@@ -133,19 +128,18 @@
             :items="nodeList"
             label="select a node"
             :menu-props="{ offsetY: true, left: true }"
+            @change="handleSelectChange"
           >
             <div
               slot="prepend-item"
               class="select-search-bar"
               hide-details="auto"
             >
-              <v-text-field label="Node ID" :hide-details="true" solo>
-                <v-img
-                  slot="prepend"
-                  src="../assets/imgs/header/search-icon.png"
-                >
-                </v-img
-              ></v-text-field>
+              <input
+                type="text"
+                class="select-input"
+                placeholder="select a node"
+              />
             </div>
           </v-select>
         </div>
@@ -159,6 +153,8 @@
               bottom: '10%',
               containLabel: true,
             }"
+            :xAxisData="xAxisData"
+            :yAxisData="yAxisData"
           />
         </div>
       </v-col>
@@ -183,11 +179,57 @@
         </div>
       </div>
       <div class="staistics-table">
-        <network-table
-          @handleViewClick="handleViewClick"
-          :tableHeaderData="tableHeaderData"
-          :tableContentData="tableContentData"
-        />
+        <v-data-table
+          :headers="tableHeaderData"
+          :items="tableContentData"
+          item-class="row-item"
+          :hide-default-footer="true"
+          :items-per-page="50"
+          class="elevation-1"
+          :loading="loading"
+          loading-text="Loading... Please wait"
+        >
+          <template v-slot:item.nodeId="{ item }">
+            <span>{{
+              typeof item.nodeId == "string"
+                ? item.nodeId.slice(0, 4) + "xxxx" + item.nodeId.slice(-4)
+                : ""
+            }}</span>
+          </template>
+          <template v-slot:item.blockNumber="{ item }">
+            <span>#{{ item.blockNumber }}</span>
+          </template>
+          <template v-slot:item.treeReportDetail="{ item }">
+            <!-- {{ item }} -->
+            <img
+              style="width: 20px; height: 12px; cursor: pointer"
+              @click="handleViewClick(item, 'reportDetail')"
+              src="../assets/imgs/home/eyes.png"
+              alt=""
+            />
+          </template>
+          <template v-slot:item.nodeDetail="{ item }">
+            <!-- {{ item }} -->
+            <img
+              style="width: 20px; height: 12px; cursor: pointer"
+              @click="handleViewClick(item, 'nodeDetail')"
+              src="../assets/imgs/home/eyes.png"
+              alt=""
+            />
+          </template>
+        </v-data-table>
+
+        <v-row class="max-width d-flex align-center" v-if="pagination">
+          <v-col>
+            <v-pagination
+              v-model="currentPage"
+              class="my-4"
+              @input="handlePagination"
+              :length="totalPageSize"
+              :total-visible="7"
+            ></v-pagination>
+          </v-col>
+        </v-row>
       </div>
     </div>
   </div>
@@ -195,158 +237,341 @@
 
 <script>
 // @ is an alias to /src
-import NetworkTable from "../components/NetworkTable.vue";
+import { BigNumber } from "@ethersproject/bignumber";
+import { formart_rewards, formart_storage, formart_date } from "@/utils/utils";
 import NetworkBubble from "../components/NetworkBubble.vue";
-import NetworkPie from "../components/NetworkPie.vue";
 import NetworkLine from "../components/NetworkLine.vue";
-import { fetchNodes } from "../api/api";
+import {
+  fetchNetworkInfo,
+  fetchNodes,
+  fetchReportList,
+  fetchReport,
+  fetchNodeDetail,
+} from "../api/api";
 export default {
   name: "Home",
   data() {
     return {
+      loading: true,
+      pagination: true,
+      currentPage: 1,
+      totalPageSize: 0,
       row: null,
       isShowNode: false,
-      nodeList: [
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev4",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev41",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev43",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev44",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev45",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev46",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev433",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev432",
-        "bafybeibvnnk7ikrnttpujwwvay626iamv6gbrlev434",
-      ],
+      overViewData: {},
+      challenggeData: {},
+      latestReport: [],
+      latestReportArr: [],
+      listQuery: {
+        page: 1,
+        size: 10,
+      },
+      nodeList: [],
       tableHeaderData: [
         {
-          text: "Dessert (100g serving)",
+          text: "TeeReport",
           align: "center",
           sortable: false,
-          value: "name",
-        },
-        { text: "Calories", align: "center", value: "calories" },
-        { text: "Fat (g)", align: "center", value: "fat" },
-        { text: "Carbs (g)", align: "center", value: "carbs" },
-        { text: "Protein (g)", align: "center", value: "protein" },
-        { text: "Iron (%)", align: "center", value: "iron" },
-        { text: "view", align: "center", value: "view", sortable: false },
-      ],
-      tableContentData: [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: "1%",
+          value: "blockNumber",
         },
         {
-          name: "Ice cream sandwich",
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          iron: "1%",
+          text: "Average Accuracy Rate",
+          align: "center",
+          value: "averageAccuracyRate",
+        },
+        { text: "Total Storage", align: "center", value: "totalSize" },
+        {
+          text: "Average Challenge Time",
+          align: "center",
+          value: "averageElapsedTime",
         },
         {
-          name: "Eclair",
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          iron: "7%",
+          text: "Total Reward",
+          align: "center",
+          sortable: false,
+          value: "reward",
         },
+        { text: "CreateAt", align: "center", value: "blockCreatedAt" },
         {
-          name: "Cupcake",
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          iron: "8%",
-        },
-        {
-          name: "Gingerbread",
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          iron: "16%",
-        },
-        {
-          name: "Jelly bean",
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          iron: "0%",
-        },
-        {
-          name: "Lollipop",
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          iron: "2%",
-        },
-        {
-          name: "Honeycomb",
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          iron: "45%",
-        },
-        {
-          name: "Donut",
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          iron: "22%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          iron: "6%",
+          text: "view",
+          align: "center",
+          value: "treeReportDetail",
+          sortable: false,
         },
       ],
+      tableContentData: [],
+      xAxisData: [],
+      yAxisData: [],
     };
   },
   created() {
-    fetchNodes().then((res) => {
-      console.log(res);
-    });
+    this.getNetworkInfo();
+    this.getRoport();
+    this.getNodeList();
+    this.getReportList();
+    this.getChartsData();
   },
   mounted() {},
   methods: {
     handleShowTable(value) {
       switch (value) {
         case "node":
+          this.loading = true;
           this.isShowNode = true;
+          this.pagination = false;
+          this.listQuery = { page: 1, size: 10 };
+          this.getNodeList();
           break;
         case "treeReport":
-          console.log(value);
+          this.loading = true;
           this.isShowNode = false;
+          this.pagination = true;
+          this.listQuery = { page: 1, size: 10 };
+          this.getReportList();
           break;
         default:
           break;
       }
     },
     handleToMore() {
-      this.$router.push("/blockDetail");
+      this.$router.push({
+        path: "/blockDetail",
+        query: {
+          blockNumber: this.latestReport.blockNumber,
+        },
+      });
     },
-    handleViewClick(item) {
-      console.log(item);
-      this.$router.push("/nodeDetail");
+    getNetworkInfo() {
+      fetchNetworkInfo().then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          // console.log(res);
+          res.data.params.interval = Math.ceil(res.data.params.interval / 60);
+          res.data.params.retention = Math.ceil(
+            res.data.params.retention / 60 / 24
+          );
+          this.challenggeData = res.data.params;
+
+          res.data.statistics.totalReward = formart_rewards(
+            res.data.statistics.totalReward
+          );
+          res.data.statistics.totalStorage = formart_storage(
+            res.data.statistics.totalStorage
+          );
+          res.data.params.reward = formart_rewards(res.data.params.reward);
+          this.overViewData = res.data.statistics;
+        }
+      });
+    },
+    getRoport() {
+      fetchReport("latest").then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          // console.log(res);
+          // res.data.blockCreatedAt = formart_date(res.data.blockCreatedAt);
+          res.data.reports.map((item) => {
+            item.createdAt = formart_date(item.createdAt);
+            item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+            return item;
+          });
+          this.latestReport = res.data;
+          this.latestReportArr = res.data.reports;
+        }
+      });
+    },
+    getReportList() {
+      this.tableHeaderData = [
+        {
+          text: "TeeReport",
+          align: "center",
+          sortable: false,
+          value: "blockNumber",
+        },
+        {
+          text: "Average Accuracy Rate",
+          align: "center",
+          value: "averageAccuracyRate",
+        },
+        { text: "Total Storage", align: "center", value: "totalSize" },
+        {
+          text: "Average Challenge Time",
+          align: "center",
+          value: "averageElapsedTime",
+        },
+        {
+          text: "Total Reward",
+          align: "center",
+          sortable: false,
+          value: "reward",
+        },
+        { text: "CreateAt", align: "center", value: "blockCreatedAt" },
+        {
+          text: "view",
+          align: "center",
+          value: "treeReportDetail",
+          sortable: false,
+        },
+      ];
+      fetchReportList(this.listQuery).then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          this.loading = false;
+          this.tableContentData = res.data.item.map((item) => {
+            item.blockCreatedAt = formart_date(item.blockCreatedAt);
+            item.averageAccuracyRate =
+              (item.averageAccuracyRate / 100).toFixed(2) + "%";
+            item.totalSize = (item.totalSize / 1024 / 1024).toFixed(2) + "T";
+            item.averageElapsedTime = item.averageElapsedTime / 1000 + "S";
+            item.reward = formart_rewards(item.reward);
+            return item;
+          });
+          this.totalPageSize = Math.ceil(res.data.total / 10);
+        }
+      });
+    },
+    getNodeList() {
+      this.tableHeaderData = [
+        {
+          text: "Node ID",
+          align: "center",
+          sortable: false,
+          value: "nodeId",
+        },
+        {
+          text: "Region",
+          align: "center",
+          sortable: false,
+          value: "region",
+        },
+        {
+          text: "PoSC Accuracy Rate",
+          align: "center",
+          value: "accuracyRate",
+        },
+        { text: "Total Rewards", align: "center", value: "totalReward" },
+        {
+          text: "Status",
+          align: "center",
+          sortable: false,
+          value: "status",
+        },
+        { text: "CreateAt", align: "center", value: "createdAt" },
+        {
+          text: "detail",
+          align: "center",
+          value: "nodeDetail",
+          sortable: false,
+        },
+      ];
+      fetchNodes().then((res) => {
+        // console.log(res);
+        if (res.code.toUpperCase() == "SUCCESS") {
+          this.loading = false;
+          if (this.isShowNode) {
+            this.tableContentData = res.data.map((item) => {
+              item.createdAt = formart_date(item.createdAt);
+              item.totalReward = formart_rewards(item.totalReward);
+              item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+              return item;
+            });
+          }
+
+          this.nodeList = res.data.map((item) => {
+            return item.nodeId;
+          });
+        }
+      });
+    },
+    getChartsData() {
+      fetchReportList({ page: 1, size: 500 }).then((res) => {
+        if (res.code.toUpperCase() == "SUCCESS") {
+          // console.log("echartsdata", res);
+          // let allBlock = res.data.item;
+          const time = Date.now() / 1000 - 24 * 60 * 60;
+          const data = res.data.item.filter((obj) => {
+            return obj.blockCreatedAt > time;
+          });
+          // console.log("data", data);
+          let timeMap = {};
+          const xArr = [];
+          data.forEach((item) => {
+            const key = new Date(item.blockCreatedAt * 1000).getHours();
+            if (!xArr.includes(key)) xArr.push(key);
+            if (timeMap[key]) {
+              timeMap[key].sum += item.averageAccuracyRate;
+              timeMap[key].count++;
+            } else {
+              timeMap[key] = {
+                sum: item.averageAccuracyRate,
+                count: 1,
+              };
+            }
+          });
+          // console.log("timeMap", timeMap);
+          const yArr = xArr.map((key) => {
+            return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+          });
+          this.xAxisData = xArr;
+          this.yAxisData = yArr;
+        }
+      });
+    },
+
+    handleSelectChange(value) {
+      fetchNodeDetail(value, { page: 1, size: 500 }).then((res) => {
+        const time = Date.now() / 1000 - 24 * 60 * 60;
+        const data = res.data.item.filter((obj) => {
+          return obj.createdAt > time;
+        });
+        let timeMap = {};
+        const xArr = [];
+        data.forEach((item) => {
+          const key = new Date(item.createdAt * 1000).getHours();
+          if (!xArr.includes(key)) xArr.push(key);
+          if (timeMap[key]) {
+            timeMap[key].sum += item.accuracyRate;
+            timeMap[key].count++;
+          } else {
+            timeMap[key] = {
+              sum: item.accuracyRate,
+              count: 1,
+            };
+          }
+        });
+        const yArr = xArr.map((key) => {
+          return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+        });
+        this.xAxisData = xArr;
+        this.yAxisData = yArr;
+      });
+    },
+    handlePagination(value) {
+      this.listQuery.page = value;
+      this.loading = true;
+      this.getReportList();
+    },
+    handleViewClick(item, type) {
+      switch (type) {
+        case "reportDetail":
+          this.$router.push({
+            path: "/blockDetail",
+            query: {
+              blockNumber: item.blockNumber,
+            },
+          });
+          break;
+        case "nodeDetail":
+          this.$router.push({
+            path: "/nodeDetail",
+            query: {
+              nodeId: item.nodeId,
+            },
+          });
+          break;
+        default:
+          break;
+      }
     },
   },
   components: {
-    NetworkTable,
     NetworkBubble,
-    NetworkPie,
     NetworkLine,
   },
 };
@@ -355,13 +580,31 @@ export default {
 * {
   list-style: none;
 }
-/deep/ .v-list {
-  padding: 0;
-}
+
 .select-search-bar {
+  position: relative;
   padding: 10px 20px;
   width: 381px;
   background: #f1f6fb;
+  .select-input {
+    width: 100%;
+    height: 40px;
+    text-indent: 40px;
+    border-radius: 5px;
+    background: #fff;
+  }
+}
+.select-search-bar::after {
+  z-index: 999;
+  content: "";
+  display: block;
+  position: absolute;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: url("../assets/imgs/header/search-icon.png") no-repeat;
 }
 .card-border {
   background: #ffffff;
@@ -371,7 +614,6 @@ export default {
 .home {
   max-width: 1000px;
   margin: 10px auto 0;
-
   .overview {
     padding: 31px 0 20px;
     .overview-title {
@@ -404,8 +646,9 @@ export default {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding: 0 30px;
+          padding-left: 30px;
           box-sizing: border-box;
+
           .item-title {
             height: 22px;
             font-size: 16px;
@@ -419,6 +662,12 @@ export default {
             font-size: 36px;
             color: #2b547f;
             line-height: 50px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            .text {
+              font-size: 14px;
+            }
           }
         }
       }
@@ -438,6 +687,8 @@ export default {
     .report-right {
       height: 250px;
       border-radius: 5px;
+      padding: 27px 25px 19px 21px;
+
       border: 1px solid #e6e8eb;
       background: #ffffff;
     }
@@ -485,11 +736,12 @@ export default {
             overflow: hidden;
           }
           .rate {
-            width: 41px;
+            // width: 41px;
+            margin: 0 20px;
           }
-          .time {
-            width: 146px;
-          }
+          // .time {
+          //   width: 146px;
+          // }
           > span {
             cursor: pointer;
           }
@@ -500,21 +752,29 @@ export default {
       }
     }
     .report-right {
-      padding: 13px 15px 18px 19px;
+      // padding: 13px 15px 18px 19px;
       margin-left: 20px;
       width: 280px;
       .report-right-header {
+        // position: relative;
+        // display: flex;
+        // margin: 0 auto;
+        // font-size: 18px;
+        // color: #495667;
+      }
+      .report-right-title {
         position: relative;
-        width: 166px;
-        margin: 0 auto;
+        height: 21px;
+        padding-left: 36px;
         font-size: 18px;
+        line-height: 21px;
         color: #495667;
       }
-      .report-right-header::before {
+      .report-right-title::before {
         content: "";
         position: absolute;
         display: block;
-        left: -38px;
+        left: 0;
         top: 50%;
         transform: translateY(-50%);
         width: 24px;
@@ -523,6 +783,7 @@ export default {
       }
       .report-right-list {
         padding-left: 0;
+        margin-top: 20px;
         .report-right-list-item {
           padding: 12px 0;
           font-size: 12px;
@@ -553,27 +814,6 @@ export default {
       .pie-chart {
         flex: 1;
       }
-      // .pie-data {
-      //   position: absolute;
-      //   right: 0;
-      //   top: 50%;
-      //   transform: translateY(-50%);
-      //   list-style: none;
-      //   width: 161px;
-      //   padding: 0;
-      //   padding: 0 26px 0 0;
-      //   li + li {
-      //     margin-top: 20px;
-      //   }
-      //   span:nth-of-type(1) {
-      //     color: #7f8489;
-      //     font-size: 12px;
-      //   }
-      //   span:nth-of-type(2) {
-      //     color: #34a9ff;
-      //     font-size: 12px;
-      //   }
-      // }
     }
     .storage-right {
       width: 530px;
@@ -595,7 +835,7 @@ export default {
         min-height: 30px;
       }
       /deep/ .v-input__slot {
-        width: 135px;
+        width: 145px;
       }
       /deep/ .v-input {
         flex: 0;
@@ -636,6 +876,46 @@ export default {
     }
     .staistics-table {
       padding: 0 20px 20px 20px;
+      /deep/ .v-pagination__item,
+      /deep/ .v-pagination__navigation {
+        box-shadow: none;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      /deep/ .v-data-table.elevation-1.theme--light {
+        box-shadow: none !important;
+      }
+      /deep/ td,
+      /deep/ th {
+        border-bottom: none !important;
+        line-height: 48px;
+        white-space: nowrap;
+        font-size: 12px !important;
+        color: #495667;
+      }
+
+      /deep/ .v-input__control {
+        width: 130px;
+      }
+      /deep/ .v-input__slot {
+        width: 130px;
+      }
+      /deep/ .v-text-field__details {
+        display: none;
+      }
+      /deep/ .v-data-table__wrapper tbody tr:nth-of-type(odd) {
+        background: #f8f8f8;
+      }
+      /deep/ .v-data-table__wrapper .v-data-table-header tr {
+        background: #e6e8eb;
+      }
+      /deep/ .v-text-field.v-text-field--solo .v-input__control {
+        min-height: 30px;
+      }
+      /deep/ .v-input__slot {
+        margin: 0;
+      }
     }
   }
 }

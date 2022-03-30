@@ -8,27 +8,102 @@
           alt=""
         />
         <div class="block-detail">
-          <h2>Block # 10086</h2>
-          <p>Feb 22, 2022 16:00:00</p>
+          <h2>TeeReport # {{ treeReportData.blockNumber }}</h2>
+          <p>{{ treeReportData.blockCreatedAt }}</p>
         </div>
       </div>
       <div class="d-flex align-start" style="height: 100%">
-        <div class="operation-btn previous">Previous</div>
-        <div class="operation-btn next">Next</div>
+        <v-btn
+          class="operation-btn"
+          :disabled="treeReportData.prevBlockNumber <= 0"
+          @click="getReport(treeReportData.prevBlockNumber)"
+        >
+          Previous
+        </v-btn>
+        <v-btn
+          class="operation-btn next"
+          :disabled="treeReportData.nextBlockNumber <= 0"
+          @click="getReport(treeReportData.nextBlockNumber)"
+          >Next</v-btn
+        >
       </div>
     </div>
     <div class="block-table">
-      <network-table :pagination="false"></network-table>
+      <!-- <network-table
+        :pagination="false"
+        :tableHeaderData="tableHeaderData"
+        :tableContentData="tableContentData"
+      ></network-table> -->
+
+      <v-data-table
+        :headers="tableHeaderData"
+        :items="tableContentData"
+        item-class="row-item"
+        :hide-default-footer="true"
+        :items-per-page="50"
+        class="elevation-1"
+        :loading="loading"
+        loading-text="Loading... Please wait"
+      >
+      </v-data-table>
     </div>
   </div>
 </template>
 
 <script>
-import NetworkTable from "../components/NetworkTable.vue";
+import { formart_date, formart_storage } from "@/utils/utils";
+import { fetchReport } from "@/api/api";
 export default {
   name: "BlockDetail",
-  components: {
-    NetworkTable,
+  data() {
+    return {
+      blockNumber: 0,
+      tableHeaderData: [
+        {
+          text: "Node ID",
+          align: "center",
+          sortable: false,
+          value: "nodeId",
+        },
+        { text: "Accuracy Rate", align: "center", value: "accuracyRate" },
+        {
+          text: "Size of Challenge File",
+          align: "center",
+          value: "totalSize",
+        },
+        { text: "Elapsed Time", align: "center", value: "elapsedTime" },
+      ],
+      tableContentData: [],
+      treeReportData: {},
+      isLocked: false,
+      loading: true,
+    };
+  },
+  created() {
+    this.blockNumber = this.$route.query.blockNumber;
+    this.getReport(this.blockNumber);
+  },
+  methods: {
+    getReport(blockNumber) {
+      if (this.isLocked) return;
+      this.isLocked = true;
+      this.loading = true;
+      fetchReport(blockNumber).then((res) => {
+        console.log(res);
+        res.data.blockCreatedAt = formart_date(res.data.blockCreatedAt);
+        res.data.reports.map((item) => {
+          item.createdAt = formart_date(item.createdAt);
+          item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+          item.elapsedTime = item.elapsedTime / 1000 + "S";
+          item.totalSize = formart_storage(item.totalSize);
+          return item;
+        });
+        this.treeReportData = res.data;
+        this.tableContentData = res.data.reports;
+        this.isLocked = false;
+        this.loading = false;
+      });
+    },
   },
 };
 </script>
@@ -38,6 +113,7 @@ p {
   margin: 0;
 }
 .block-detail-container {
+  position: relative;
   max-width: 1000px;
   min-height: 620px;
   padding: 24px 16px 16px;
@@ -78,33 +154,56 @@ p {
       font-family: "PingFangSC-Regular, PingFang SC";
       font-size: 16px;
       border-radius: 5px;
+      color: #ffffff;
+      background: #34a9ff;
       cursor: pointer;
     }
-    .operation-btn.previous {
-      color: #34a9ff;
-      border: 1px solid #34a9ff;
-      transition: all 0.3s ease;
-    }
-    .operation-btn.previous:hover {
-      color: #ffffff;
-      background: #34a9ff;
-      border: none;
-    }
+
     .operation-btn.next {
       margin-left: 10px;
-      color: #ffffff;
-      background: #34a9ff;
-    }
-    .operation-btn.next:hover {
-      color: #34a9ff;
-
-      background: #fff;
-      border: 1px solid #34a9ff;
-      transition: all 0.3s ease;
     }
   }
   .block-table {
     padding-top: 11px;
+
+    /deep/ .v-pagination__item,
+    /deep/ .v-pagination__navigation {
+      box-shadow: none;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /deep/ .v-data-table.elevation-1.theme--light {
+      box-shadow: none !important;
+    }
+    /deep/ td,
+    /deep/ th {
+      border-bottom: none !important;
+      line-height: 48px;
+      font-size: 12px !important;
+      color: #495667;
+    }
+    /deep/ .v-input__control {
+      width: 130px;
+    }
+    /deep/ .v-input__slot {
+      width: 130px;
+    }
+    /deep/ .v-text-field__details {
+      display: none;
+    }
+    /deep/ .v-data-table__wrapper tbody tr:nth-of-type(odd) {
+      background: #f8f8f8;
+    }
+    /deep/ .v-data-table__wrapper .v-data-table-header tr {
+      background: #e6e8eb;
+    }
+    /deep/ .v-text-field.v-text-field--solo .v-input__control {
+      min-height: 30px;
+    }
+    /deep/ .v-input__slot {
+      margin: 0;
+    }
   }
 }
 </style>
