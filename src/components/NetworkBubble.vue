@@ -28,30 +28,57 @@ export default {
           maxZoom: 10,
         }),
       });
-      scene.on("loaded", () => {
-        fetch(
-          "https://gw.alipayobjects.com/os/basement_prod/337ddbb7-aa3f-4679-ab60-d64359241955.json"
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data);
-            data.features = data.features.filter((item) => {
-              return item.properties.capacity > 4000;
-            });
-            const pointLayer = new PointLayer({})
-              .source(data)
-              .shape("circle")
-              .size("capacity", [50, 50])
-              .color("capacity", ["#ABCAEA", "#ABCAEA", "#ABCAEA"])
-              .animate(true)
-              .active(true)
-              .style({
-                opacity: 0.5,
-                strokeWidth: 0,
-              });
 
-            scene.addLayer(pointLayer);
+      scene.on("loaded", () => {
+        // fetch(
+        //   "https://gw.alipayobjects.com/os/basement_prod/337ddbb7-aa3f-4679-ab60-d64359241955.json"
+        // )
+        //   .then((res) => res.json())
+        //   .then((data) => {
+        //     data.features = data.features.filter((item) => {
+        //       return item.properties.capacity > 4000;
+        //     });
+        //     console.log(data);
+
+        //     const pointLayer = new PointLayer({})
+        //       .source(data)
+        //       .shape("circle")
+        //       .size("capacity", [10, 100])
+        //       .color("capacity", ["#ABCAEA", "#ABCAEA", "#ABCAEA"])
+        //       .animate(true)
+        //       .active(true)
+        //       .style({
+        //         opacity: 0.5,
+        //         strokeWidth: 0,
+        //       });
+
+        //     scene.addLayer(pointLayer);
+        //   });
+        const data = [
+          {
+            lng: 120,
+            lat: 30,
+            v: 0.5,
+          },
+        ];
+        const pointLayer = new PointLayer({})
+          .source(data, {
+            parser: {
+              x: "lng",
+              y: "lat",
+            },
+          })
+          .shape("circle")
+          .size({ opacity: 1 })
+          // .color("capacity", ["#ABCAEA", "#ABCAEA", "#ABCAEA"])
+          // .animate(true)
+          .active(true)
+          .style({
+            opacity: 0.5,
+            strokeWidth: 0,
           });
+
+        // scene.addLayer(pointLayer);
       });
     },
   },

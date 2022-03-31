@@ -84,25 +84,27 @@ export default {
     this.getReport(this.blockNumber);
   },
   methods: {
-    getReport(blockNumber) {
+    async getReport(blockNumber) {
       if (this.isLocked) return;
       this.isLocked = true;
       this.loading = true;
-      fetchReport(blockNumber).then((res) => {
-        console.log(res);
-        res.data.blockCreatedAt = formart_date(res.data.blockCreatedAt);
-        res.data.reports.map((item) => {
+      try {
+        const result = await fetchReport(blockNumber);
+        result.blockCreatedAt = formart_date(result.blockCreatedAt);
+        result.reports.map((item) => {
           item.createdAt = formart_date(item.createdAt);
           item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
           item.elapsedTime = item.elapsedTime / 1000 + "S";
           item.totalSize = formart_storage(item.totalSize);
           return item;
         });
-        this.treeReportData = res.data;
-        this.tableContentData = res.data.reports;
+        this.treeReportData = result;
+        this.tableContentData = result.reports;
         this.isLocked = false;
         this.loading = false;
-      });
+      } catch (err) {
+        console.log(err, "err");
+      }
     },
   },
 };

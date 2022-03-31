@@ -187,65 +187,52 @@ export default {
     this.getChartsData();
   },
   methods: {
-    getNodeInfo() {
-      fetchNodeInfo(this.nodeId).then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          console.log(res);
-          res.data.createdAt = formart_date(res.data.createdAt);
-          res.data.totalReward = formart_rewards(res.data.totalReward);
-          this.nodeInfo = res.data;
-        }
-      });
+    async getNodeInfo() {
+      const result = await fetchNodeInfo(this.nodeId);
+      result.createdAt = formart_date(result.createdAt);
+      result.totalReward = formart_rewards(result.totalReward);
+      this.nodeInfo = result;
     },
-    getNodeDetail() {
-      fetchNodeDetail(this.nodeId, this.listQuery).then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          // console.log(res);
-          this.loading = false;
-          this.tableContentData = res.data.item.map((item) => {
-            item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
-            item.createdAt = formart_date(item.createdAt);
-            item.totalSize = formart_storage(item.totalSize);
-            item.elapsedTime = item.elapsedTime / 1000 + "S";
-            return item;
-          });
-          //  = res.data.item;
-          this.totalPageSize = Math.ceil(res.data.total / 10);
-        }
+    async getNodeDetail() {
+      const result = await fetchNodeDetail(this.nodeId, this.listQuery);
+      this.loading = false;
+      this.tableContentData = result.item.map((item) => {
+        item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+        item.createdAt = formart_date(item.createdAt);
+        item.totalSize = formart_storage(item.totalSize);
+        item.elapsedTime = item.elapsedTime / 1000 + "S";
+        return item;
       });
+      //  = res.data.item;
+      this.totalPageSize = Math.ceil(result.total / 10);
     },
-    getChartsData() {
-      fetchNodeDetail(this.nodeId, { page: 1, size: 500 }).then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          console.log("getChartsData", res);
-          const time = Date.now() / 1000 - 24 * 60 * 60;
-          const data = res.data.item.filter((obj) => {
-            return obj.createdAt > time;
-          });
-          // console.log("data", data);
-          let timeMap = {};
-          const xArr = [];
-          data.forEach((item) => {
-            const key = new Date(item.createdAt * 1000).getHours();
-            if (!xArr.includes(key)) xArr.push(key);
-            if (timeMap[key]) {
-              timeMap[key].sum += item.accuracyRate;
-              timeMap[key].count++;
-            } else {
-              timeMap[key] = {
-                sum: item.accuracyRate,
-                count: 1,
-              };
-            }
-          });
-          console.log("timeMap", timeMap);
-          const yArr = xArr.map((key) => {
-            return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
-          });
-          this.xAxisData = xArr;
-          this.yAxisData = yArr;
+    async getChartsData() {
+      const result = await fetchNodeDetail(this.nodeId, { page: 1, size: 500 });
+      const time = Date.now() / 1000 - 24 * 60 * 60;
+      const data = result.item.filter((obj) => {
+        return obj.createdAt > time;
+      });
+      // console.log("data", data);
+      let timeMap = {};
+      const xArr = [];
+      data.forEach((item) => {
+        const key = new Date(item.createdAt * 1000).getHours();
+        if (!xArr.includes(key)) xArr.push(key);
+        if (timeMap[key]) {
+          timeMap[key].sum += item.accuracyRate;
+          timeMap[key].count++;
+        } else {
+          timeMap[key] = {
+            sum: item.accuracyRate,
+            count: 1,
+          };
         }
       });
+      const yArr = xArr.map((key) => {
+        return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+      });
+      this.xAxisData = xArr;
+      this.yAxisData = yArr;
     },
     handlePagination(value) {
       this.listQuery.page = value;

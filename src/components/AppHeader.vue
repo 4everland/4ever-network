@@ -8,37 +8,54 @@
         <div class="d-flex align-center justify-space-between">
           <div class="search-bar">
             <v-text-field
+              v-model="searchValue"
               hide-details="auto"
               label="Node/TeeReport/CID......"
-              @click="handleSearch"
+              :loading="isShow"
+              @keydown.enter="handleSearch"
+              nu
+              @blur="handleBlur"
             >
               <v-img slot="prepend" src="../assets/imgs/header/search-icon.png">
               </v-img>
             </v-text-field>
-            <div v-show="isShow && status" class="message-tips">
-              <div class="message-header d-flex align-center">
-                <i class="header-line left"></i>
-                <span>{{ data.type.toUpperCase() }}</span>
-                <i class="header-line right"></i>
-              </div>
-              <div
-                class="message-content-block d-flex flex-column"
-                v-if="data.type == 'teeReport'"
-              >
-                <span class="block-info"># 52411</span>
-                <span class="block-time">Mar 2，2022 5：21 AM</span>
-              </div>
-              <div class="message-content-cid" v-else>
-                <span class="message-cid"
-                  >12D3KooWS6GL7vpFQknW7FDMAEkbXm3hrRvr6fHXX4ehjR7jG3gf</span
+            <v-menu
+              :value="isShow"
+              :close-on-content-click="false"
+              @input="handleMenu"
+              transition="slide-y-transition"
+              attach
+              nudge-bottom="50"
+            >
+              <div v-if="isShow && status" class="content">
+                <div class="message-header d-flex align-center">
+                  <i class="header-line left"></i>
+                  <span>{{ searchData.type }}</span>
+                  <i class="header-line right"></i>
+                </div>
+                <div
+                  class="message-content-block d-flex flex-column"
+                  v-if="searchData.type == 'BLOCK'"
                 >
-                <span>pin</span>
+                  <span class="block-info"
+                    ># {{ searchData.block.blockNumber }}</span
+                  >
+                  <span class="block-time">
+                    {{ searchData.block.createdAt }}</span
+                  >
+                </div>
+                <div class="message-content-cid" v-else>
+                  <span class="message-cid">{{ searchData.node.nodeId }}</span>
+                  <span>pin</span>
+                </div>
               </div>
-            </div>
-            <div v-if="isShow && !status" class="message-tips">
-              <h2 class="no-results-title">No Results found.</h2>
-              <p class="no-results-content">Please search by Nod</p>
-            </div>
+              <div v-if="isShow && !status" class="content">
+                <h2 class="no-results-title">No Results found.</h2>
+                <p class="no-results-content">
+                  Please search by Node ID,Block ID or CID
+                </p>
+              </div>
+            </v-menu>
           </div>
           <div
             class="blance-container ml-7"
@@ -56,15 +73,40 @@
             <span @click="connectWallet">Connect Wallet</span>
           </div>
         </div>
+        <v-dialog class="rounded-xl" v-model="claimDialog" width="500">
+          <v-card class="pl-7 pr-7 pb-11 rounded-xl">
+            <v-card-title class="pa-0 justify-center mt-8">
+              <template>
+                <div>My Reward</div>
+              </template>
+            </v-card-title>
+            <v-card-text class="text-center mt-10 pb-14">
+              <span class="claim-blance">{{ $store.state.balance }}</span>
+              <span class="currency">4EVER</span>
+            </v-card-text>
+            <v-card-actions style="width: 100%">
+              <v-btn
+                height="48"
+                class="claim-btn"
+                block
+                @click="handleClaimConfirm"
+                :loading="claimLoading"
+              >
+                <span v-show="!claimLoading">Claim</span>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-app-bar>
   </div>
 </template>
 
 <script>
+import { formart_date } from "@/utils/utils";
 import Logo from "../components/Logo.vue";
-import contracts from "@/contracts";
 import { mapActions, mapMutations } from "vuex";
+import { fetchSearchValue } from "@/api/api";
 export default {
   components: { Logo },
   data() {
@@ -72,12 +114,11 @@ export default {
       rewards: 0,
       isLogin: false,
       isShow: false,
-      data: {
-        type: "TeeReport",
-        blockInfo: "#52411",
-        time: "Mar 2，2022 5：21 AM",
-      },
+      searchValue: "",
+      searchData: {},
       status: false,
+      claimDialog: false,
+      claimLoading: false,
     };
   },
   created() {
@@ -87,33 +128,69 @@ export default {
     this.listen();
   },
   methods: {
-    ...mapActions(["getAccount", "updateAccount", "updateChainId"]),
+    ...mapActions([
+      "getAccount",
+      "updateAccount",
+      "updateChainId",
+      "updateBalance",
+      "claim",
+    ]),
     ...mapMutations(["UPDATE_ACCOUNT", "UPDATE_BALANCE"]),
     async connectWallet() {
       if (!window.ethereum) {
         window.open("https://metamask.io/download.html", "_blank");
-        return "234";
+        return this.$snackbar({
+          content: "please download metamask",
+          iconClose: true,
+        });
       }
       const isUnlocked = await window.ethereum._metamask.isUnlocked();
       if (!isUnlocked) {
-        return console.log("please locked");
+        return this.$snackbar({
+          content: "please lock metamask",
+          iconClose: true,
+        });
       }
       await this.updateAccount();
     },
-    async claim() {
-      const data = contracts.POSC.interface.encodeFunctionData("claim", [
-        "0xF1658C608708172655A8e70a1624c29F956Ee63D",
-      ]);
-      const tx = await contracts.sendTransaction({
-        to: contracts.contractAddress,
-        data,
-      });
-      const receipt = await tx.wait();
-      console.log("receipt", receipt);
+    handleClaim() {
+      // this.$alert("name");
+      this.claimDialog = true;
     },
-    handleClaim() {},
-    handleSearch() {
+    async handleClaimConfirm() {
+      this.claimLoading = true;
+
+      try {
+        const result = await this.claim();
+        console.log(result);
+        this.updateBalance();
+        this.$snackbar("withDraw success!");
+        this.claimDialog = false;
+      } catch (error) {
+        this.$snackbar("withDraw fail!");
+      }
+      this.claimLoading = false;
+    },
+    async handleSearch() {
+      try {
+        const result = await fetchSearchValue(this.searchValue);
+        if (result.type.toUpperCase() == "BLOCK") {
+          result.block.createdAt = formart_date(result.block.createdAt);
+        }
+        this.searchData = result;
+        console.log(result);
+        this.status = true;
+      } catch (e) {
+        console.log("err", e);
+      }
       this.isShow = true;
+    },
+    handleBlur() {
+      // this.isShow = false;
+    },
+    handleMenu(e) {
+      console.log(e);
+      this.isShow = false;
     },
     listen() {
       window.ethereum.on("accountsChanged", (accounts) => {
@@ -122,9 +199,6 @@ export default {
       window.ethereum.on("chainChanged", (chainId) => {
         window.location.reload();
       });
-      // window.ethereum.on("disconnect", () => {
-      //   console.log(1111);
-      // });
     },
   },
 };
@@ -143,6 +217,12 @@ export default {
 /deep/ .nav-btn .v-btn__content {
   opacity: 1 !important;
 }
+/deep/ .v-dialog {
+  border-radius: 24px;
+}
+.v-card {
+  overflow: hidden;
+}
 .v-list {
   width: 161px;
 }
@@ -153,69 +233,74 @@ export default {
   position: relative;
   width: 297px;
   .message-tips {
-    min-width: 100%;
     position: absolute;
+    width: 100%;
     left: 0;
+    bottom: 0;
+    // margin-top: 20px;
+  }
+  .content {
     padding: 0 12px;
-    margin-top: 20px;
-    box-sizing: border-box;
+    min-width: 297px;
     border-radius: 8px;
-    background: #fff;
     box-shadow: inset 0px -1px 0px 0px #c6d1d7;
-    .message-header {
-      margin-top: 15px;
-      .header-line {
-        display: inline-block;
-        height: 1px;
-        background: #e6e8eb;
-      }
-      span {
-        padding: 0 13px;
-      }
-      .header-line.left {
-        width: 16px;
-      }
-      .header-line.right {
-        flex: 1;
-      }
+    box-sizing: border-box;
+    background: #fff;
+    overflow: hidden;
+  }
+  .message-header {
+    margin-top: 15px;
+    .header-line {
+      display: inline-block;
+      height: 1px;
+      background: #e6e8eb;
     }
-    .message-content-cid {
-      padding: 23px 0;
-      font-size: 14px;
-      color: #495667;
-      line-height: 16px;
-      .message-cid {
-        margin-right: 62px;
-      }
+    span {
+      padding: 0 13px;
     }
-    .message-content-block {
-      min-width: 100%;
-      padding: 13px 0;
-      .block-info {
-        font-size: 16px;
-        color: #34a9ff;
-        line-height: 18px;
-      }
-      .block-time {
-        margin-top: 4px;
-        font-size: 14px;
-        line-height: 16px;
-        color: #7c848c;
-      }
+    .header-line.left {
+      width: 16px;
     }
-    .no-results-title {
-      padding-top: 19px;
+    .header-line.right {
+      flex: 1;
+    }
+  }
+  .message-content-cid {
+    padding: 23px 0;
+    font-size: 14px;
+    color: #495667;
+    line-height: 16px;
+    .message-cid {
+      margin-right: 62px;
+    }
+  }
+  .message-content-block {
+    min-width: 100%;
+    padding: 13px 0;
+    .block-info {
       font-size: 16px;
-      color: #495667;
+      color: #34a9ff;
       line-height: 18px;
     }
-    .no-results-content {
-      margin: 0;
+    .block-time {
+      margin-top: 4px;
       font-size: 14px;
-      color: #7c848c;
       line-height: 16px;
-      padding: 10px 0 18px 0;
+      color: #7c848c;
     }
+  }
+  .no-results-title {
+    padding-top: 19px;
+    font-size: 16px;
+    color: #495667;
+    line-height: 18px;
+  }
+  .no-results-content {
+    margin: 0;
+    font-size: 14px;
+    color: #7c848c;
+    line-height: 16px;
+    padding: 10px 0 18px 0;
   }
 }
 .connect-wallet {
@@ -246,5 +331,21 @@ export default {
       font-size: 18px;
     }
   }
+}
+.claim-blance {
+  font-size: 40px;
+  color: #34a9ff;
+}
+.currency {
+  margin-left: 10px;
+  font-size: 24px;
+}
+.v-btn {
+  color: #fff;
+}
+.claim-btn {
+  color: #fff !important;
+  font-weight: bold;
+  background: #34a9ff !important;
 }
 </style>

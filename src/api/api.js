@@ -40,3 +40,10 @@ export function fetchNodeDetail(nodeId, params) {
     params,
   });
 }
+
+export function fetchSearchValue(value) {
+  return request({
+    url: `/search/${value}`,
+    method: "GET",
+  });
+}

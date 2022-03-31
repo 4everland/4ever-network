@@ -8,7 +8,11 @@ const service = axios.create({
 
 service.interceptors.response.use(
   (response) => {
-    return response.data;
+    if (response.data.code.toUpperCase() == "SUCCESS") {
+      return response.data.data;
+    } else {
+      throw new Error(response);
+    }
   },
   (error) => {
     return Promise.reject(error);

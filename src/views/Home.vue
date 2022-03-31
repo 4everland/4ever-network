@@ -3,7 +3,7 @@
     <div class="overview">
       <h2 class="overview-title">Overview</h2>
       <ul
-        class="overview-list d-flex align-center flex-wrap justify-space-between"
+        class="overview-list d-flex align-center flex-wrap justify-xl-space-between"
       >
         <li class="overview-item">
           <img src="../assets/imgs/home/node-bg.png" alt="" />
@@ -44,11 +44,9 @@
         </li>
       </ul>
     </div>
-
     <div class="node-locations">
       <network-bubble></network-bubble>
     </div>
-
     <v-row class="latest-PoSC-report d-flex justify-space-between">
       <v-col xs="12" class="report-left">
         <div class="report-left-bar d-flex justify-space-between">
@@ -68,7 +66,10 @@
           </template>
         </ul>
       </v-col>
-      <v-col xs="12" class="report-right">
+      <v-col
+        xs="12"
+        class="report-right ml-xl-5 mt-xl-0 mt-sm-0 mt-md-0 mt-lg-0"
+      >
         <div class="d-flex report-right-header">
           <h3 class="report-right-title">TeeReport PSRAMENTERS</h3>
         </div>
@@ -92,7 +93,6 @@
         </ul>
       </v-col>
     </v-row>
-
     <v-row class="storage d-flex justify-space-between">
       <!-- <v-col
         xs="12"
@@ -189,18 +189,34 @@
           :loading="loading"
           loading-text="Loading... Please wait"
         >
-          <template v-slot:item.nodeId="{ item }">
+          <template v-slot:header.averageAccuracyRate="{ header }">
+            <span>{{ header.value }}</span>
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <img
+                  v-bind="attrs"
+                  v-on="on"
+                  class="ml-1"
+                  style="width: 10px; height: 10px; vertical-align: middle"
+                  src="@/assets/imgs/home/tips.png"
+                  alt=""
+                />
+              </template>
+              <span>Tooltip</span>
+            </v-tooltip>
+          </template>
+          <template #item.nodeId="{ item }">
             <span>{{
               typeof item.nodeId == "string"
                 ? item.nodeId.slice(0, 4) + "xxxx" + item.nodeId.slice(-4)
                 : ""
             }}</span>
           </template>
-          <template v-slot:item.blockNumber="{ item }">
+          <template #item.blockNumber="{ item }">
             <span>#{{ item.blockNumber }}</span>
           </template>
-          <template v-slot:item.treeReportDetail="{ item }">
-            <!-- {{ item }} -->
+          <template #item.treeReportDetail="{ item }">
             <img
               style="width: 20px; height: 12px; cursor: pointer"
               @click="handleViewClick(item, 'reportDetail')"
@@ -208,8 +224,7 @@
               alt=""
             />
           </template>
-          <template v-slot:item.nodeDetail="{ item }">
-            <!-- {{ item }} -->
+          <template #item.nodeDetail="{ item }">
             <img
               style="width: 20px; height: 12px; cursor: pointer"
               @click="handleViewClick(item, 'nodeDetail')"
@@ -237,7 +252,6 @@
 
 <script>
 // @ is an alias to /src
-import { BigNumber } from "@ethersproject/bignumber";
 import { formart_rewards, formart_storage, formart_date } from "@/utils/utils";
 import NetworkBubble from "../components/NetworkBubble.vue";
 import NetworkLine from "../components/NetworkLine.vue";
@@ -311,7 +325,6 @@ export default {
     this.getReportList();
     this.getChartsData();
   },
-  mounted() {},
   methods: {
     handleShowTable(value) {
       switch (value) {
@@ -341,43 +354,39 @@ export default {
         },
       });
     },
-    getNetworkInfo() {
-      fetchNetworkInfo().then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          // console.log(res);
-          res.data.params.interval = Math.ceil(res.data.params.interval / 60);
-          res.data.params.retention = Math.ceil(
-            res.data.params.retention / 60 / 24
-          );
-          this.challenggeData = res.data.params;
-
-          res.data.statistics.totalReward = formart_rewards(
-            res.data.statistics.totalReward
-          );
-          res.data.statistics.totalStorage = formart_storage(
-            res.data.statistics.totalStorage
-          );
-          res.data.params.reward = formart_rewards(res.data.params.reward);
-          this.overViewData = res.data.statistics;
-        }
-      });
+    async getNetworkInfo() {
+      try {
+        const result = await fetchNetworkInfo();
+        result.params.interval = Math.ceil(result.params.interval / 60);
+        result.params.retention = Math.ceil(result.params.retention / 60 / 24);
+        this.challenggeData = result.params;
+        result.statistics.totalReward = formart_rewards(
+          result.statistics.totalReward
+        );
+        result.statistics.totalStorage = formart_storage(
+          result.statistics.totalStorage
+        );
+        result.params.reward = formart_rewards(result.params.reward);
+        this.overViewData = result.statistics;
+      } catch (err) {
+        console.log(err);
+      }
     },
-    getRoport() {
-      fetchReport("latest").then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          // console.log(res);
-          // res.data.blockCreatedAt = formart_date(res.data.blockCreatedAt);
-          res.data.reports.map((item) => {
-            item.createdAt = formart_date(item.createdAt);
-            item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
-            return item;
-          });
-          this.latestReport = res.data;
-          this.latestReportArr = res.data.reports;
-        }
-      });
+    async getRoport() {
+      try {
+        const result = await fetchReport("latest");
+        result.reports.map((item) => {
+          item.createdAt = formart_date(item.createdAt);
+          item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+          return item;
+        });
+        this.latestReport = result;
+        this.latestReportArr = result.reports;
+      } catch (err) {
+        console.log(err, "err");
+      }
     },
-    getReportList() {
+    async getReportList() {
       this.tableHeaderData = [
         {
           text: "TeeReport",
@@ -410,23 +419,24 @@ export default {
           sortable: false,
         },
       ];
-      fetchReportList(this.listQuery).then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          this.loading = false;
-          this.tableContentData = res.data.item.map((item) => {
-            item.blockCreatedAt = formart_date(item.blockCreatedAt);
-            item.averageAccuracyRate =
-              (item.averageAccuracyRate / 100).toFixed(2) + "%";
-            item.totalSize = (item.totalSize / 1024 / 1024).toFixed(2) + "T";
-            item.averageElapsedTime = item.averageElapsedTime / 1000 + "S";
-            item.reward = formart_rewards(item.reward);
-            return item;
-          });
-          this.totalPageSize = Math.ceil(res.data.total / 10);
-        }
-      });
+      try {
+        const result = await fetchReportList(this.listQuery);
+        this.loading = false;
+        this.tableContentData = result.item.map((item) => {
+          item.blockCreatedAt = formart_date(item.blockCreatedAt);
+          item.averageAccuracyRate =
+            (item.averageAccuracyRate / 100).toFixed(2) + "%";
+          item.totalSize = (item.totalSize / 1024 / 1024).toFixed(2) + "T";
+          item.averageElapsedTime = item.averageElapsedTime / 1000 + "S";
+          item.reward = formart_rewards(item.reward);
+          return item;
+        });
+        this.totalPageSize = Math.ceil(result.total / 10);
+      } catch (err) {
+        console.log(err, "err");
+      }
     },
-    getNodeList() {
+    async getNodeList() {
       this.tableHeaderData = [
         {
           text: "Node ID",
@@ -460,64 +470,60 @@ export default {
           sortable: false,
         },
       ];
-      fetchNodes().then((res) => {
-        // console.log(res);
-        if (res.code.toUpperCase() == "SUCCESS") {
-          this.loading = false;
-          if (this.isShowNode) {
-            this.tableContentData = res.data.map((item) => {
-              item.createdAt = formart_date(item.createdAt);
-              item.totalReward = formart_rewards(item.totalReward);
-              item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
-              return item;
-            });
-          }
-
-          this.nodeList = res.data.map((item) => {
-            return item.nodeId;
+      try {
+        const result = await fetchNodes();
+        this.loading = false;
+        if (this.isShowNode) {
+          this.tableContentData = result.map((item) => {
+            item.createdAt = formart_date(item.createdAt);
+            item.totalReward = formart_rewards(item.totalReward);
+            item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + "%";
+            return item;
           });
         }
-      });
+        this.nodeList = result.map((item) => {
+          return item.nodeId;
+        });
+      } catch (err) {
+        console.log(err, "err");
+      }
     },
-    getChartsData() {
-      fetchReportList({ page: 1, size: 500 }).then((res) => {
-        if (res.code.toUpperCase() == "SUCCESS") {
-          // console.log("echartsdata", res);
-          // let allBlock = res.data.item;
-          const time = Date.now() / 1000 - 24 * 60 * 60;
-          const data = res.data.item.filter((obj) => {
-            return obj.blockCreatedAt > time;
-          });
-          // console.log("data", data);
-          let timeMap = {};
-          const xArr = [];
-          data.forEach((item) => {
-            const key = new Date(item.blockCreatedAt * 1000).getHours();
-            if (!xArr.includes(key)) xArr.push(key);
-            if (timeMap[key]) {
-              timeMap[key].sum += item.averageAccuracyRate;
-              timeMap[key].count++;
-            } else {
-              timeMap[key] = {
-                sum: item.averageAccuracyRate,
-                count: 1,
-              };
-            }
-          });
-          // console.log("timeMap", timeMap);
-          const yArr = xArr.map((key) => {
-            return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
-          });
-          this.xAxisData = xArr;
-          this.yAxisData = yArr;
-        }
-      });
-    },
-
-    handleSelectChange(value) {
-      fetchNodeDetail(value, { page: 1, size: 500 }).then((res) => {
+    async getChartsData() {
+      try {
+        const result = await fetchReportList({ page: 1, size: 500 });
         const time = Date.now() / 1000 - 24 * 60 * 60;
-        const data = res.data.item.filter((obj) => {
+        const data = result.item.filter((obj) => {
+          return obj.blockCreatedAt > time;
+        });
+        let timeMap = {};
+        const xArr = [];
+        data.forEach((item) => {
+          const key = new Date(item.blockCreatedAt * 1000).getHours();
+          if (!xArr.includes(key)) xArr.push(key);
+          if (timeMap[key]) {
+            timeMap[key].sum += item.averageAccuracyRate;
+            timeMap[key].count++;
+          } else {
+            timeMap[key] = {
+              sum: item.averageAccuracyRate,
+              count: 1,
+            };
+          }
+        });
+        const yArr = xArr.map((key) => {
+          return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+        });
+        this.xAxisData = xArr.reverse();
+        this.yAxisData = yArr.reverse();
+      } catch (err) {
+        console.log(err, "err");
+      }
+    },
+    async handleSelectChange(value) {
+      try {
+        const result = await fetchNodeDetail(value, { page: 1, size: 500 });
+        const time = Date.now() / 1000 - 24 * 60 * 60;
+        const data = result.item.filter((obj) => {
           return obj.createdAt > time;
         });
         let timeMap = {};
@@ -540,7 +546,9 @@ export default {
         });
         this.xAxisData = xArr;
         this.yAxisData = yArr;
-      });
+      } catch (err) {
+        console.log(err, "err");
+      }
     },
     handlePagination(value) {
       this.listQuery.page = value;
@@ -577,10 +585,12 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-* {
-  list-style: none;
+/deep/ .v-list-item__title {
+  font-size: 14px;
 }
-
+/deep/ .v-select__selection {
+  font-size: 14px;
+}
 .select-search-bar {
   position: relative;
   padding: 10px 20px;
@@ -623,6 +633,7 @@ export default {
     }
     .overview-list {
       width: 100%;
+      justify-content: space-around;
       margin-top: 26px;
       padding-left: 0;
       .overview-item {
@@ -752,16 +763,9 @@ export default {
       }
     }
     .report-right {
-      // padding: 13px 15px 18px 19px;
-      margin-left: 20px;
+      // margin-left: 20px;
+      margin-top: 20px;
       width: 280px;
-      .report-right-header {
-        // position: relative;
-        // display: flex;
-        // margin: 0 auto;
-        // font-size: 18px;
-        // color: #495667;
-      }
       .report-right-title {
         position: relative;
         height: 21px;
@@ -839,8 +843,6 @@ export default {
       }
       /deep/ .v-input {
         flex: 0;
-      }
-      .accuracy-rate-charts {
       }
     }
   }
