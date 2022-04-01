@@ -125,7 +125,7 @@
           <v-select
             :hide-details="true"
             solo
-            :items="nodeList"
+            :items="searchNodeList"
             label="select a node"
             :menu-props="{ offsetY: true, left: true }"
             @change="handleSelectChange"
@@ -137,6 +137,7 @@
             >
               <input
                 type="text"
+                v-model="selectSearchValue"
                 class="select-input"
                 placeholder="select a node"
               />
@@ -161,7 +162,9 @@
     </v-row>
 
     <div class="statistics card-border">
-      <div class="statistics-banner">Statistics</div>
+      <div class="statistics-banner">
+        <h3 class="statistics-title">Statistics</h3>
+      </div>
       <div class="switch-tab">
         <div
           class="switch-default-btn"
@@ -189,9 +192,8 @@
           :loading="loading"
           loading-text="Loading... Please wait"
         >
-          <template v-slot:header.averageAccuracyRate="{ header }">
+          <template v-slot:header.accuracyRate="{ header }">
             <span>{{ header.value }}</span>
-
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <img
@@ -203,13 +205,35 @@
                   alt=""
                 />
               </template>
-              <span>Tooltip</span>
+              <span
+                >Each IPFS node is challenged on a regular basis to see if it
+                has correctly PIN a specific data CID. If the number of CIDs
+                received for the challenge is M and the number of IPFS nodes
+                that have been PIN correctly is N, the accuracy rate for that
+                challenge is N/M*100%.</span
+              >
+            </v-tooltip>
+          </template>
+          <template v-slot:header.createdAt="{ header }">
+            <span>{{ header.value }}</span>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <img
+                  v-bind="attrs"
+                  v-on="on"
+                  class="ml-1"
+                  style="width: 10px; height: 10px; vertical-align: middle"
+                  src="@/assets/imgs/home/tips.png"
+                  alt=""
+                />
+              </template>
+              <span>createdAt</span>
             </v-tooltip>
           </template>
           <template #item.nodeId="{ item }">
             <span>{{
               typeof item.nodeId == "string"
-                ? item.nodeId.slice(0, 4) + "xxxx" + item.nodeId.slice(-4)
+                ? item.nodeId.slice(0, 16) + "..."
                 : ""
             }}</span>
           </template>
@@ -280,6 +304,7 @@ export default {
         page: 1,
         size: 10,
       },
+      selectSearchValue: "",
       nodeList: [],
       tableHeaderData: [
         {
@@ -324,6 +349,14 @@ export default {
     this.getNodeList();
     this.getReportList();
     this.getChartsData();
+  },
+  computed: {
+    searchNodeList() {
+      if (this.selectSearchValue == "") return this.nodeList;
+      if (!this.nodeList.length) return this.nodeList;
+      const reg = new RegExp(this.selectSearchValue, "ig");
+      return this.nodeList.filter((item) => item.match(reg));
+    },
   },
   methods: {
     handleShowTable(value) {
@@ -520,6 +553,7 @@ export default {
       }
     },
     async handleSelectChange(value) {
+      this.$loading.show();
       try {
         const result = await fetchNodeDetail(value, { page: 1, size: 500 });
         const time = Date.now() / 1000 - 24 * 60 * 60;
@@ -549,6 +583,7 @@ export default {
       } catch (err) {
         console.log(err, "err");
       }
+      this.$loading.hide();
     },
     handlePagination(value) {
       this.listQuery.page = value;
@@ -851,12 +886,28 @@ export default {
     margin: 20px 0;
     .statistics-banner {
       height: 79px;
-      padding: 0 16px;
+      padding: 0 30px;
       font-weight: bold;
       font-size: 18px;
       line-height: 79px;
       border-bottom: 1px solid #e6e8eb;
+      .statistics-title {
+        position: relative;
+        padding-left: 30px;
+      }
+      .statistics-title::before {
+        position: absolute;
+        content: "";
+        display: block;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        background: url("../assets/imgs/home/1.png") no-repeat;
+      }
     }
+
     .switch-tab {
       padding: 13px 16px;
       .switch-default-btn {

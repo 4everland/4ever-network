@@ -139,37 +139,36 @@ export default {
     async connectWallet() {
       if (!window.ethereum) {
         window.open("https://metamask.io/download.html", "_blank");
-        return this.$snackbar({
-          content: "please download metamask",
-          iconClose: true,
-        });
+        return this.$message.warning("please download metamask");
       }
       const isUnlocked = await window.ethereum._metamask.isUnlocked();
       if (!isUnlocked) {
-        return this.$snackbar({
-          content: "please lock metamask",
-          iconClose: true,
-        });
+        return this.$message.warning("please lock metamask");
       }
       await this.updateAccount();
     },
     handleClaim() {
       // this.$alert("name");
+      if (this.$store.state.balance == 0)
+        return this.$message.error("Insufficient account balance！");
       this.claimDialog = true;
     },
     async handleClaimConfirm() {
-      this.claimLoading = true;
+      this.claimDialog = false;
 
+      // this.claimLoading = true;
+      this.$loading.show();
       try {
         const result = await this.claim();
         console.log(result);
         this.updateBalance();
-        this.$snackbar("withDraw success!");
-        this.claimDialog = false;
+        this.$message.error("withDraw success!");
       } catch (error) {
-        this.$snackbar("withDraw fail!");
+        this.$message.error("withDraw fail!");
       }
-      this.claimLoading = false;
+      this.$loading.hide();
+
+      // this.claimLoading = false;
     },
     async handleSearch() {
       try {

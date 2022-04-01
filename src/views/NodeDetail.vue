@@ -62,15 +62,8 @@
         <div class="accuracy-rate-header d-flex">
           <img src="@/assets/imgs/nodeDetail/node-icon.png" alt="" />
           <h3 class="ml-3">Node Statistics</h3>
-          <img src="@/assets/imgs/nodeDetail/node-icon.png" alt="" />
         </div>
         <div class="statistics-table mt-7">
-          <!-- <network-table
-            @handleViewClick="handleViewClick"
-            :tableHeaderData="tableHeaderData"
-            :tableContentData="tableContentData"
-          /> -->
-
           <v-data-table
             :headers="tableHeaderData"
             :items="tableContentData"
@@ -81,6 +74,44 @@
             :loading="loading"
             loading-text="Loading... Please wait"
           >
+            <template v-slot:header.accuracyRate="{ header }">
+              <span>{{ header.value }}</span>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <img
+                    v-bind="attrs"
+                    v-on="on"
+                    class="ml-1"
+                    style="width: 10px; height: 10px; vertical-align: middle"
+                    src="@/assets/imgs/home/tips.png"
+                    alt=""
+                  />
+                </template>
+                <span
+                  >Each IPFS node is challenged on a regular basis to see if it
+                  has correctly PIN a specific data CID. If the number of CIDs
+                  received for the challenge is M and the number of IPFS nodes
+                  that have been PIN correctly is N, the accuracy rate for that
+                  challenge is N/M*100%.</span
+                >
+              </v-tooltip>
+            </template>
+            <template v-slot:header.createdAt="{ header }">
+              <span>{{ header.value }}</span>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <img
+                    v-bind="attrs"
+                    v-on="on"
+                    class="ml-1"
+                    style="width: 10px; height: 10px; vertical-align: middle"
+                    src="@/assets/imgs/home/tips.png"
+                    alt=""
+                  />
+                </template>
+                <span>Time of node joinng network</span>
+              </v-tooltip>
+            </template>
             <template v-slot:item.blockNumber="{ item }">
               <span># {{ item.blockNumber }}</span>
             </template>
@@ -179,12 +210,14 @@ export default {
       yAxisData: [],
     };
   },
-  created() {
+  async created() {
+    // this.$loading.show();
     console.log(this.$route.query.nodeId);
     this.nodeId = this.$route.query.nodeId;
-    this.getNodeInfo();
-    this.getNodeDetail();
-    this.getChartsData();
+    await this.getNodeInfo();
+    await this.getNodeDetail();
+    await this.getChartsData();
+    // this.$loading.hide();
   },
   methods: {
     async getNodeInfo() {
