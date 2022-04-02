@@ -61,7 +61,6 @@ export default new Vuex.Store({
       // console.log(reward.toString(), "REWARD");
       commit("UPDATE_BALANCE", formart_rewards(reward.toString()));
     },
-
     async claim({ state, dispatch }) {
       const data = contracts.POSC.interface.encodeFunctionData("claim", [
         state.account,

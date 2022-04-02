@@ -8,7 +8,10 @@
         <li class="overview-item">
           <img src="../assets/imgs/home/node-bg.png" alt="" />
           <div class="item-content">
-            <h3 class="item-title">Total Nodes</h3>
+            <h3 class="item-title">
+              Total Nodes
+              <i class="iconfont icon-tixingshixin"></i>
+            </h3>
             <div class="data" style="color: '#345AA7">
               {{ overViewData.totalNode }}
             </div>
@@ -192,6 +195,7 @@
           :items-per-page="50"
           class="elevation-1"
           :loading="loading"
+          no-data-text="/"
           loading-text="Loading... Please wait"
         >
           <template v-slot:header.accuracyRate="{ header }">

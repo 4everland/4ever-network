@@ -42,9 +42,19 @@
                     {{ searchData.block.createdAt }}</span
                   >
                 </div>
-                <div class="message-content-cid" v-else>
+                <div
+                  class="message-content-cid"
+                  v-else-if="searchData.type == 'NODEID'"
+                >
                   <span class="message-cid">{{ searchData.node.nodeId }}</span>
                   <span>pin</span>
+                </div>
+                <div
+                  class="message-content-cid"
+                  v-else-if="searchData.type == 'CID'"
+                >
+                  <span class="message-cid">{{ searchData.cid.cid }}</span>
+                  <span>{{ searchData.cid.pinned ? "pin" : "unpin" }}</span>
                 </div>
               </div>
               <div v-if="isShow && !status" class="content">

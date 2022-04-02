@@ -49,7 +49,6 @@ export function formart_storage(value) {
   }
 }
 export function formart_date(time) {
-  const date = new Date(time * 1000).toUTCString();
-  const dateArr = date.split(" ");
-  return `${dateArr[2]} ${dateArr[1]},${dateArr[3]} ${dateArr[4]}`;
+  const date = new Date(time * 1000).toString();
+  return date.replace(/\w+\s/, "").replace(/\sGMT.*$/, "");
 }

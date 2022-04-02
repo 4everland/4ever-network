@@ -10,7 +10,11 @@ import { Mapbox } from "@antv/l7-maps";
 
 export default {
   data() {
-    return {};
+    return {
+      scene: null,
+      pointLayer: null,
+      maxSize: 100,
+    };
   },
   created() {},
   mounted() {
@@ -18,18 +22,19 @@ export default {
   },
   methods: {
     init() {
-      const scene = new Scene({
+      const map = new Mapbox({
+        pitch: 0,
+        style: "light",
+        center: [96.99215001469588, 29.281597225674773],
+        zoom: 2,
+        maxZoom: 10,
+      });
+      this.scene = new Scene({
         id: "map",
-        map: new Mapbox({
-          pitch: 0,
-          style: "light",
-          center: [96.99215001469588, 29.281597225674773],
-          zoom: 2.194613775109773,
-          maxZoom: 10,
-        }),
+        map,
       });
 
-      // scene.on("loaded", () => {
+      // this.scene.on("loaded", () => {
       //   fetch(
       //     "https://gw.alipayobjects.com/os/basement_prod/337ddbb7-aa3f-4679-ab60-d64359241955.json"
       //   )
@@ -42,7 +47,7 @@ export default {
       //       const pointLayer = new PointLayer({})
       //         .source(data)
       //         .shape("circle")
-      //         .size("capacity", [10, 100])
+      //         .size("capacity")
       //         .color("capacity", ["#ABCAEA", "#ABCAEA", "#ABCAEA"])
       //         .animate(true)
       //         .active(true)
@@ -50,11 +55,11 @@ export default {
       //           opacity: 1,
       //           strokeWidth: 0,
       //         });
-      //       scene.addLayer(pointLayer);
+      //       this.scene.addLayer(pointLayer);
       //     });
       // });
 
-      scene.on("loaded", () => {
+      this.scene.on("loaded", () => {
         const data = {
           features: [
             {
@@ -156,7 +161,7 @@ export default {
           ],
           type: "FeatureCollection",
         };
-        const pointLayer = new PointLayer({})
+        this.pointLayer = new PointLayer({})
           .source(data)
           .shape("circle")
           .size("capacity", [10, 100])
@@ -168,7 +173,13 @@ export default {
             stroke: "red",
             strokeWidth: 20,
           });
-        scene.addLayer(pointLayer);
+        this.scene.addLayer(this.pointLayer);
+      });
+      this.scene.on("zoomchange", (e) => {
+        const currentZoom = this.scene.getZoom().toFixed(2);
+        let maxSize = currentZoom * 50;
+        this.pointLayer.size("capacity", [10, maxSize]);
+        this.pointLayer.render();
       });
     },
   },
