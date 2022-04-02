@@ -13,8 +13,6 @@
               label="Node/TeeReport/CID......"
               :loading="isShow"
               @keydown.enter="handleSearch"
-              nu
-              @blur="handleBlur"
             >
               <v-img slot="prepend" src="../assets/imgs/header/search-icon.png">
               </v-img>
@@ -90,9 +88,8 @@
                 class="claim-btn"
                 block
                 @click="handleClaimConfirm"
-                :loading="claimLoading"
               >
-                <span v-show="!claimLoading">Claim</span>
+                <span>Claim</span>
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -118,7 +115,6 @@ export default {
       searchData: {},
       status: false,
       claimDialog: false,
-      claimLoading: false,
     };
   },
   created() {
@@ -148,30 +144,29 @@ export default {
       await this.updateAccount();
     },
     handleClaim() {
-      // this.$alert("name");
       if (this.$store.state.balance == 0)
         return this.$message.error("Insufficient account balance！");
       this.claimDialog = true;
     },
     async handleClaimConfirm() {
       this.claimDialog = false;
-
-      // this.claimLoading = true;
       this.$loading.show();
       try {
         const result = await this.claim();
-        console.log(result);
         this.updateBalance();
-        this.$message.error("withDraw success!");
+        this.$message.success("withDraw success!");
       } catch (error) {
         this.$message.error("withDraw fail!");
       }
       this.$loading.hide();
-
-      // this.claimLoading = false;
     },
     async handleSearch() {
       try {
+        this.searchValue = this.searchValue.trim();
+        const reg = /^[A-Za-z0-9]{1,255}$/;
+        if (!reg.test(this.searchValue)) {
+          return this.$message.warning("Please enter letters or numbers！");
+        }
         const result = await fetchSearchValue(this.searchValue);
         if (result.type.toUpperCase() == "BLOCK") {
           result.block.createdAt = formart_date(result.block.createdAt);
@@ -184,11 +179,7 @@ export default {
       }
       this.isShow = true;
     },
-    handleBlur() {
-      // this.isShow = false;
-    },
     handleMenu(e) {
-      console.log(e);
       this.isShow = false;
     },
     listen() {
@@ -241,8 +232,7 @@ export default {
   .content {
     padding: 0 12px;
     min-width: 297px;
-    border-radius: 8px;
-    box-shadow: inset 0px -1px 0px 0px #c6d1d7;
+    // border-radius: 8px;
     box-sizing: border-box;
     background: #fff;
     overflow: hidden;
@@ -321,8 +311,6 @@ export default {
   border-radius: 4px;
   cursor: pointer;
   .blance-content {
-    height: 22px;
-    line-height: 22px;
     color: #fff;
     margin-bottom: 0;
     font-size: 12px;

@@ -50,15 +50,15 @@ export default new Vuex.Store({
       commit("UPDATE_CHAINID", chainId);
     },
     async updateBalance({ state, commit }) {
-      console.log("---------");
+      // console.log("---------");
       if (state.chainId !== 1 && state.chainId !== 4) return;
-      console.log(state.account, "account");
+      // console.log(state.account, "account");
       const isExists = await contracts.POSC.holderExists(state.account);
-      console.log("isExists", isExists);
+      // console.log("isExists", isExists);
       if (!isExists) return;
       const a = await contracts.POSC.holders(state.account);
       const reward = await contracts.POSC.reward(a.pid);
-      console.log(reward.toString(), "REWARD");
+      // console.log(reward.toString(), "REWARD");
       commit("UPDATE_BALANCE", formart_rewards(reward.toString()));
     },
 

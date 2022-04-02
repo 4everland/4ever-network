@@ -16,11 +16,11 @@
         <i class="iconfont" :class="iconClass" :style="{ color }"></i>
         <span class="ml-3">{{ content }}</span>
       </div>
-      <template v-slot:action="{ attrs }">
+      <!-- <template v-slot:action="{ attrs }">
         <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
           Close
         </v-btn>
-      </template>
+      </template> -->
     </v-snackbar>
   </div>
 </template>
@@ -68,26 +68,6 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-// .loading-container {
-//   position: relative;
-//   z-index: 9999;
-//   .loading-mask {
-//     position: fixed;
-//     top: 0;
-//     bottom: 0;
-//     left: 0;
-//     right: 0;
-//     background-color: rgba(0, 0, 0, 0.1);
-//   }
-//   .loading-content {
-//     position: fixed;
-//     left: 50%;
-//     top: 45%;
-//     z-index: 300;
-//     transform: translate(-50%, -45%);
-//     text-align: center;
-//   }
-// }
 /deep/ .v-card__text {
   padding: 20px !important;
 }

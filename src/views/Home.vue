@@ -50,7 +50,9 @@
     <v-row class="latest-PoSC-report d-flex justify-space-between">
       <v-col xs="12" class="report-left">
         <div class="report-left-bar d-flex justify-space-between">
-          <h3 class="report-left-title">Latest PoSC Report #10086</h3>
+          <h3 class="report-left-title">
+            Latest PoSC Report #{{ latestReport.blockNumber }}
+          </h3>
           <span class="report-more" @click="handleToMore">More</span>
         </div>
         <ul class="report-list">
@@ -68,7 +70,7 @@
       </v-col>
       <v-col
         xs="12"
-        class="report-right ml-xl-5 mt-xl-0 mt-sm-0 mt-md-0 mt-lg-0"
+        class="report-right ml-xl-5 ml-sm-5 mt-xl-0 mt-sm-0 mt-md-0 mt-lg-0"
       >
         <div class="d-flex report-right-header">
           <h3 class="report-right-title">TeeReport PSRAMENTERS</h3>
@@ -139,7 +141,7 @@
                 type="text"
                 v-model="selectSearchValue"
                 class="select-input"
-                placeholder="select a node"
+                placeholder="Node ID"
               />
             </div>
           </v-select>
@@ -553,6 +555,7 @@ export default {
       }
     },
     async handleSelectChange(value) {
+      this.selectSearchValue = "";
       this.$loading.show();
       try {
         const result = await fetchNodeDetail(value, { page: 1, size: 500 });
@@ -620,6 +623,9 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+/deep/ .l7-control-logo.l7-control {
+  display: none;
+}
 /deep/ .v-list-item__title {
   font-size: 14px;
 }
@@ -634,7 +640,8 @@ export default {
   .select-input {
     width: 100%;
     height: 40px;
-    text-indent: 40px;
+    padding-left: 40px;
+    box-sizing: border-box;
     border-radius: 5px;
     background: #fff;
   }

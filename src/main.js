@@ -3,17 +3,14 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
-import "./styles/reset.css";
+import * as echarts from "echarts";
 import snackbar from "vuetify-snackbars";
 import loading from "@/components/Loading/loading";
 import "@/assets/font/iconfont.css";
-import * as echarts from "echarts";
-console.log(loading);
+import "./styles/reset.css";
 Vue.use(loading);
 Vue.use(snackbar);
-// Vue.use(loading);
 Vue.config.productionTip = false;
-
 Vue.prototype.$echarts = echarts;
 Vue.prototype.$vuetify = vuetify;
 new Vue({

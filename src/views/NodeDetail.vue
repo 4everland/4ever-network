@@ -211,13 +211,12 @@ export default {
     };
   },
   async created() {
-    // this.$loading.show();
-    console.log(this.$route.query.nodeId);
+    this.$loading.show();
     this.nodeId = this.$route.query.nodeId;
     await this.getNodeInfo();
     await this.getNodeDetail();
     await this.getChartsData();
-    // this.$loading.hide();
+    this.$loading.hide();
   },
   methods: {
     async getNodeInfo() {
@@ -236,7 +235,6 @@ export default {
         item.elapsedTime = item.elapsedTime / 1000 + "S";
         return item;
       });
-      //  = res.data.item;
       this.totalPageSize = Math.ceil(result.total / 10);
     },
     async getChartsData() {
@@ -245,7 +243,6 @@ export default {
       const data = result.item.filter((obj) => {
         return obj.createdAt > time;
       });
-      // console.log("data", data);
       let timeMap = {};
       const xArr = [];
       data.forEach((item) => {
@@ -320,7 +317,7 @@ export default {
           line-height: 40px;
           .node-text {
             display: inline-block;
-            min-width: 130px;
+            min-width: 110px;
           }
 
           .node-value {
