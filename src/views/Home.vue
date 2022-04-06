@@ -224,9 +224,10 @@
           :loading="loading"
           no-data-text="/"
           loading-text="Loading... Please wait"
+          :custom-sort="customSort"
         >
           <template v-slot:header.accuracyRate="{ header }">
-            <span>{{ header.value }}</span>
+            <span>{{ header.text }}</span>
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <img
@@ -248,7 +249,7 @@
             </v-tooltip>
           </template>
           <template v-slot:header.createdAt="{ header }">
-            <span>{{ header.value }}</span>
+            <span>{{ header.text }}</span>
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <img
@@ -365,7 +366,7 @@ export default {
         },
         { text: "CreateAt", align: "center", value: "blockCreatedAt" },
         {
-          text: "view",
+          text: "View",
           align: "center",
           value: "treeReportDetail",
           sortable: false,
@@ -479,7 +480,7 @@ export default {
         },
         { text: "CreateAt", align: "center", value: "blockCreatedAt" },
         {
-          text: "view",
+          text: "View",
           align: "center",
           value: "treeReportDetail",
           sortable: false,
@@ -534,7 +535,7 @@ export default {
         },
         { text: "CreateAt", align: "center", value: "createdAt" },
         {
-          text: "detail",
+          text: "Detail",
           align: "center",
           value: "nodeDetail",
           sortable: false,
@@ -653,6 +654,29 @@ export default {
           break;
         default:
           break;
+      }
+    },
+    customSort(items, index, isDesc) {
+      if (!index.length) {
+        return items;
+      } else {
+        let key = index[0];
+        items.sort((a, b) => {
+          console.log(Number(a[key].replace(/[a-zA-Z]/, "")));
+          if (!isDesc.length) return items;
+          if (isDesc[0]) {
+            return (
+              Number(b[key].replace(/[a-zA-Z]/, "")) -
+              Number(a[key].replace(/[a-zA-Z]/, ""))
+            );
+          } else {
+            return (
+              Number(a[key].replace(/[a-zA-Z]/, "")) -
+              Number(b[key].replace(/[a-zA-Z]/, ""))
+            );
+          }
+        });
+        return items;
       }
     },
   },
@@ -954,7 +978,7 @@ export default {
         transform: translateY(-50%);
         width: 24px;
         height: 24px;
-        background: url("../assets/imgs/home/1.png") no-repeat;
+        background: url("../assets/imgs/home/3.png") no-repeat;
         background-size: 100%;
       }
     }

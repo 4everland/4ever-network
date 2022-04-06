@@ -7,20 +7,13 @@
         </v-btn>
         <div class="d-flex align-center justify-space-between">
           <div class="search-bar">
-            <v-text-field
+            <input
+              class="search-input"
+              type="text"
               v-model="searchValue"
-              hide-details="auto"
-              label="Node/TeeReport/CID......"
-              :loading="isShow"
               @keydown.enter="handleSearch"
-            >
-              <v-img
-                style="width: 24px"
-                slot="prepend"
-                src="../assets/imgs/header/search-icon.png"
-              >
-              </v-img>
-            </v-text-field>
+              placeholder="Node/TeeReport/CID......"
+            />
             <v-menu
               :value="isShow"
               :close-on-content-click="false"
@@ -34,7 +27,7 @@
                   <i class="header-line left"></i>
                   <span>{{
                     searchData.type == "BLOCK"
-                      ? "Block"
+                      ? "TeeReport"
                       : searchData.type == "CID"
                       ? "CID"
                       : "NodeID"
@@ -203,6 +196,8 @@ export default {
       this.isShow = true;
     },
     handleMenu(e) {
+      console.log(e);
+      this.status = false;
       this.isShow = false;
     },
     listen() {
@@ -245,6 +240,14 @@ export default {
 .search-bar {
   position: relative;
   width: 297px;
+  .search-input {
+    position: relative;
+    width: 296px;
+    padding: 0 20px;
+    border-bottom: 1px solid black;
+    box-sizing: border-box;
+  }
+
   .message-tips {
     position: absolute;
     width: 100%;
@@ -314,6 +317,18 @@ export default {
     line-height: 16px;
     padding: 10px 0 18px 0;
   }
+}
+.search-bar::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: url("../assets/imgs/header/search-icon.png") no-repeat;
+  background-size: 100%;
 }
 .connect-wallet {
   padding: 5px 11px 5px 6px;

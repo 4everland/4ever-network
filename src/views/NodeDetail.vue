@@ -6,39 +6,53 @@
         <h3 class="ml-3">Node Info</h3>
       </div>
       <v-row class="node-info">
-        <v-col sm="12" lg="7">
+        <v-col sm="12" lg="8">
           <ul class="node-info-list">
             <li class="node-info-item">
               <span class="node-text">Node ID : </span>
-              <span class="node-value">{{ nodeInfo.nodeId }}</span>
+              <span class="node-value">{{
+                nodeInfo.nodeId ? nodeInfo.nodeId : "/"
+              }}</span>
             </li>
             <li class="node-info-item">
               <span class="node-text">Regoin: </span>
-              <span class="node-value">{{ nodeInfo.Regoin }}</span>
+              <span class="node-value">{{
+                nodeInfo.Regoin ? nodeInfo.Regoin : "/"
+              }}</span>
             </li>
             <li class="node-info-item">
               <span class="node-text right">Program Version: </span>
-              <span class="node-value">{{ nodeInfo.programVersion }}</span>
+              <span class="node-value">{{
+                nodeInfo.programVersion ? nodeInfo.programVersion : "/"
+              }}</span>
             </li>
             <li class="node-info-item">
               <span class="node-text right">Mr_enclava: </span>
-              <span class="node-value">{{ nodeInfo.mrEnclave }}</span>
+              <span class="node-value">{{
+                nodeInfo.mrEnclave ? nodeInfo.mrEnclave : "/"
+              }}</span>
             </li>
             <li class="node-info-item">
               <span class="node-text right">Total Reward: </span>
-              <span class="node-value">{{ nodeInfo.totalReward }}</span>
+              <span class="node-value">{{
+                nodeInfo.totalReward ? nodeInfo.totalReward : "/"
+              }}</span>
             </li>
           </ul>
         </v-col>
-        <v-col sm="12" lg="5">
+        <v-col sm="12" lg="4">
           <ul class="node-info-list">
             <li class="node-info-item">
               <span class="node-text right">Status: </span>
-              <span class="node-value">{{ nodeInfo.status }}</span>
+              <span class="node-value">{{
+                nodeInfo.status ? nodeInfo.status : "/"
+              }}</span>
             </li>
             <li class="node-info-item">
               <span class="node-text right">CreateAt: </span>
-              <span class="node-value">{{ nodeInfo.createdAt }}</span>
+              <span class="node-value">{{
+                nodeInfo.createdAt ? nodeInfo.createdAt : "/"
+              }}</span>
             </li>
           </ul>
         </v-col>
@@ -60,7 +74,7 @@
 
       <div class="node-statistics">
         <div class="accuracy-rate-header d-flex">
-          <img class="icon" src="@/assets/imgs/home/1.png" alt="" />
+          <img class="icon" src="@/assets/imgs/home/3.png" alt="" />
           <h3 class="ml-3">Node Statistics</h3>
         </div>
         <div class="statistics-table mt-7">
@@ -73,9 +87,10 @@
             class="elevation-1"
             :loading="loading"
             loading-text="Loading... Please wait"
+            :custom-sort="customSort"
           >
             <template v-slot:header.accuracyRate="{ header }">
-              <span>{{ header.value }}</span>
+              <span>{{ header.text }}</span>
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
                   <img
@@ -97,7 +112,7 @@
               </v-tooltip>
             </template>
             <template v-slot:header.createdAt="{ header }">
-              <span>{{ header.value }}</span>
+              <span>{{ header.text }}</span>
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
                   <img
@@ -284,6 +299,29 @@ export default {
       this.dialogTableContent = item.cids;
       this.dialog = true;
     },
+    customSort(items, index, isDesc) {
+      if (!index.length) {
+        return items;
+      } else {
+        let key = index[0];
+        items.sort((a, b) => {
+          console.log(Number(a[key].replace(/[a-zA-Z]/, "")));
+          if (!isDesc.length) return items;
+          if (isDesc[0]) {
+            return (
+              Number(b[key].replace(/[a-zA-Z]/, "")) -
+              Number(a[key].replace(/[a-zA-Z]/, ""))
+            );
+          } else {
+            return (
+              Number(a[key].replace(/[a-zA-Z]/, "")) -
+              Number(b[key].replace(/[a-zA-Z]/, ""))
+            );
+          }
+        });
+        return items;
+      }
+    },
   },
   components: {
     NetworkLine,
@@ -326,14 +364,13 @@ export default {
         // list-style: none;
         .node-info-item {
           display: flex;
-          font-size: 16px;
+          font-size: 14px;
           color: #465669;
           line-height: 40px;
           .node-text {
             display: inline-block;
-            min-width: 110px;
+            // min-width: 110px;
           }
-
           .node-value {
             flex: 1;
             text-overflow: ellipsis;

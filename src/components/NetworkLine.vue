@@ -9,7 +9,7 @@ export default {
     xAxisData: {
       type: Array,
       default: () => {
-        return ["1月", "2月", "3月", "4月", "5月"];
+        return ["1", "2", "3", "4", "5"];
       },
     },
     yAxisData: {
@@ -79,6 +79,9 @@ export default {
           axisLabel: {
             fontSize: 12,
             color: "#7F8489",
+            formatter: function (value, index) {
+              return value + "H";
+            },
           },
         },
         yAxis: {
