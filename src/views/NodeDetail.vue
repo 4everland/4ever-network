@@ -2,11 +2,7 @@
 	<div class="node-detail-container">
 		<div class="node">
 			<div class="node-header d-flex">
-				<img
-					class="icon"
-					src="@/assets/imgs/nodeDetail/node-icon.png"
-					alt=""
-				/>
+				<img class="icon" src="@/assets/imgs/nodeDetail/node-icon.png" alt="" />
 				<h3 class="ml-3">Node Info</h3>
 			</div>
 			<v-row class="node-info">
@@ -14,35 +10,23 @@
 					<ul class="node-info-list">
 						<li class="node-info-item">
 							<span class="node-text">Node ID : </span>
-							<span class="node-value">{{
-								nodeInfo.nodeId
-							}}</span>
+							<span class="node-value">{{ nodeInfo.nodeId }}</span>
 						</li>
 						<li class="node-info-item">
 							<span class="node-text">Regoin: </span>
-							<span class="node-value">{{
-								nodeInfo.Regoin
-							}}</span>
+							<span class="node-value">{{ nodeInfo.Regoin }}</span>
 						</li>
 						<li class="node-info-item">
-							<span class="node-text right"
-								>Program Version:
-							</span>
-							<span class="node-value">{{
-								nodeInfo.programVersion
-							}}</span>
+							<span class="node-text right">Program Version: </span>
+							<span class="node-value">{{ nodeInfo.programVersion }}</span>
 						</li>
 						<li class="node-info-item">
 							<span class="node-text right">Mr_enclava: </span>
-							<span class="node-value">{{
-								nodeInfo.mrEnclave
-							}}</span>
+							<span class="node-value">{{ nodeInfo.mrEnclave }}</span>
 						</li>
 						<li class="node-info-item">
 							<span class="node-text right">Total Reward: </span>
-							<span class="node-value">{{
-								nodeInfo.totalReward
-							}}</span>
+							<span class="node-value">{{ nodeInfo.totalReward }}</span>
 						</li>
 					</ul>
 				</v-col>
@@ -50,15 +34,11 @@
 					<ul class="node-info-list">
 						<li class="node-info-item">
 							<span class="node-text right">Status: </span>
-							<span class="node-value">{{
-								nodeInfo.status
-							}}</span>
+							<span class="node-value">{{ nodeInfo.status }}</span>
 						</li>
 						<li class="node-info-item">
 							<span class="node-text right">CreateAt: </span>
-							<span class="node-value">{{
-								nodeInfo.createdAt
-							}}</span>
+							<span class="node-value">{{ nodeInfo.createdAt }}</span>
 						</li>
 					</ul>
 				</v-col>
@@ -102,22 +82,16 @@
 										v-bind="attrs"
 										v-on="on"
 										class="ml-1"
-										style="
-											width: 10px;
-											height: 10px;
-											vertical-align: middle;
-										"
+										style="width: 10px; height: 10px; vertical-align: middle"
 										src="@/assets/imgs/home/tips.png"
 										alt=""
 									/>
 								</template>
 								<span
-									>Each IPFS node is challenged on a regular
-									basis to see if it has correctly PIN a
-									specific data CID. If the number of CIDs
-									received for the challenge is M and the
-									number of IPFS nodes that have been PIN
-									correctly is N, the accuracy rate for that
+									>Each IPFS node is challenged on a regular basis to see if it
+									has correctly PIN a specific data CID. If the number of CIDs
+									received for the challenge is M and the number of IPFS nodes
+									that have been PIN correctly is N, the accuracy rate for that
 									challenge is N/M*100%.</span
 								>
 							</v-tooltip>
@@ -130,11 +104,7 @@
 										v-bind="attrs"
 										v-on="on"
 										class="ml-1"
-										style="
-											width: 10px;
-											height: 10px;
-											vertical-align: middle;
-										"
+										style="width: 10px; height: 10px; vertical-align: middle"
 										src="@/assets/imgs/home/tips.png"
 										alt=""
 									/>
@@ -146,9 +116,7 @@
 							<span># {{ item.blockNumber }}</span>
 						</template>
 						<template v-slot:item.cidList="{ item }">
-							<span class="view-text" @click="handleViewCid(item)"
-								>view</span
-							>
+							<span class="view-text" @click="handleViewCid(item)">view</span>
 						</template>
 					</v-data-table>
 
@@ -185,16 +153,10 @@
 							</tr>
 							<template v-for="item in dialogTableContent">
 								<tr :key="item.cid">
-									<td
-										class="cid"
-										:class="item.state ? '' : 'unpin'"
-									>
+									<td class="cid" :class="item.state ? '' : 'unpin'">
 										{{ item.cid }}
 									</td>
-									<td
-										class="status"
-										:class="item.state ? 'pin' : 'unpin'"
-									>
+									<td class="status" :class="item.state ? 'pin' : 'unpin'">
 										{{ item.state ? 'Pin' : 'Unpin' }}
 									</td>
 								</tr>

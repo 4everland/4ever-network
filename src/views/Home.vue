@@ -34,10 +34,7 @@
 										v-bind="attrs"
 										v-on="on"
 										class="ml-2"
-										style="
-											width: 16px;
-											vertical-align: middle;
-										"
+										style="width: 16px; vertical-align: middle"
 										src="@/assets/imgs/home/warning-icon.png"
 										alt=""
 									/>
@@ -61,18 +58,12 @@
 										v-bind="attrs"
 										v-on="on"
 										class="ml-2"
-										style="
-											width: 16px;
-											vertical-align: middle;
-										"
+										style="width: 16px; vertical-align: middle"
 										src="@/assets/imgs/home/warning-icon.png"
 										alt=""
 									/>
 								</template>
-								<span
-									>The total reward for network-wide
-									nodes</span
-								>
+								<span>The total reward for network-wide nodes</span>
 							</v-tooltip>
 						</h3>
 						<div class="data">
@@ -115,27 +106,19 @@
 					<h3 class="report-right-title">TeeReport PSRAMENTERS</h3>
 				</div>
 				<ul class="report-right-list">
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
+					<li class="report-right-list-item d-flex justify-space-between">
 						<span>Generation time per report</span>
 						<span>{{ challenggeData.interval }} Mintute</span>
 					</li>
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
+					<li class="report-right-list-item d-flex justify-space-between">
 						<span>Number of CIDs per Posc</span>
 						<span>{{ challenggeData.checkNum }} Piece</span>
 					</li>
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
+					<li class="report-right-list-item d-flex justify-space-between">
 						<span>Report retention time</span>
 						<span>{{ challenggeData.retention }} Day</span>
 					</li>
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
+					<li class="report-right-list-item d-flex justify-space-between">
 						<span>Reward per block</span>
 						<span>{{ challenggeData.reward }} 4EVER</span>
 					</li>
@@ -168,11 +151,7 @@
 					class="storage-right-header d-flex justify-space-between align-center"
 				>
 					<div class="d-flex align-center">
-						<img
-							class="mr-3"
-							src="../assets/imgs/home/storage.png"
-							alt=""
-						/>
+						<img class="mr-3" src="../assets/imgs/home/storage.png" alt="" />
 						<h3>Accuracy Rate</h3>
 					</div>
 					<v-select
@@ -254,22 +233,17 @@
 									v-bind="attrs"
 									v-on="on"
 									class="ml-1"
-									style="
-										width: 10px;
-										height: 10px;
-										vertical-align: middle;
-									"
+									style="width: 10px; height: 10px; vertical-align: middle"
 									src="@/assets/imgs/home/tips.png"
 									alt=""
 								/>
 							</template>
 							<span
-								>Each IPFS node is challenged on a regular basis
-								to see if it has correctly PIN a specific data
-								CID. If the number of CIDs received for the
-								challenge is M and the number of IPFS nodes that
-								have been PIN correctly is N, the accuracy rate
-								for that challenge is N/M*100%.</span
+								>Each IPFS node is challenged on a regular basis to see if it
+								has correctly PIN a specific data CID. If the number of CIDs
+								received for the challenge is M and the number of IPFS nodes
+								that have been PIN correctly is N, the accuracy rate for that
+								challenge is N/M*100%.</span
 							>
 						</v-tooltip>
 					</template>
@@ -281,11 +255,7 @@
 									v-bind="attrs"
 									v-on="on"
 									class="ml-1"
-									style="
-										width: 10px;
-										height: 10px;
-										vertical-align: middle;
-									"
+									style="width: 10px; height: 10px; vertical-align: middle"
 									src="@/assets/imgs/home/tips.png"
 									alt=""
 								/>
@@ -454,9 +424,7 @@ export default {
 			try {
 				const result = await fetchNetworkInfo()
 				result.params.interval = Math.ceil(result.params.interval / 60)
-				result.params.retention = Math.ceil(
-					result.params.retention / 60 / 24
-				)
+				result.params.retention = Math.ceil(result.params.retention / 60 / 24)
 				this.challenggeData = result.params
 				result.statistics.totalReward = formart_rewards(
 					result.statistics.totalReward
@@ -475,8 +443,7 @@ export default {
 				const result = await fetchReport('latest')
 				result.reports.map((item) => {
 					item.createdAt = formart_date(item.createdAt)
-					item.accuracyRate =
-						(item.accuracyRate / 100).toFixed(2) + '%'
+					item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + '%'
 					return item
 				})
 				this.latestReport = result
@@ -525,10 +492,8 @@ export default {
 					item.blockCreatedAt = formart_date(item.blockCreatedAt)
 					item.averageAccuracyRate =
 						(item.averageAccuracyRate / 100).toFixed(2) + '%'
-					item.totalSize =
-						(item.totalSize / 1024 / 1024).toFixed(2) + 'T'
-					item.averageElapsedTime =
-						item.averageElapsedTime / 1000 + 'S'
+					item.totalSize = (item.totalSize / 1024 / 1024).toFixed(2) + 'T'
+					item.averageElapsedTime = item.averageElapsedTime / 1000 + 'S'
 					item.reward = formart_rewards(item.reward)
 					return item
 				})
@@ -582,8 +547,7 @@ export default {
 					this.tableContentData = result.map((item) => {
 						item.createdAt = formart_date(item.createdAt)
 						item.totalReward = formart_rewards(item.totalReward)
-						item.accuracyRate =
-							(item.accuracyRate / 100).toFixed(2) + '%'
+						item.accuracyRate = (item.accuracyRate / 100).toFixed(2) + '%'
 						return item
 					})
 				}
@@ -619,11 +583,7 @@ export default {
 					}
 				})
 				const yArr = xArr.map((key) => {
-					return (
-						timeMap[key].sum /
-						timeMap[key].count /
-						100
-					).toFixed(2)
+					return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2)
 				})
 				this.xAxisData = xArr.reverse()
 				this.yAxisData = yArr.reverse()
@@ -659,11 +619,7 @@ export default {
 					}
 				})
 				const yArr = xArr.map((key) => {
-					return (
-						timeMap[key].sum /
-						timeMap[key].count /
-						100
-					).toFixed(2)
+					return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2)
 				})
 				this.xAxisData = xArr
 				this.yAxisData = yArr
@@ -852,8 +808,7 @@ export default {
 					left: 0;
 					top: 50%;
 					transform: translateY(-50%);
-					background: url(../assets/imgs/home/report-icon.png)
-						no-repeat;
+					background: url(../assets/imgs/home/report-icon.png) no-repeat;
 					background-size: 100%;
 				}
 				.report-more {

@@ -2,22 +2,22 @@
 //
 // The variables you want to modify
 // $font-size-root: 20px;
-$body-font-family: "Arial", "Roboto", "Helvetica Neue", "Helvetica, Tahoma",
-  "Microsoft YaHei";
+$body-font-family: 'Arial', 'Roboto', 'Helvetica Neue', 'Helvetica, Tahoma',
+	'Microsoft YaHei';
 $btn-font-size: 400;
 
 body {
-  overflow-x: hidden;
+	overflow-x: hidden;
 }
 
 .v-btn {
-  text-transform: capitalize;
+	text-transform: capitalize;
 }
 .v-list {
-  padding: 0;
-  width: 381px;
-  // width: 900px;
+	padding: 0;
+	width: 381px;
+	// width: 900px;
 }
 .row {
-  margin: 0;
+	margin: 0;
 }

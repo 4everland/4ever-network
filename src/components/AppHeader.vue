@@ -2,12 +2,7 @@
 	<div>
 		<v-app-bar fixed app color="#FAFAFA" height="100">
 			<v-container class="d-flex align-center justify-space-between">
-				<v-btn
-					text
-					color="transparent"
-					to="/"
-					class="always-active mr-8"
-				>
+				<v-btn text color="transparent" to="/" class="always-active mr-8">
 					<logo />
 				</v-btn>
 				<div class="d-flex align-center justify-space-between">
@@ -51,8 +46,7 @@
 									v-if="searchData.type == 'BLOCK'"
 								>
 									<span class="block-info"
-										>#
-										{{ searchData.block.blockNumber }}</span
+										># {{ searchData.block.blockNumber }}</span
 									>
 									<span class="block-time">
 										{{ searchData.block.createdAt }}</span
@@ -62,26 +56,18 @@
 									class="message-content-cid"
 									v-else-if="searchData.type == 'NODE'"
 								>
-									<span class="message-cid">{{
-										searchData.node.nodeId
-									}}</span>
+									<span class="message-cid">{{ searchData.node.nodeId }}</span>
 								</div>
 								<div
 									class="message-content-cid"
 									v-else-if="searchData.type == 'CID'"
 								>
-									<span class="message-cid">{{
-										searchData.cid.cid
-									}}</span>
-									<span>{{
-										searchData.cid.pinned ? 'pin' : 'unpin'
-									}}</span>
+									<span class="message-cid">{{ searchData.cid.cid }}</span>
+									<span>{{ searchData.cid.pinned ? 'pin' : 'unpin' }}</span>
 								</div>
 							</div>
 							<div v-if="isShow && !status" class="content">
-								<h2 class="no-results-title">
-									No Results found.
-								</h2>
+								<h2 class="no-results-title">No Results found.</h2>
 								<p class="no-results-content">
 									Please search by Node ID,Block ID or CID
 								</p>
@@ -95,9 +81,7 @@
 					>
 						<p class="blance-content">
 							Available to Claim:
-							<span class="blance">{{
-								$store.state.balance
-							}}</span>
+							<span class="blance">{{ $store.state.balance }}</span>
 							4EVER
 						</p>
 					</div>
@@ -118,9 +102,7 @@
 							</template>
 						</v-card-title>
 						<v-card-text class="text-center mt-10 pb-14">
-							<span class="claim-blance">{{
-								$store.state.balance
-							}}</span>
+							<span class="claim-blance">{{ $store.state.balance }}</span>
 							<span class="currency">4EVER</span>
 						</v-card-text>
 						<v-card-actions style="width: 100%">
@@ -206,15 +188,11 @@ export default {
 				this.searchValue = this.searchValue.trim()
 				const reg = /^[A-Za-z0-9]{1,255}$/
 				if (!reg.test(this.searchValue)) {
-					return this.$message.warning(
-						'Please enter letters or numbers！'
-					)
+					return this.$message.warning('Please enter letters or numbers！')
 				}
 				const result = await fetchSearchValue(this.searchValue)
 				if (result.type.toUpperCase() == 'BLOCK') {
-					result.block.createdAt = formart_date(
-						result.block.createdAt
-					)
+					result.block.createdAt = formart_date(result.block.createdAt)
 				}
 				this.searchData = result
 				console.log(result)
