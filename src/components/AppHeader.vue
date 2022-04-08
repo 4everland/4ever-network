@@ -52,12 +52,19 @@
 									>
 								</div>
 								<div
-									class="message-content-cid"
+									class="message-content-block d-flex flex-column"
 									v-else-if="searchData.type == 'NODE'"
 								>
-									<span class="message-cid">{{
+									<span class="block-info">{{
 										searchData.node.nodeId
 									}}</span>
+									<span class="block-time">
+										{{
+											formart_date(
+												searchData.node.createdAt
+											)
+										}}
+									</span>
 								</div>
 								<div
 									class="message-content-cid"
@@ -236,12 +243,17 @@ export default {
 				window.location.reload();
 			});
 		},
+		formart_date,
 	},
 };
 </script>
 <style lang="less" scoped>
 .always-active {
 	opacity: 1 !important;
+}
+
+.v-menu__content {
+	border-radius: 10px;
 }
 .v-btn--active,
 .nav-btn:hover {

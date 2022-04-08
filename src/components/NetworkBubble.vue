@@ -24,10 +24,12 @@ export default {
 		init() {
 			const map = new Mapbox({
 				pitch: 0,
-				style: "mapbox://styles/mapbox/navigation-night-v1",
+				// style: "mapbox://styles/mapbox/navigation-night-v1",
+				style: "light",
 				center: [96.99215001469588, 29.281597225674773],
 				zoom: 2,
 				maxZoom: 10,
+				dragRotate: false,
 			});
 			this.scene = new Scene({
 				id: "map",
@@ -140,11 +142,14 @@ export default {
 					.shape("circle")
 					.size("capacity", [10, 100])
 					.color("color")
-					.animate(true)
-					.active(true)
+					// .color("#4cfd47")
+					.animate({
+						rings: 1,
+						speed: 1,
+					})
+					// .active(true)
 					.style({
-						opacity: 1,
-						stroke: "red",
+						// opacity: 0.5,
 						strokeWidth: 20,
 					});
 				this.scene.addLayer(this.pointLayer);

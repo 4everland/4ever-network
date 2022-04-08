@@ -34,14 +34,6 @@
 									: "/"
 							}}</span>
 						</li>
-						<li class="node-info-item">
-							<span class="node-text right">Total Rewards: </span>
-							<span class="node-value">{{
-								nodeInfo.totalReward
-									? nodeInfo.totalReward
-									: "/"
-							}}</span>
-						</li>
 					</ul>
 				</v-col>
 				<v-col sm="12" lg="4">
@@ -56,6 +48,14 @@
 							<span class="node-text right">CreateAt: </span>
 							<span class="node-value">{{
 								nodeInfo.createdAt ? nodeInfo.createdAt : "/"
+							}}</span>
+						</li>
+						<li class="node-info-item">
+							<span class="node-text right">Total Rewards: </span>
+							<span class="node-value">{{
+								nodeInfo.totalReward
+									? nodeInfo.totalReward
+									: "/"
 							}}</span>
 						</li>
 					</ul>
@@ -505,7 +505,10 @@ export default {
 				font-size: 12px;
 			}
 			tr:nth-of-type(1) {
-				background: #e6e8eb;
+				background: #e6e8eb !important;
+			}
+			tr:nth-of-type(odd) {
+				background: #f8f8f8;
 			}
 			.cid {
 				width: 400px;

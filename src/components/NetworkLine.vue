@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import { mdiSizeL } from "@mdi/js";
 export default {
 	props: {
 		xAxisData: {
@@ -61,13 +60,6 @@ export default {
 					axisPointer: {
 						type: "none",
 					},
-					// backgroundColor: "#CBB7FF",
-					// borderColor: "#CBB7FF",
-					// padding: [10, 20],
-					// textStyle: {
-					// 	color: "#660FF0",
-					// 	fontSize: 18,
-					// },
 					formatter: (params) => {
 						const data = params[0];
 						const hours = new Date(
@@ -95,15 +87,15 @@ export default {
 					type: "category",
 					boundaryGap: false,
 					data: this.xAxisData,
-					splitLine: {
-						show: true,
-					},
-					axisTick: {
-						show: false,
-					},
-					axisLine: {
-						show: false,
-					},
+					// splitLine: {
+					// 	show: true,
+					// },
+					// axisTick: {
+					// 	show: false,
+					// },
+					// axisLine: {
+					// 	show: false,
+					// },
 					axisLabel: {
 						fontSize: 12,
 						color: "#7F8489",

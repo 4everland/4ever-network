@@ -77,7 +77,7 @@
 						</h3>
 						<div class="data">
 							<span>{{ overViewData.totalReward }}</span>
-							<span class="text ml-2">4EVR</span>
+							<span class="text ml-2">4EVER</span>
 						</div>
 					</div>
 				</li>
@@ -236,7 +236,7 @@
 				>
 					<template v-slot:header.accuracyRate="{ header }">
 						<span>{{ header.text }}</span>
-						<v-tooltip top>
+						<v-tooltip top max-width="600">
 							<template v-slot:activator="{ on, attrs }">
 								<img
 									v-bind="attrs"
@@ -342,13 +342,15 @@ export default {
 	name: "Home",
 	data() {
 		return {
+			accessToken:
+				"pk.eyJ1IjoieWVwY2luZyIsImEiOiJjbDFxMGhnbG8xZTQ5M2p1a3oyMzZ1d280In0.u5RCwhIxTBJtd2bmB7DYrw",
 			showtips: false,
 			loading: true,
 			pagination: true,
 			currentPage: 1,
 			totalPageSize: 0,
 			row: null,
-			isShowNode: false,
+			isShowNode: true,
 			overViewData: {},
 			challenggeData: {},
 			latestReport: [],
@@ -361,33 +363,38 @@ export default {
 			nodeList: [],
 			tableHeaderData: [
 				{
-					text: "TeeReport",
+					text: "Node ID",
 					align: "center",
 					sortable: false,
-					value: "blockNumber",
+					value: "nodeId",
 				},
 				{
-					text: "Average Accuracy Rate",
-					align: "center",
-					value: "averageAccuracyRate",
-				},
-				{ text: "Total Storage", align: "center", value: "totalSize" },
-				{
-					text: "Average Challenge Time",
-					align: "center",
-					value: "averageElapsedTime",
-				},
-				{
-					text: "Total Reward",
+					text: "Region",
 					align: "center",
 					sortable: false,
-					value: "reward",
+					value: "region",
 				},
-				{ text: "CreateAt", align: "center", value: "blockCreatedAt" },
 				{
-					text: "View",
+					text: "PoSC Accuracy Rate",
 					align: "center",
-					value: "treeReportDetail",
+					value: "accuracyRate",
+				},
+				{
+					text: "Total Rewards",
+					align: "center",
+					value: "totalReward",
+				},
+				{
+					text: "Status",
+					align: "center",
+					sortable: false,
+					value: "status",
+				},
+				{ text: "CreateAt", align: "center", value: "createdAt" },
+				{
+					text: "Detail",
+					align: "center",
+					value: "nodeDetail",
 					sortable: false,
 				},
 			],
@@ -399,8 +406,8 @@ export default {
 	created() {
 		this.getNetworkInfo();
 		this.getRoport();
+		// this.getReportList();
 		this.getNodeList();
-		this.getReportList();
 		this.getChartsData();
 	},
 	computed: {
@@ -732,6 +739,10 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+#map {
+	width: 100%;
+	height: 450px;
+}
 /deep/ .l7-control-logo.l7-control {
 	display: none;
 }
