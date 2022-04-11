@@ -90,12 +90,12 @@ export default {
 					// splitLine: {
 					// 	show: true,
 					// },
-					// axisTick: {
-					// 	show: false,
-					// },
-					// axisLine: {
-					// 	show: false,
-					// },
+					axisTick: {
+						show: false,
+					},
+					axisLine: {
+						show: false,
+					},
 					axisLabel: {
 						fontSize: 12,
 						color: "#7F8489",

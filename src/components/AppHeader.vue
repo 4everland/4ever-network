@@ -43,7 +43,14 @@
 									class="message-content-block d-flex flex-column"
 									v-if="searchData.type == 'BLOCK'"
 								>
-									<span class="block-info"
+									<span
+										class="block-info"
+										@click="
+											handleViewClick(
+												searchData.block,
+												'reportDetail'
+											)
+										"
 										>#
 										{{ searchData.block.blockNumber }}</span
 									>
@@ -55,9 +62,16 @@
 									class="message-content-block d-flex flex-column"
 									v-else-if="searchData.type == 'NODE'"
 								>
-									<span class="block-info">{{
-										searchData.node.nodeId
-									}}</span>
+									<span
+										class="block-info"
+										@click="
+											handleViewClick(
+												searchData.node,
+												'nodeDetail'
+											)
+										"
+										>{{ searchData.node.nodeId }}</span
+									>
 									<span class="block-time">
 										{{
 											formart_date(
@@ -88,27 +102,37 @@
 							</div>
 						</v-menu>
 					</div>
-					<div
-						class="blance-container ml-7"
+					<!-- <div
+						class="balance-container ml-7"
 						v-if="$store.state.account"
 						@click="handleClaim"
 					>
-						<p class="blance-content">
+						<p class="balance-content d-flex align-center">
 							Available to Claim:
-							<span class="blance">{{
+							<v-icon
+								v-if="$store.state.balance == '0'"
+								color="#FFF"
+								class="balance-loading mx-3"
+								>mdi-loading</v-icon
+							>
+							<span v-else class="balance mx-3">{{
 								$store.state.balance
 							}}</span>
 							4EVER
 						</p>
-					</div>
-					<div class="connect-wallet ml-7" v-else>
+					</div> -->
+					<!-- <div
+						class="connect-wallet ml-7"
+						@click="connectWallet"
+						v-else
+					>
 						<img
 							style="width: 24px"
 							src="../assets/imgs/header/link-icon.png"
 							alt=""
 						/>
-						<span @click="connectWallet">Connect Wallet</span>
-					</div>
+						<span>Connect Wallet</span>
+					</div> -->
 				</div>
 				<v-dialog class="rounded-xl" v-model="claimDialog" width="500">
 					<v-card class="pl-7 pr-7 pb-11 rounded-xl">
@@ -124,7 +148,7 @@
 							/>
 						</v-card-title>
 						<v-card-text class="text-center mt-10 pb-14">
-							<span class="claim-blance">{{
+							<span class="claim-balance">{{
 								$store.state.balance
 							}}</span>
 							<span class="currency">4EVER</span>
@@ -134,6 +158,7 @@
 								height="48"
 								class="claim-btn"
 								block
+								:disabled="$store.state.balance == '-'"
 								@click="handleClaimConfirm"
 							>
 								<span>Claim</span>
@@ -155,6 +180,7 @@ export default {
 	components: { Logo },
 	data() {
 		return {
+			isLoading: true,
 			rewards: 0,
 			isLogin: false,
 			isShow: false,
@@ -166,13 +192,14 @@ export default {
 	},
 	created() {
 		if (!window.ethereum) return;
-		this.updateChainId();
-		this.getAccount();
+		// this.updateChainId();
+
+		// this.getAccount();
 		this.listen();
 	},
 	methods: {
 		...mapActions([
-			"getAccount",
+			// "getAccount",
 			"updateAccount",
 			"updateChainId",
 			"updateBalance",
@@ -182,12 +209,13 @@ export default {
 		async connectWallet() {
 			if (!window.ethereum) {
 				window.open("https://metamask.io/download.html", "_blank");
-				return this.$message.warning("please download metamask");
+				return this.$message.warning("Please download Metamask");
 			}
 			const isUnlocked = await window.ethereum._metamask.isUnlocked();
 			if (!isUnlocked) {
-				return this.$message.warning("please lock metamask");
+				return this.$message.warning("Please unlock Metamask");
 			}
+
 			await this.updateAccount();
 		},
 		handleClaim() {
@@ -201,9 +229,9 @@ export default {
 			try {
 				const result = await this.claim();
 				this.updateBalance();
-				this.$message.success("withDraw success!");
+				this.$message.success("Claim successfully!");
 			} catch (error) {
-				this.$message.error("withDraw fail!");
+				this.$message.error("Claim failed!");
 			}
 			this.$loading.hide();
 		},
@@ -213,7 +241,7 @@ export default {
 				const reg = /^[A-Za-z0-9]{1,255}$/;
 				if (!reg.test(this.searchValue)) {
 					return this.$message.warning(
-						"Please enter letters or numbers！"
+						"Only allow English characters/numbers！"
 					);
 				}
 				const result = await fetchSearchValue(this.searchValue);
@@ -234,6 +262,29 @@ export default {
 			console.log(e);
 			this.status = false;
 			this.isShow = false;
+		},
+		handleViewClick(item, type) {
+			this.isShow = false;
+			switch (type) {
+				case "reportDetail":
+					this.$router.push({
+						path: "/blockDetail",
+						query: {
+							blockNumber: item.blockNumber,
+						},
+					});
+					break;
+				case "nodeDetail":
+					this.$router.push({
+						path: "/nodeDetail",
+						query: {
+							nodeId: item.nodeId,
+						},
+					});
+					break;
+				default:
+					break;
+			}
 		},
 		listen() {
 			window.ethereum.on("accountsChanged", (accounts) => {
@@ -284,8 +335,12 @@ export default {
 		position: relative;
 		width: 296px;
 		padding: 0 20px;
+		font-size: 14px;
 		border-bottom: 1px solid black;
 		box-sizing: border-box;
+	}
+	.search-input::placeholder {
+		font-size: 14px;
 	}
 
 	.message-tips {
@@ -336,9 +391,10 @@ export default {
 			font-size: 16px;
 			color: #34a9ff;
 			line-height: 18px;
+			cursor: pointer;
 		}
 		.block-time {
-			margin-top: 4px;
+			margin-top: 10px;
 			font-size: 14px;
 			line-height: 16px;
 			color: #7c848c;
@@ -383,16 +439,41 @@ export default {
 		margin-right: 6px;
 	}
 }
-.blance-container {
+.balance-container {
 	padding: 5px 15px;
 	background: #34a9ff;
 	border-radius: 4px;
 	cursor: pointer;
-	.blance-content {
+	.balance-content {
+		// height: 30px;
 		color: #fff;
 		margin-bottom: 0;
 		font-size: 12px;
-		.blance {
+		.balance-loading {
+			transform: rotate(360deg);
+			animation: loading 0.7s infinite ease-in;
+		}
+		@keyframes loading {
+			0% {
+				transform: rotate(0deg);
+			}
+			20% {
+				transform: rotate(72deg);
+			}
+			40% {
+				transform: rotate(144deg);
+			}
+			60% {
+				transform: rotate(216deg);
+			}
+			80% {
+				transform: rotate(288deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+		.balance {
 			font-size: 18px;
 		}
 	}
@@ -402,7 +483,7 @@ export default {
 	font-size: 18px;
 	font-weight: 600;
 }
-.claim-blance {
+.claim-balance {
 	font-size: 40px;
 	color: #34a9ff;
 }

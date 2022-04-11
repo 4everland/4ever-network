@@ -116,10 +116,11 @@ export default {
 			}
 		},
 		customSort(items, index, isDesc) {
-			if (!index.length) {
+			if (!index.length || !items.length) {
 				return items;
 			} else {
 				let key = index[0];
+				if (!items[0].hasOwnProperty(key)) return items;
 				items.sort((a, b) => {
 					if (!isDesc.length) return items;
 					if (isDesc[0]) {

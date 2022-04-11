@@ -3,7 +3,7 @@
 		<div class="overview">
 			<h2 class="overview-title">Overview</h2>
 			<ul
-				class="overview-list d-flex align-center flex-wrap justify-xl-space-between"
+				class="overview-list d-flex align-center flex-wrap justify-space-between"
 			>
 				<li class="overview-item">
 					<img src="../assets/imgs/home/node-bg.png" alt="" />
@@ -17,7 +17,7 @@
 				<li class="overview-item">
 					<img src="../assets/imgs/home/networkfile-bg.png" alt="" />
 					<div class="item-content">
-						<h3 class="item-title">Total Network files</h3>
+						<h3 class="item-title">Total Network Files</h3>
 						<div class="data" style="color: #6958b2">
 							{{ overViewData.totalFiles }}
 						</div>
@@ -50,11 +50,11 @@
 						</div>
 					</div>
 				</li>
-				<li class="overview-item">
+				<!-- <li class="overview-item">
 					<img src="../assets/imgs/home/reward-bg.png" alt="" />
 					<div class="item-content">
 						<h3 class="item-title d-flex align-center">
-							<span>Total Reward</span>
+							<span>Total Rewards</span>
 							<v-tooltip top>
 								<template v-slot:activator="{ on, attrs }">
 									<img
@@ -80,7 +80,7 @@
 							<span class="text ml-2">4EVER</span>
 						</div>
 					</div>
-				</li>
+				</li> -->
 			</ul>
 		</div>
 		<div class="node-locations">
@@ -98,6 +98,7 @@
 					<template v-for="item in latestReportArr">
 						<li
 							:key="item.nodeId"
+							@click="handleViewClick(item, 'nodeDetail')"
 							class="report-list-item d-flex justify-space-between"
 						>
 							<span class="cid">{{ item.nodeId }}</span>
@@ -115,33 +116,33 @@
 				class="report-right ml-xl-5 ml-sm-5 mt-xl-0 mt-sm-0 mt-md-0 mt-lg-0"
 			>
 				<div class="d-flex report-right-header">
-					<h3 class="report-right-title">TeeReport PSRAMENTERS</h3>
+					<h3 class="report-right-title">TeeReport Parameters</h3>
 				</div>
 				<ul class="report-right-list">
 					<li
 						class="report-right-list-item d-flex justify-space-between"
 					>
-						<span>Generation time per report</span>
+						<span>Generation time per TeeReport</span>
 						<span>{{ challenggeData.interval }} Mintute</span>
 					</li>
 					<li
 						class="report-right-list-item d-flex justify-space-between"
 					>
-						<span>Number of CIDs per Posc</span>
+						<span>Numbers of challenge CID per TeeReport</span>
 						<span>{{ challenggeData.checkNum }} Piece</span>
 					</li>
 					<li
 						class="report-right-list-item d-flex justify-space-between"
 					>
-						<span>Report retention time</span>
+						<span>TeeReport retention time</span>
 						<span>{{ challenggeData.retention }} Day</span>
 					</li>
-					<li
+					<!-- <li
 						class="report-right-list-item d-flex justify-space-between"
 					>
-						<span>Reward per block</span>
+						<span>Reward per TeeReport</span>
 						<span>{{ challenggeData.reward }} 4EVER</span>
-					</li>
+					</li> -->
 				</ul>
 			</v-col>
 		</v-row>
@@ -167,7 +168,7 @@
 						:hide-details="true"
 						solo
 						:items="searchNodeList"
-						label="select a node"
+						label="Select"
 						:menu-props="{ offsetY: true, left: true }"
 						@change="handleSelectChange"
 					>
@@ -217,9 +218,9 @@
 				<div
 					class="switch-default-btn"
 					:class="!isShowNode ? 'active-btn' : ''"
-					@click="handleShowTable('treeReport')"
+					@click="handleShowTable('teeReport')"
 				>
-					TreeReport
+					TeeReport
 				</div>
 			</div>
 			<div class="staistics-table">
@@ -287,7 +288,7 @@
 					<template #item.blockNumber="{ item }">
 						<span>#{{ item.blockNumber }}</span>
 					</template>
-					<template #item.treeReportDetail="{ item }">
+					<template #item.teeReportDetail="{ item }">
 						<img
 							style="width: 20px; height: 12px; cursor: pointer"
 							@click="handleViewClick(item, 'reportDetail')"
@@ -306,6 +307,14 @@
 					<template #item.blockCreatedAt="{ item }" }>
 						<span>
 							{{ formart_date(item.blockCreatedAt) }}
+						</span>
+					</template>
+					<template #item.totalReward="{ item }">
+						<span>{{ formart_rewards(item.totalReward) }}</span>
+					</template>
+					<template #item.createdAt="{ item }" }>
+						<span>
+							{{ formart_date(item.createdAt) }}
 						</span>
 					</template>
 				</v-data-table>
@@ -342,11 +351,9 @@ export default {
 	name: "Home",
 	data() {
 		return {
-			accessToken:
-				"pk.eyJ1IjoieWVwY2luZyIsImEiOiJjbDFxMGhnbG8xZTQ5M2p1a3oyMzZ1d280In0.u5RCwhIxTBJtd2bmB7DYrw",
 			showtips: false,
 			loading: true,
-			pagination: true,
+			pagination: false,
 			currentPage: 1,
 			totalPageSize: 0,
 			row: null,
@@ -379,11 +386,11 @@ export default {
 					align: "center",
 					value: "accuracyRate",
 				},
-				{
-					text: "Total Rewards",
-					align: "center",
-					value: "totalReward",
-				},
+				// {
+				// 	text: "Total Rewards",
+				// 	align: "center",
+				// 	value: "totalReward",
+				// },
 				{
 					text: "Status",
 					align: "center",
@@ -420,19 +427,18 @@ export default {
 	},
 	methods: {
 		handleShowTable(value) {
+			this.tableContentData = [];
+			this.currentPage = 1;
+			this.listQuery = { page: 1, size: 10 };
 			switch (value) {
 				case "node":
-					this.loading = true;
 					this.isShowNode = true;
 					this.pagination = false;
-					this.listQuery = { page: 1, size: 10 };
 					this.getNodeList();
 					break;
-				case "treeReport":
-					this.loading = true;
+				case "teeReport":
 					this.isShowNode = false;
 					this.pagination = true;
-					this.listQuery = { page: 1, size: 10 };
 					this.getReportList();
 					break;
 				default:
@@ -501,21 +507,22 @@ export default {
 					align: "center",
 					value: "averageElapsedTime",
 				},
-				{
-					text: "Total Reward",
-					align: "center",
-					sortable: false,
-					value: "reward",
-				},
+				// {
+				// 	text: "Total Rewards",
+				// 	align: "center",
+				// 	sortable: false,
+				// 	value: "reward",
+				// },
 				{ text: "CreateAt", align: "center", value: "blockCreatedAt" },
 				{
 					text: "View",
 					align: "center",
-					value: "treeReportDetail",
+					value: "teeReportDetail",
 					sortable: false,
 				},
 			];
 			try {
+				this.loading = true;
 				const result = await fetchReportList(this.listQuery);
 				this.loading = false;
 				this.tableContentData = result.item.map((item) => {
@@ -553,11 +560,11 @@ export default {
 					align: "center",
 					value: "accuracyRate",
 				},
-				{
-					text: "Total Rewards",
-					align: "center",
-					value: "totalReward",
-				},
+				// {
+				// 	text: "Total Rewards",
+				// 	align: "center",
+				// 	value: "totalReward",
+				// },
 				{
 					text: "Status",
 					align: "center",
@@ -573,12 +580,13 @@ export default {
 				},
 			];
 			try {
+				this.loading = true;
 				const result = await fetchNodes();
 				this.loading = false;
 				if (this.isShowNode) {
 					this.tableContentData = result.map((item) => {
-						item.createdAt = formart_date(item.createdAt);
-						item.totalReward = formart_rewards(item.totalReward);
+						// item.createdAt = formart_date(item.createdAt);
+						// item.totalReward = formart_rewards(item.totalReward);
 						item.accuracyRate =
 							(item.accuracyRate / 100).toFixed(2) + "%";
 						return item;
@@ -705,10 +713,11 @@ export default {
 			}
 		},
 		customSort(items, index, isDesc) {
-			if (!index.length) {
+			if (!index.length || !items.length) {
 				return items;
 			} else {
 				let key = index[0];
+				if (!items[0].hasOwnProperty(key)) return items;
 				items.sort((a, b) => {
 					if (!isDesc.length) return items;
 					if (isDesc[0]) {
@@ -731,6 +740,7 @@ export default {
 			}
 		},
 		formart_date,
+		formart_rewards,
 	},
 	components: {
 		NetworkBubble,
@@ -905,6 +915,8 @@ export default {
 				.report-list-item {
 					font-size: 12px;
 					padding: 12px 0;
+					cursor: pointer;
+
 					.cid {
 						flex: 1;
 						text-overflow: ellipsis;
@@ -915,15 +927,9 @@ export default {
 						// width: 41px;
 						margin: 0 20px;
 					}
-					// .time {
-					//   width: 146px;
-					// }
-					> span {
-						cursor: pointer;
-					}
-					> span:hover {
-						color: #34a9ff;
-					}
+				}
+				.report-list-item:hover {
+					color: #34a9ff;
 				}
 			}
 		}
@@ -956,12 +962,6 @@ export default {
 				.report-right-list-item {
 					padding: 12px 0;
 					font-size: 12px;
-					> span {
-						cursor: pointer;
-					}
-					> span:hover {
-						color: #34a9ff;
-					}
 				}
 			}
 		}
@@ -1073,12 +1073,12 @@ export default {
 			}
 			/deep/ th:last-of-type {
 				position: sticky;
-				right: 0;
+				right: -1px;
 				background: #e6e8eb;
 			}
 			/deep/ td:last-of-type {
 				position: sticky;
-				right: 0;
+				right: -1px;
 				background: #fff;
 			}
 			/deep/

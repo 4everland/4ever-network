@@ -9,7 +9,8 @@ export default new Vuex.Store({
 	state: {
 		account: "",
 		chainId: "",
-		balance: "-",
+		balance: "0",
+		holder: null,
 	},
 	mutations: {
 		UPDATE_ACCOUNT(state, value) {
@@ -21,6 +22,9 @@ export default new Vuex.Store({
 		UPDATE_BALANCE(state, value) {
 			state.balance = value;
 		},
+		UPDATE_HOLDER(state, value) {
+			state.holder = value;
+		},
 	},
 	actions: {
 		async getAccount({ commit, dispatch }) {
@@ -29,37 +33,51 @@ export default new Vuex.Store({
 			});
 			if (accounts.length !== 0) {
 				commit("UPDATE_ACCOUNT", accounts[0]);
+				const isExists = await contracts.POSC.holderExists(accounts[0]);
+				commit("UPDATE_HOLDER", isExists);
+				if (!isExists) return commit("UPDATE_BALANCE", "-");
 				setInterval(() => {
 					dispatch("updateBalance");
 				}, 10000);
 			}
 		},
-		async updateAccount({ commit, dispatch }) {
+		async updateAccount({ state, commit, dispatch }) {
+			if (state.chainId != 1 && state.chainId != 4)
+				return Vue.prototype.$message.error(
+					"Please select the correct network!"
+				);
 			const accounts = await window.ethereum.request({
 				method: "eth_requestAccounts",
 			});
 			commit("UPDATE_ACCOUNT", accounts[0]);
 			dispatch("updateBalance");
 		},
-		async updateChainId({ commit }) {
+		async updateChainId({ commit, dispatch }) {
 			let chainId = await window.ethereum.request({
 				method: "eth_chainId",
 			});
 			chainId = parseInt(chainId, 16);
-			// if (chainId != 1 && chainId != 4) return;
 			commit("UPDATE_CHAINID", chainId);
+			if (chainId != 1 && chainId != 4)
+				return Vue.prototype.$message.error(
+					"Please select the correct network!"
+				);
+			dispatch("getAccount");
 		},
 		async updateBalance({ state, commit }) {
 			// console.log("---------");
-			if (state.chainId !== 1 && state.chainId !== 4) return;
-			// console.log(state.account, "account");
-			const isExists = await contracts.POSC.holderExists(state.account);
-			// console.log("isExists", isExists);
-			if (!isExists) return;
+			// if (state.chainId !== 1 && state.chainId !== 4)
+			// 	return Vue.prototype.$message.error(
+			// 		"Please select the correct network!"
+			// 	);
+
+			// const isExists = await contracts.POSC.holderExists(state.account);
+			// if (!isExists) return;
 			const a = await contracts.POSC.holders(state.account);
 			const reward = await contracts.POSC.reward(a.pid);
 			// console.log(reward.toString(), "REWARD");
 			commit("UPDATE_BALANCE", formart_rewards(reward.toString()));
+			// commit("UPDATE_HOLDER", isExists);
 		},
 		async claim({ state, dispatch }) {
 			const data = contracts.POSC.interface.encodeFunctionData("claim", [

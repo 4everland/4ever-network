@@ -50,14 +50,17 @@
 								nodeInfo.createdAt ? nodeInfo.createdAt : "/"
 							}}</span>
 						</li>
-						<li class="node-info-item">
+						<!-- <li class="node-info-item">
 							<span class="node-text right">Total Rewards: </span>
-							<span class="node-value">{{
-								nodeInfo.totalReward
-									? nodeInfo.totalReward
-									: "/"
-							}}</span>
-						</li>
+							<span class="node-value"
+								>{{
+									nodeInfo.totalReward
+										? nodeInfo.totalReward
+										: "/"
+								}}
+								<span>4EVER</span>
+							</span>
+						</li> -->
 					</ul>
 				</v-col>
 			</v-row>
@@ -337,10 +340,11 @@ export default {
 			this.dialog = true;
 		},
 		customSort(items, index, isDesc) {
-			if (!index.length) {
+			if (!index.length || !items.length) {
 				return items;
 			} else {
 				let key = index[0];
+				if (!items[0].hasOwnProperty(key)) return items;
 				items.sort((a, b) => {
 					if (!isDesc.length) return items;
 					if (isDesc[0]) {

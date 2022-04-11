@@ -145,7 +145,7 @@ export default {
 					// .color("#4cfd47")
 					.animate({
 						rings: 1,
-						speed: 1,
+						speed: 0.7,
 					})
 					// .active(true)
 					.style({
