@@ -12,21 +12,24 @@
 				</v-btn>
 				<div class="d-flex align-center justify-space-between">
 					<div class="search-bar">
-						<input
-							class="search-input"
-							type="text"
-							v-model="searchValue"
-							@keydown.enter="handleSearch"
-							placeholder="Node/TeeReport/CID......"
-						/>
 						<v-menu
 							:value="isShow"
 							:close-on-content-click="false"
 							@input="handleMenu"
 							transition="slide-y-transition"
 							attach
+							left
 							nudge-bottom="50"
 						>
+							<template v-slot:activator="{ on }">
+								<input
+									class="search-input"
+									type="text"
+									v-model="searchValue"
+									@keydown.enter="handleSearch"
+									placeholder="Node/TeeReport/CID......"
+								/>
+							</template>
 							<div v-if="isShow && status" class="content">
 								<div class="message-header d-flex align-center">
 									<i class="header-line left"></i>
@@ -195,7 +198,8 @@ export default {
 		// this.updateChainId();
 
 		// this.getAccount();
-		this.listen();
+
+		// this.listen();
 	},
 	methods: {
 		...mapActions([

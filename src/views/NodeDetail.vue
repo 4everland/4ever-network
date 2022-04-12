@@ -9,48 +9,60 @@
 				/>
 				<h3 class="ml-3">Node Info</h3>
 			</div>
+
+			<!-- node-info -->
 			<v-row class="node-info">
-				<v-col sm="12" lg="8">
-					<ul class="node-info-list">
-						<li class="node-info-item">
-							<span class="node-text">Node ID : </span>
-							<span class="node-value">{{
-								nodeInfo.nodeId ? nodeInfo.nodeId : "/"
-							}}</span>
-						</li>
-						<li class="node-info-item">
-							<span class="node-text">Regoin: </span>
-							<span class="node-value">{{
-								nodeInfo.region ? nodeInfo.region : "/"
-							}}</span>
-						</li>
-						<li class="node-info-item">
-							<span class="node-text right"
-								>Program Version:
-							</span>
-							<span class="node-value">{{
-								nodeInfo.programVersion
-									? nodeInfo.programVersion
-									: "/"
-							}}</span>
-						</li>
-					</ul>
-				</v-col>
-				<v-col sm="12" lg="4">
-					<ul class="node-info-list">
-						<li class="node-info-item">
-							<span class="node-text right">Status: </span>
-							<span class="node-value">{{
-								nodeInfo.status ? nodeInfo.status : "/"
-							}}</span>
-						</li>
-						<li class="node-info-item">
-							<span class="node-text right">CreateAt: </span>
-							<span class="node-value">{{
-								nodeInfo.createdAt ? nodeInfo.createdAt : "/"
-							}}</span>
-						</li>
-						<!-- <li class="node-info-item">
+				<v-skeleton-loader
+					type="article"
+					:loading="true"
+					width="100%"
+					v-if="JSON.stringify(nodeInfo) == '{}'"
+				>
+				</v-skeleton-loader>
+				<v-row v-else>
+					<v-col sm="12" lg="8">
+						<ul class="node-info-list">
+							<li class="node-info-item">
+								<span class="node-text">Node ID : </span>
+								<span class="node-value">{{
+									nodeInfo.nodeId ? nodeInfo.nodeId : "/"
+								}}</span>
+							</li>
+							<li class="node-info-item">
+								<span class="node-text">Regoin: </span>
+								<span class="node-value">{{
+									nodeInfo.region ? nodeInfo.region : "/"
+								}}</span>
+							</li>
+							<li class="node-info-item">
+								<span class="node-text right"
+									>Program Version:
+								</span>
+								<span class="node-value">{{
+									nodeInfo.programVersion
+										? nodeInfo.programVersion
+										: "/"
+								}}</span>
+							</li>
+						</ul>
+					</v-col>
+					<v-col sm="12" lg="4">
+						<ul class="node-info-list">
+							<li class="node-info-item">
+								<span class="node-text right">Status: </span>
+								<span class="node-value">{{
+									nodeInfo.status ? nodeInfo.status : "/"
+								}}</span>
+							</li>
+							<li class="node-info-item">
+								<span class="node-text right">CreateAt: </span>
+								<span class="node-value">{{
+									nodeInfo.createdAt
+										? nodeInfo.createdAt
+										: "/"
+								}}</span>
+							</li>
+							<!-- <li class="node-info-item">
 							<span class="node-text right">Total Rewards: </span>
 							<span class="node-value"
 								>{{
@@ -61,24 +73,34 @@
 								<span>4EVER</span>
 							</span>
 						</li> -->
-					</ul>
-				</v-col>
+						</ul>
+					</v-col>
+				</v-row>
 			</v-row>
 
+			<!-- accuracy-rate -->
 			<div class="accuracy-rate">
 				<div class="accuracy-rate-header d-flex">
 					<img class="icon" src="@/assets/imgs/home/2.png" alt="" />
 					<h3 class="ml-3">Accuracy Rate</h3>
 				</div>
 				<div class="accuracy-rate-charts">
-					<network-line
-						:xAxisData="xAxisData"
-						:yAxisData="yAxisData"
-						yAxisLabelFormatter="{value}%"
-					/>
+					<v-skeleton-loader
+						type="image,image"
+						class="mt-3"
+						:loading="xAxisData.length == 0"
+						style="height: 100%"
+					>
+						<network-line
+							:xAxisData="xAxisData"
+							:yAxisData="yAxisData"
+							yAxisLabelFormatter="{value}%"
+						/>
+					</v-skeleton-loader>
 				</div>
 			</div>
 
+			<!-- node-statistics -->
 			<div class="node-statistics">
 				<div class="accuracy-rate-header d-flex">
 					<img class="icon" src="@/assets/imgs/home/3.png" alt="" />
@@ -98,7 +120,7 @@
 					>
 						<template v-slot:header.accuracyRate="{ header }">
 							<span>{{ header.text }}</span>
-							<v-tooltip top>
+							<v-tooltip top max-width="600">
 								<template v-slot:activator="{ on, attrs }">
 									<img
 										v-bind="attrs"
@@ -375,6 +397,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
+/deep/.v-skeleton-loader__article {
+	background: transparent !important;
+}
 .node-detail-container {
 	max-width: 1000px;
 	width: 100%;

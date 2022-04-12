@@ -1,57 +1,92 @@
 <template>
 	<div class="home">
+		<!-- overview -->
 		<div class="overview">
 			<h2 class="overview-title">Overview</h2>
 			<ul
 				class="overview-list d-flex align-center flex-wrap justify-space-between"
 			>
 				<li class="overview-item">
-					<img src="../assets/imgs/home/node-bg.png" alt="" />
-					<div class="item-content">
-						<h3 class="item-title">Total Nodes</h3>
-						<div class="data" style="color: '#345AA7">
-							{{ overViewData.totalNode }}
+					<v-skeleton-loader
+						type="article"
+						style="height: 100%"
+						:loading="JSON.stringify(overViewData) == '{}'"
+					>
+						<img
+							class="overview-item-bg"
+							src="../assets/imgs/home/node-bg.png"
+							alt=""
+						/>
+						<div class="item-content">
+							<h3 class="item-title">Total Nodes</h3>
+							<div class="data" style="color: '#345AA7">
+								{{ overViewData.totalNode }}
+							</div>
 						</div>
-					</div>
+					</v-skeleton-loader>
 				</li>
 				<li class="overview-item">
-					<img src="../assets/imgs/home/networkfile-bg.png" alt="" />
-					<div class="item-content">
-						<h3 class="item-title">Total Network Files</h3>
-						<div class="data" style="color: #6958b2">
-							{{ overViewData.totalFiles }}
+					<v-skeleton-loader
+						type="article"
+						:loading="JSON.stringify(overViewData) == '{}'"
+						style="height: 100%"
+					>
+						<img
+							class="overview-item-bg"
+							src="../assets/imgs/home/networkfile-bg.png"
+							alt=""
+						/>
+						<div class="item-content">
+							<h3 class="item-title">Total Files</h3>
+							<div class="data" style="color: #6958b2">
+								{{ overViewData.totalFiles }}
+							</div>
 						</div>
-					</div>
+					</v-skeleton-loader>
 				</li>
 				<li class="overview-item">
-					<img src="../assets/imgs/home/storage-bg.png" alt="" />
-					<div class="item-content">
-						<h3 class="item-title d-flex align-center">
-							<span>Total Storage</span>
-							<v-tooltip top>
-								<template v-slot:activator="{ on, attrs }">
-									<img
-										v-bind="attrs"
-										v-on="on"
-										class="ml-2"
-										style="
-											width: 16px;
-											vertical-align: middle;
-										"
-										src="@/assets/imgs/home/warning-icon.png"
-										alt=""
-									/>
-								</template>
-								<span>Used storage for network-wide nodes</span>
-							</v-tooltip>
-						</h3>
-						<div class="data" style="color: #7784cc">
-							{{ overViewData.totalStorage }}
+					<v-skeleton-loader
+						type="article"
+						:loading="JSON.stringify(overViewData) == '{}'"
+						style="height: 100%"
+					>
+						<img
+							class="overview-item-bg"
+							src="../assets/imgs/home/storage-bg.png"
+							alt=""
+						/>
+						<div class="item-content">
+							<h3 class="item-title d-flex align-center">
+								<span>Total Storage</span>
+								<v-tooltip top>
+									<template v-slot:activator="{ on, attrs }">
+										<img
+											v-bind="attrs"
+											v-on="on"
+											class="ml-2"
+											style="
+												width: 16px;
+												vertical-align: middle;
+											"
+											src="@/assets/imgs/home/warning-icon.png"
+											alt=""
+										/>
+									</template>
+									<span
+										>Used storage for network-wide
+										nodes</span
+									>
+								</v-tooltip>
+							</h3>
+							<div class="data" style="color: #7784cc">
+								{{ overViewData.totalStorage }}
+							</div>
 						</div>
-					</div>
+					</v-skeleton-loader>
 				</li>
+
 				<!-- <li class="overview-item">
-					<img src="../assets/imgs/home/reward-bg.png" alt="" />
+					<img class="overview-item-bg" src="../assets/imgs/home/reward-bg.png" alt="" />
 					<div class="item-content">
 						<h3 class="item-title d-flex align-center">
 							<span>Total Rewards</span>
@@ -83,30 +118,43 @@
 				</li> -->
 			</ul>
 		</div>
+
+		<!-- node-locations -->
 		<div class="node-locations">
 			<network-bubble></network-bubble>
 		</div>
+
+		<!-- Latest PoSC Report  -->
 		<v-row class="latest-PoSC-report d-flex justify-space-between">
 			<v-col xs="12" md="8" lg="8" xl="8" class="report-left">
-				<div class="report-left-bar d-flex justify-space-between">
-					<h3 class="report-left-title">
-						Latest PoSC Report #{{ latestReport.blockNumber }}
-					</h3>
-					<span class="report-more" @click="handleToMore">More</span>
-				</div>
-				<ul class="report-list">
-					<template v-for="item in latestReportArr">
-						<li
-							:key="item.nodeId"
-							@click="handleViewClick(item, 'nodeDetail')"
-							class="report-list-item d-flex justify-space-between"
+				<v-skeleton-loader
+					type="article"
+					:loading="latestReportArr.length == 0"
+				>
+					<div class="report-left-bar d-flex justify-space-between">
+						<h3 class="report-left-title">
+							Latest PoSC Report #{{ latestReport.blockNumber }}
+						</h3>
+						<span class="report-more" @click="handleToMore"
+							>More</span
 						>
-							<span class="cid">{{ item.nodeId }}</span>
-							<span class="rate">{{ item.accuracyRate }}</span>
-							<span class="time">{{ item.createdAt }}</span>
-						</li>
-					</template>
-				</ul>
+					</div>
+					<ul class="report-list">
+						<template v-for="item in latestReportArr">
+							<li
+								:key="item.nodeId"
+								@click="handleViewClick(item, 'nodeDetail')"
+								class="report-list-item d-flex justify-space-between"
+							>
+								<span class="cid">{{ item.nodeId }}</span>
+								<span class="rate">{{
+									item.accuracyRate
+								}}</span>
+								<span class="time">{{ item.createdAt }}</span>
+							</li>
+						</template>
+					</ul>
+				</v-skeleton-loader>
 			</v-col>
 			<v-col
 				xs="12"
@@ -115,37 +163,48 @@
 				lg="4"
 				class="report-right ml-xl-5 ml-sm-5 mt-xl-0 mt-sm-0 mt-md-0 mt-lg-0"
 			>
-				<div class="d-flex report-right-header">
-					<h3 class="report-right-title">TeeReport Parameters</h3>
-				</div>
-				<ul class="report-right-list">
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
-						<span>Generation time per TeeReport</span>
-						<span>{{ challenggeData.interval }} Mintute</span>
-					</li>
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
-						<span>Numbers of challenge CID per TeeReport</span>
-						<span>{{ challenggeData.checkNum }} Piece</span>
-					</li>
-					<li
-						class="report-right-list-item d-flex justify-space-between"
-					>
-						<span>TeeReport retention time</span>
-						<span>{{ challenggeData.retention }} Day</span>
-					</li>
-					<!-- <li
+				<v-skeleton-loader
+					type="article"
+					:loading="latestReportArr.length == 0"
+				>
+					<div class="d-flex report-right-header">
+						<h3 class="report-right-title">TeeReport Parameters</h3>
+					</div>
+					<ul class="report-right-list">
+						<li
+							class="report-right-list-item d-flex justify-space-between"
+						>
+							<span>Generation time per TeeReport</span>
+							<!-- <span>{{ challenggeData.interval }} Mintute</span> -->
+							<span>20-30 Mins</span>
+						</li>
+						<li
+							class="report-right-list-item d-flex justify-space-between"
+						>
+							<span>Numbers of challenge CID per TeeReport</span>
+							<!-- <span>{{ challenggeData.checkNum }} Piece</span> -->
+							<span>20 Piece</span>
+						</li>
+						<li
+							class="report-right-list-item d-flex justify-space-between"
+						>
+							<span>TeeReport retention time</span>
+							<!-- <span>{{ challenggeData.retention }} Day</span> -->
+							<span>30 Days</span>
+						</li>
+						<!-- <li
 						class="report-right-list-item d-flex justify-space-between"
 					>
 						<span>Reward per TeeReport</span>
 						<span>{{ challenggeData.reward }} 4EVER</span>
 					</li> -->
-				</ul>
+					</ul>
+				</v-skeleton-loader>
 			</v-col>
 		</v-row>
+
+		<!-- Accuracy Rate-->
+
 		<v-row class="storage d-flex justify-space-between">
 			<v-col
 				xs="12"
@@ -186,23 +245,29 @@
 						</div>
 					</v-select>
 				</div>
-
 				<div class="accuracy-rate-charts">
-					<network-line
-						:grid="{
-							top: '10%',
-							left: '0%',
-							right: '5%',
-							bottom: '10%',
-							containLabel: true,
-						}"
-						:xAxisData="xAxisData"
-						:yAxisData="yAxisData"
-					/>
+					<v-skeleton-loader
+						type="image,image"
+						class="mt-3"
+						:loading="xAxisData.length == 0"
+						style="height: 100%"
+					>
+						<network-line
+							:grid="{
+								top: '10%',
+								left: '0%',
+								right: '5%',
+								bottom: '10%',
+								containLabel: true,
+							}"
+							:xAxisData="xAxisData"
+							:yAxisData="yAxisData"
+					/></v-skeleton-loader>
 				</div>
 			</v-col>
 		</v-row>
 
+		<!-- statistics -->
 		<div class="statistics card-border">
 			<div class="statistics-banner">
 				<h3 class="statistics-title">Statistics</h3>
@@ -210,17 +275,17 @@
 			<div class="switch-tab">
 				<div
 					class="switch-default-btn"
-					:class="isShowNode ? 'active-btn' : ''"
-					@click="handleShowTable('node')"
-				>
-					Node
-				</div>
-				<div
-					class="switch-default-btn"
 					:class="!isShowNode ? 'active-btn' : ''"
 					@click="handleShowTable('teeReport')"
 				>
 					TeeReport
+				</div>
+				<div
+					class="switch-default-btn"
+					:class="isShowNode ? 'active-btn' : ''"
+					@click="handleShowTable('node')"
+				>
+					Node
 				</div>
 			</div>
 			<div class="staistics-table">
@@ -235,7 +300,7 @@
 					loading-text="Loading... Please wait"
 					:custom-sort="customSort"
 				>
-					<template v-slot:header.accuracyRate="{ header }">
+					<template #header.accuracyRate="{ header }">
 						<span>{{ header.text }}</span>
 						<v-tooltip top max-width="600">
 							<template v-slot:activator="{ on, attrs }">
@@ -262,7 +327,7 @@
 							>
 						</v-tooltip>
 					</template>
-					<template v-slot:header.createdAt="{ header }">
+					<template #header.createdAt="{ header }">
 						<span>{{ header.text }}</span>
 						<v-tooltip top>
 							<template v-slot:activator="{ on, attrs }">
@@ -310,7 +375,16 @@
 						</span>
 					</template>
 					<template #item.totalReward="{ item }">
-						<span>{{ formart_rewards(item.totalReward) }}</span>
+						<!-- <span>{{ formart_rewards(item.totalReward) }}</span> -->
+						<span>-</span>
+					</template>
+					<template #item.reward="{ item }">
+						<!-- <span>{{ formart_rewards(item.totalReward) }}</span> -->
+						<span>-</span>
+					</template>
+
+					<template #item.region="{ item }">
+						<span>{{ item.region ? item.region : "-" }}</span>
 					</template>
 					<template #item.createdAt="{ item }" }>
 						<span>
@@ -353,11 +427,10 @@ export default {
 		return {
 			showtips: false,
 			loading: true,
-			pagination: false,
+			pagination: true,
 			currentPage: 1,
 			totalPageSize: 0,
-			row: null,
-			isShowNode: true,
+			isShowNode: false,
 			overViewData: {},
 			challenggeData: {},
 			latestReport: [],
@@ -413,8 +486,8 @@ export default {
 	created() {
 		this.getNetworkInfo();
 		this.getRoport();
-		// this.getReportList();
 		this.getNodeList();
+		this.getReportList();
 		this.getChartsData();
 	},
 	computed: {
@@ -483,7 +556,7 @@ export default {
 					return item;
 				});
 				this.latestReport = result;
-				this.latestReportArr = result.reports;
+				this.latestReportArr = result.reports.slice(0, 4);
 			} catch (err) {
 				console.log(err, "err");
 			}
@@ -507,12 +580,12 @@ export default {
 					align: "center",
 					value: "averageElapsedTime",
 				},
-				// {
-				// 	text: "Total Rewards",
-				// 	align: "center",
-				// 	sortable: false,
-				// 	value: "reward",
-				// },
+				{
+					text: "Total Rewards",
+					align: "center",
+					sortable: false,
+					value: "reward",
+				},
 				{ text: "CreateAt", align: "center", value: "blockCreatedAt" },
 				{
 					text: "View",
@@ -560,11 +633,11 @@ export default {
 					align: "center",
 					value: "accuracyRate",
 				},
-				// {
-				// 	text: "Total Rewards",
-				// 	align: "center",
-				// 	value: "totalReward",
-				// },
+				{
+					text: "Total Rewards",
+					align: "center",
+					value: "totalReward",
+				},
 				{
 					text: "Status",
 					align: "center",
@@ -811,19 +884,19 @@ export default {
 			padding-left: 0;
 			.overview-item {
 				position: relative;
-				width: 235px;
+				width: 30%;
 				height: 140px;
 				margin-bottom: 20px;
 				border-radius: 5px;
 				border: 1px solid #e6e8eb;
 				background: #ffffff;
-				> img {
+				.overview-item-bg {
 					position: absolute;
 					left: 0;
 					top: 0;
 					width: 121px;
 				}
-				.item-content {
+				/deep/.item-content {
 					z-index: 1;
 					position: relative;
 					height: 100%;
@@ -969,8 +1042,7 @@ export default {
 	.storage {
 		width: 100%;
 		.storage-right {
-			height: 367px;
-			padding: 31px 25px 0 30px;
+			padding: 31px 25px 30px 30px;
 			box-sizing: border-box;
 			.storage-right-header {
 				img {
@@ -979,7 +1051,8 @@ export default {
 				}
 			}
 			.accuracy-rate-charts {
-				flex: 1;
+				// flex: 1;
+				height: 300px;
 			}
 			/deep/ .v-input__control {
 				width: 135px;

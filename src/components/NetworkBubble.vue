@@ -25,6 +25,7 @@ export default {
 			const map = new Mapbox({
 				pitch: 0,
 				// style: "mapbox://styles/mapbox/navigation-night-v1",
+				token: "pk.eyJ1IjoiNGV2ZXJsYW5kIiwiYSI6ImNsMXZqZjd0bzAxeGYzZG1yZHRleng3d28ifQ.jo3h6cZvLjm8snIHAI6NCQ",
 				style: "light",
 				center: [96.99215001469588, 29.281597225674773],
 				zoom: 2,
@@ -98,18 +99,18 @@ export default {
 								color: "#ABCAEA",
 							},
 						},
-						{
-							geometry: {
-								coordinates: [126.99, 37.55],
-								type: "Point",
-							},
-							properties: {
-								capacity: 1000,
-								country: "Korea",
-								plant: "Seoul",
-								color: "#ABCAEA",
-							},
-						},
+						// {
+						// 	geometry: {
+						// 		coordinates: [126.99, 37.55],
+						// 		type: "Point",
+						// 	},
+						// 	properties: {
+						// 		capacity: 1000,
+						// 		country: "Korea",
+						// 		plant: "Seoul",
+						// 		color: "#ABCAEA",
+						// 	},
+						// },
 						{
 							geometry: {
 								coordinates: [151.24, -33.75],
@@ -122,18 +123,18 @@ export default {
 								color: "#ABCAEA",
 							},
 						},
-						{
-							geometry: {
-								coordinates: [13.41, 52.52],
-								type: "Point",
-							},
-							properties: {
-								capacity: 1000,
-								country: "Deutschland",
-								plant: "Berlin",
-								color: "#ABCAEA",
-							},
-						},
+						// {
+						// 	geometry: {
+						// 		coordinates: [13.41, 52.52],
+						// 		type: "Point",
+						// 	},
+						// 	properties: {
+						// 		capacity: 1000,
+						// 		country: "Deutschland",
+						// 		plant: "Berlin",
+						// 		color: "#ABCAEA",
+						// 	},
+						// },
 					],
 					type: "FeatureCollection",
 				};
