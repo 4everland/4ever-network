@@ -215,7 +215,7 @@
 					<v-card-text style="height: 500px">
 						<table class="dialog-table">
 							<tr>
-								<th class="cid">Node ID</th>
+								<th class="cid">CID</th>
 								<th class="status">Status</th>
 							</tr>
 							<template v-for="item in dialogTableContent">
