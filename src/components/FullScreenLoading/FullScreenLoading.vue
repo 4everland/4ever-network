@@ -12,9 +12,9 @@ export default {
 	data: () => ({
 		loading: false,
 	}),
-	mounted() {
-		setTimeout(() => this.finish(), 2000);
-	},
+	// mounted() {
+	// 	setTimeout(() => this.finish(), 2000);
+	// },
 	methods: {
 		start() {
 			this.loading = true;

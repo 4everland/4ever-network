@@ -27,7 +27,7 @@
 									type="text"
 									v-model="searchValue"
 									@keydown.enter="handleSearch"
-									placeholder="Node/TeeReport/CID......"
+									placeholder="Node/TeeReport/CID..."
 								/>
 							</template>
 							<div v-if="isShow && status" class="content">

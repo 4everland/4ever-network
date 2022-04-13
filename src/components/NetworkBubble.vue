@@ -27,8 +27,9 @@ export default {
 				// style: "mapbox://styles/mapbox/navigation-night-v1",
 				token: "pk.eyJ1IjoiNGV2ZXJsYW5kIiwiYSI6ImNsMXZqZjd0bzAxeGYzZG1yZHRleng3d28ifQ.jo3h6cZvLjm8snIHAI6NCQ",
 				style: "light",
-				center: [96.99215001469588, 29.281597225674773],
-				zoom: 2,
+				// center: [26.603870704017694, 30.007176193923204],
+				center: [14.857049565957709, 17.050336040201174],
+				zoom: 1.2,
 				maxZoom: 10,
 				dragRotate: false,
 			});
@@ -39,18 +40,6 @@ export default {
 			this.scene.on("loaded", () => {
 				const data = {
 					features: [
-						{
-							geometry: {
-								coordinates: [121.47, 31.24],
-								type: "Point",
-							},
-							properties: {
-								capacity: 1000,
-								country: "China",
-								plant: "ShangHai",
-								color: "#ABCAEA",
-							},
-						},
 						{
 							geometry: {
 								coordinates: [-0.12, 51.51],
@@ -99,18 +88,6 @@ export default {
 								color: "#ABCAEA",
 							},
 						},
-						// {
-						// 	geometry: {
-						// 		coordinates: [126.99, 37.55],
-						// 		type: "Point",
-						// 	},
-						// 	properties: {
-						// 		capacity: 1000,
-						// 		country: "Korea",
-						// 		plant: "Seoul",
-						// 		color: "#ABCAEA",
-						// 	},
-						// },
 						{
 							geometry: {
 								coordinates: [151.24, -33.75],
@@ -123,18 +100,6 @@ export default {
 								color: "#ABCAEA",
 							},
 						},
-						// {
-						// 	geometry: {
-						// 		coordinates: [13.41, 52.52],
-						// 		type: "Point",
-						// 	},
-						// 	properties: {
-						// 		capacity: 1000,
-						// 		country: "Deutschland",
-						// 		plant: "Berlin",
-						// 		color: "#ABCAEA",
-						// 	},
-						// },
 					],
 					type: "FeatureCollection",
 				};
@@ -157,6 +122,8 @@ export default {
 			});
 			this.scene.on("zoomchange", (e) => {
 				const currentZoom = this.scene.getZoom().toFixed(2);
+				console.log(this.scene.getCenter());
+				console.log(currentZoom);
 				let maxSize = currentZoom * 50;
 				this.pointLayer.size("capacity", [10, maxSize]);
 				this.pointLayer.render();

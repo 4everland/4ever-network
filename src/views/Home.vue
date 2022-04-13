@@ -227,10 +227,12 @@
 						:hide-details="true"
 						solo
 						:items="searchNodeList"
-						label="Select"
 						:menu-props="{ offsetY: true, left: true }"
 						@change="handleSelectChange"
 					>
+						<template #label>
+							<span style="font-size: 14px"> Select</span>
+						</template>
 						<div
 							slot="prepend-item"
 							class="select-search-bar"
@@ -459,11 +461,11 @@ export default {
 					align: "center",
 					value: "accuracyRate",
 				},
-				// {
-				// 	text: "Total Rewards",
-				// 	align: "center",
-				// 	value: "totalReward",
-				// },
+				{
+					text: "Total Rewards",
+					align: "center",
+					value: "totalReward",
+				},
 				{
 					text: "Status",
 					align: "center",
@@ -602,8 +604,8 @@ export default {
 					// item.blockCreatedAt = formart_date(item.blockCreatedAt);
 					item.averageAccuracyRate =
 						(item.averageAccuracyRate / 100).toFixed(2) + "%";
-					item.totalSize =
-						(item.totalSize / 1024 / 1024).toFixed(2) + "T";
+					item.totalSize = formart_storage(item.totalSize);
+
 					item.averageElapsedTime =
 						item.averageElapsedTime / 1000 + "S";
 					item.reward = formart_rewards(item.reward);
@@ -825,6 +827,9 @@ export default {
 #map {
 	width: 100%;
 	height: 450px;
+}
+/deep/.v-select__selections > input::placeholder {
+	font-size: 12px;
 }
 /deep/ .l7-control-logo.l7-control {
 	display: none;

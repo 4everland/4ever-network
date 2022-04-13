@@ -18,6 +18,10 @@ export default {
 	created() {
 		this.$fullScreenLoading.start();
 	},
+	mounted() {
+		//
+		setTimeout(() => this.$fullScreenLoading.finish(), 2000);
+	},
 	data: () => ({
 		//
 	}),
