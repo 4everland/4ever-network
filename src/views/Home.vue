@@ -651,30 +651,40 @@ export default {
         const data = result.item.filter((obj) => {
           return obj.blockCreatedAt > time;
         });
-        let timeMap = {};
-        const xArr = [];
-        const xArrData = [];
-        data.forEach((item) => {
-          const key = new Date(item.blockCreatedAt * 1000).getHours();
-          if (!xArr.includes(key)) {
-            xArr.push(key);
-            xArrData.push(item.blockCreatedAt);
+        if (!data.length) {
+          let recordDate = parseInt(new Date().getTime() / 1000);
+          let arr = [];
+          for (let i = 0; i < 12; i++) {
+            arr.unshift(recordDate - (i + 1) * 7200);
           }
-          if (timeMap[key]) {
-            timeMap[key].sum += item.averageAccuracyRate;
-            timeMap[key].count++;
-          } else {
-            timeMap[key] = {
-              sum: item.averageAccuracyRate,
-              count: 1,
-            };
-          }
-        });
-        const yArr = xArr.map((key) => {
-          return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
-        });
-        this.xAxisData = xArrData.reverse();
-        this.yAxisData = yArr.reverse();
+          this.xAxisData = arr;
+          this.yAxisData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        } else {
+          let timeMap = {};
+          const xArr = [];
+          const xArrData = [];
+          data.forEach((item) => {
+            const key = new Date(item.blockCreatedAt * 1000).getHours();
+            if (!xArr.includes(key)) {
+              xArr.push(key);
+              xArrData.push(item.blockCreatedAt);
+            }
+            if (timeMap[key]) {
+              timeMap[key].sum += item.averageAccuracyRate;
+              timeMap[key].count++;
+            } else {
+              timeMap[key] = {
+                sum: item.averageAccuracyRate,
+                count: 1,
+              };
+            }
+          });
+          const yArr = xArr.map((key) => {
+            return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+          });
+          this.xAxisData = xArrData.reverse();
+          this.yAxisData = yArr.reverse();
+        }
       } catch (err) {
         console.log(err, "err");
       }
@@ -691,30 +701,40 @@ export default {
         const data = result.item.filter((obj) => {
           return obj.createdAt > time;
         });
-        let timeMap = {};
-        const xArr = [];
-        const xArrData = [];
-        data.forEach((item) => {
-          const key = new Date(item.createdAt * 1000).getHours();
-          if (!xArr.includes(key)) {
-            xArr.push(key);
-            xArrData.push(item.createdAt);
+        if (!data.length) {
+          let recordDate = parseInt(new Date().getTime() / 1000);
+          let arr = [];
+          for (let i = 0; i < 12; i++) {
+            arr.unshift(recordDate - (i + 1) * 7200);
           }
-          if (timeMap[key]) {
-            timeMap[key].sum += item.accuracyRate;
-            timeMap[key].count++;
-          } else {
-            timeMap[key] = {
-              sum: item.accuracyRate,
-              count: 1,
-            };
-          }
-        });
-        const yArr = xArr.map((key) => {
-          return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
-        });
-        this.xAxisData = xArrData.reverse();
-        this.yAxisData = yArr.reverse();
+          this.xAxisData = arr;
+          this.yAxisData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        } else {
+          let timeMap = {};
+          const xArr = [];
+          const xArrData = [];
+          data.forEach((item) => {
+            const key = new Date(item.createdAt * 1000).getHours();
+            if (!xArr.includes(key)) {
+              xArr.push(key);
+              xArrData.push(item.createdAt);
+            }
+            if (timeMap[key]) {
+              timeMap[key].sum += item.accuracyRate;
+              timeMap[key].count++;
+            } else {
+              timeMap[key] = {
+                sum: item.accuracyRate,
+                count: 1,
+              };
+            }
+          });
+          const yArr = xArr.map((key) => {
+            return (timeMap[key].sum / timeMap[key].count / 100).toFixed(2);
+          });
+          this.xAxisData = xArrData.reverse();
+          this.yAxisData = yArr.reverse();
+        }
       } catch (err) {
         console.log(err, "err");
       }
