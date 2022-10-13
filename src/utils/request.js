@@ -1,20 +1,23 @@
 import axios from "axios";
-import url from "./url";
 const service = axios.create({
-	baseURL: url,
-	timeout: 100000,
+  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  timeout: 100000,
 });
 
 service.interceptors.response.use(
-	(response) => {
-		if (response.data.code.toUpperCase() == "SUCCESS") {
-			return response.data.data;
-		} else {
-			throw new Error(response);
-		}
-	},
-	(error) => {
-		return Promise.reject(error);
-	}
+  (response) => {
+    const res = response.data;
+    if (process.env.NODE_ENV == "mock") {
+      return res;
+    }
+    if (res.code.toUpperCase() !== "SUCCESS") {
+      return Promise.reject(new Error(res.message || "Error"));
+    } else {
+      return res;
+    }
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 export default service;

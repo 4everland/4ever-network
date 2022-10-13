@@ -55,3 +55,7 @@ export function formart_date(time) {
   // return date.replace(/\w+\s/, '').replace(/\sGMT.*$/, '')
   return arr[2] + " " + arr[1] + ", " + arr[3] + " " + arr[4];
 }
+
+export function formart_number(num) {
+  return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

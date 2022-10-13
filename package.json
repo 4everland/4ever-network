@@ -3,13 +3,15 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"serve:dev": "vue-cli-service serve --mode dev",
-		"serve:prod": "vue-cli-service serve --mode prod",
-		"build:dev": "vue-cli-service build --mode devbuild",
-		"build:prod": "vue-cli-service build --mode prodbuild",
+		"mock": "vue-cli-service serve --mode mock",
+		"serve:dev": "vue-cli-service serve --mode development",
+		"serve:prod": "vue-cli-service serve --mode production",
+		"build:dev": "vue-cli-service build --mode development",
+		"build:prod": "vue-cli-service build --mode production",
 		"lint": "vue-cli-service lint"
 	},
 	"dependencies": {
+		"@antv/g2plot": "^2.4.20",
 		"@antv/l7": "^2.8.9",
 		"@antv/l7-maps": "^2.8.9",
 		"@mdi/font": "^6.5.95",
@@ -32,6 +34,7 @@
 		"@vue/cli-service": "~4.5.15",
 		"@vue/eslint-config-prettier": "^6.0.0",
 		"babel-eslint": "^10.1.0",
+		"babel-plugin-dynamic-import-node": "^2.3.3",
 		"babel-plugin-transform-remove-console": "^6.9.4",
 		"deepmerge": "^4.2.2",
 		"eslint": "^6.7.2",
