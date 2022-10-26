@@ -74,7 +74,16 @@
                   <span class="tips">Staked 4ever</span>
                 </div>
                 <div>
-                  <v-btn-toggle v-model="toggle_exclusive" mandatory dense>
+                  <v-btn-toggle
+                    v-model="nodeChoose"
+                    mandatory
+                    dense
+                    @change="
+                      (val) => {
+                        lineChartChange('NODE', val);
+                      }
+                    "
+                  >
                     <v-btn x-small>7D</v-btn>
                     <v-btn x-small>1M</v-btn>
                     <v-btn x-small>ALL</v-btn>
@@ -90,7 +99,16 @@
                   <span class="tips">Staked 4ever</span>
                 </div>
                 <div>
-                  <v-btn-toggle v-model="toggle_exclusive" mandatory dense>
+                  <v-btn-toggle
+                    v-model="userChoose"
+                    mandatory
+                    dense
+                    @change="
+                      (val) => {
+                        lineChartChange('USER', val);
+                      }
+                    "
+                  >
                     <v-btn x-small>7D</v-btn>
                     <v-btn x-small>1M</v-btn>
                     <v-btn x-small>ALL</v-btn>
@@ -104,7 +122,7 @@
       </v-row>
       <v-row class="map-block">
         <v-col cols="12">
-          <node-map />
+          <node-map ref="nodeMap" />
         </v-col>
       </v-row>
       <v-row class="node-block">
@@ -151,7 +169,9 @@
           >
             <div class="common-title-box mb-4">
               <span class="cardtitle--text">Major Node</span>
-              <span class="more">View More</span>
+              <span class="more">
+                <v-btn text tile plain to="/explorer">View More</v-btn>
+              </span>
             </div>
             <template>
               <v-simple-table root dense fixed-header height="260px">
@@ -219,7 +239,8 @@ export default {
   components: { nodeMap, accuracyRate, homeVoting, homeProposal, homeUserRank },
   data() {
     return {
-      toggle_exclusive: "",
+      nodeChoose: 0,
+      userChoose: 0,
       overView: [
         {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
@@ -299,6 +320,7 @@ export default {
           key: "burned",
         },
       ],
+      mapData: {},
       nodeLocationList: [],
       majorNodeList: [],
     };
@@ -309,8 +331,12 @@ export default {
     formart_number,
     init() {
       this.getOverview();
-      this.getMapChart();
       this.getNodeList();
+      this.$nextTick(() => {
+        this.setNodeChart();
+        this.setUserChart();
+        this.getMapChart();
+      });
     },
     getOverview() {
       fetchHomeOverview().then((res) => {
@@ -332,10 +358,18 @@ export default {
       const { data } = await fetchStakesLinechart(params);
       return data;
     },
-    async setNodeChart() {
-      const data = await this.getStakedLineChart({
-        type: "NODE",
-      });
+    async setNodeChart(params) {
+      if (!params) {
+        let currentDate = new Date();
+        let before = currentDate.getTime();
+        let after = currentDate.setDate(currentDate.getDate() - 7);
+        params = {
+          before,
+          after,
+          type: "NODE",
+        };
+      }
+      const data = await this.getStakedLineChart(params);
       const line = new Line("nodeChart", {
         height: 110,
         padding: "auto",
@@ -347,10 +381,18 @@ export default {
 
       line.render();
     },
-    async setUserChart() {
-      const data = await this.getStakedLineChart({
-        type: "USER",
-      });
+    async setUserChart(params) {
+      if (!params) {
+        let currentDate = new Date();
+        let before = currentDate.getTime();
+        let after = currentDate.setDate(currentDate.getDate() - 7);
+        params = {
+          before,
+          after,
+          type: "USER",
+        };
+      }
+      const data = await this.getStakedLineChart(params);
       const line = new Line("userChart", {
         height: 110,
         padding: "auto",
@@ -364,7 +406,9 @@ export default {
     },
     getMapChart() {
       fetchNodeMapChart().then((res) => {
-        this.nodeLocationList = res.data.mapValue;
+        const data = res.data.mapValue;
+        this.nodeLocationList = data;
+        this.$refs.nodeMap.initMap(data);
       });
     },
     getNodeList() {
@@ -374,14 +418,39 @@ export default {
         this.majorNodeList = res.data.list;
       });
     },
+    lineChartChange(type, val) {
+      let currentDate = new Date();
+      let before = currentDate.getTime();
+      let after = null;
+      switch (val) {
+        case 0:
+          after = currentDate.setDate(currentDate.getDate() - 7);
+          break;
+        case 1:
+          after = currentDate.setDate(currentDate.getDate() - 30);
+          break;
+        case 2:
+          after = 0;
+          break;
+        default:
+          break;
+      }
+      const params = {
+        before,
+        after,
+        type,
+      };
+      if (type == "NODE") {
+        this.setNodeChart(params);
+      } else if (type == "USER") {
+        this.setUserChart(params);
+      }
+    },
   },
   created() {
     this.init();
   },
-  mounted() {
-    this.setNodeChart();
-    this.setUserChart();
-  },
+  mounted() {},
 };
 </script>
 <style lang="less" scoped>

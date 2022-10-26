@@ -6,7 +6,13 @@
           <logo />
         </v-btn>
         <div>
-          <v-btn class="text-capitalize" depressed icon plain>
+          <v-btn
+            class="text-capitalize"
+            depressed
+            icon
+            plain
+            @click.stop="openTeeView()"
+          >
             <v-icon small> mdi-magnify </v-icon>
           </v-btn>
           <v-btn
@@ -30,12 +36,43 @@
             to="/governance"
             >Governance</v-btn
           >
-          <v-btn class="text-capitalize" depressed plain text tile to="/run"
+          <v-btn class="text-capitalize" depressed plain text tile to="/node"
             >Run a Node</v-btn
           >
         </div>
+        <AppSearch ref="search" />
       </v-container>
-      <v-switch v-model="$vuetify.theme.dark"></v-switch>
+
+      <v-btn
+        v-if="formatAccount"
+        small
+        elevation="1"
+        color="#00A8F1"
+        class="white--text"
+        :outlined="$vuetify.theme.dark"
+        >{{ formatAccount }}</v-btn
+      >
+      <v-btn
+        v-else
+        small
+        elevation="1"
+        color="#00A8F1"
+        class="white--text"
+        :outlined="$vuetify.theme.dark"
+        @click="connectWallet"
+        >Connect</v-btn
+      >
+      <v-btn
+        small
+        icon
+        color="#7F92A0"
+        @click="$vuetify.theme.dark = !$vuetify.theme.dark"
+        class="mx-6"
+      >
+        <v-icon v-if="$vuetify.theme.dark">mdi-white-balance-sunny</v-icon>
+        <v-icon v-else> mdi-brightness-2</v-icon>
+      </v-btn>
+      <!-- <v-switch v-model="$vuetify.theme.dark"></v-switch> -->
     </v-app-bar>
   </div>
 </template>
@@ -43,10 +80,27 @@
 <script>
 import { formart_date } from "@/utils/utils";
 import Logo from "../components/Logo.vue";
+import AppSearch from "./AppSearch.vue";
 import { mapActions, mapMutations } from "vuex";
 import { fetchSearchValue } from "@/api/api";
+import { connect, getToken, removeToken } from "@/utils/auth";
+
 export default {
-  components: { Logo },
+  components: { Logo, AppSearch },
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+    formatAccount() {
+      const account = this.$store.state.account;
+      if (account.length > 0) {
+        return (
+          account.substr(0, 10) + "...." + account.substr(account.length - 8, 8)
+        );
+      }
+      return account;
+    },
+  },
   data() {
     return {
       isLoading: true,
@@ -63,13 +117,13 @@ export default {
     if (!window.ethereum) return;
     // this.updateChainId();
 
-    // this.getAccount();
+    this.getAccount();
 
     // this.listen();
   },
   methods: {
     ...mapActions([
-      // "getAccount",
+      "getAccount",
       "updateAccount",
       "updateChainId",
       "updateBalance",
@@ -77,16 +131,9 @@ export default {
     ]),
     ...mapMutations(["UPDATE_ACCOUNT", "UPDATE_BALANCE"]),
     async connectWallet() {
-      if (!window.ethereum) {
-        window.open("https://metamask.io/download.html", "_blank");
-        return this.$message.warning("Please download Metamask");
-      }
-      const isUnlocked = await window.ethereum._metamask.isUnlocked();
-      if (!isUnlocked) {
-        return this.$message.warning("Please unlock Metamask");
-      }
+      connect();
 
-      await this.updateAccount();
+      // await this.updateAccount();
     },
     handleClaim() {
       if (this.$store.state.balance == 0)
@@ -135,6 +182,9 @@ export default {
       });
     },
     formart_date,
+    openTeeView() {
+      this.$refs.search.openDialog();
+    },
   },
 };
 </script>

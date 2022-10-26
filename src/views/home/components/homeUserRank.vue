@@ -7,7 +7,6 @@
             <v-icon v-text="'$userRankIcon'" small class="mr-2"></v-icon>User
             voting ranking</span
           >
-          <span class="more">View More</span>
         </div>
         <template>
           <v-simple-table root fixed-header>
@@ -20,13 +19,13 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in majorNodeList" :key="index">
-                  <td class="datanum--text">{{ item.domain }}</td>
+                <tr v-for="(item, index) in voteRankList" :key="index">
+                  <td class="datanum--text">{{ item.address }}</td>
                   <td class="datanum--text">
-                    {{ formart_number(item.stake) }}
+                    {{ formart_number(item.voteTimes) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.validator) }}
+                    {{ formart_number(item.voteToken) }}
                   </td>
                 </tr>
               </tbody>
@@ -40,12 +39,12 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchNodeList } from "@/api/home.js";
+import { fetchVoteRank } from "@/api/vote.js";
 export default {
   components: {},
   data() {
     return {
-      majorNodeList: [],
+      voteRankList: [],
     };
   },
   computed: {},
@@ -54,10 +53,8 @@ export default {
     formart_number,
 
     getNodeList() {
-      fetchNodeList({
-        type: "MAJOR",
-      }).then((res) => {
-        this.majorNodeList = res.data.list;
+      fetchVoteRank().then((res) => {
+        this.voteRankList = res.data.list;
       });
     },
   },

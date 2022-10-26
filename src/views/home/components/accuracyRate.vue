@@ -19,7 +19,8 @@
 
 <script>
 import { Line } from "@antv/g2plot";
-
+import { fetchAccuracyRateLineChart } from "@/api/home.js";
+import { formart_date } from "@/utils/utils";
 const data = [
   { year: "1991", value: 3 },
   { year: "1992", value: 4 },
@@ -39,17 +40,38 @@ export default {
       items: ["Foo", "Bar", "Fizz", "Buzz"],
     };
   },
-  computed: {},
+  computed: {
+    searchNodeList() {
+      if (this.selectSearchValue == "") return this.nodeList;
+      if (!this.nodeList.length) return this.nodeList;
+      const reg = new RegExp(this.selectSearchValue, "ig");
+      return this.nodeList.filter((item) => item.match(reg));
+    },
+  },
   watch: {},
   methods: {
-    setChart() {
+    async setChart() {
+      const { data } = await fetchAccuracyRateLineChart();
       const line = new Line("lineChart", {
-        height: 450,
+        height: 350,
         padding: "auto",
         data,
-        xField: "year",
-        yField: "value",
+        xField: "x",
+        yField: "y",
         smooth: true,
+        xAxis: {
+          label: {
+            formatter(val) {
+              return formart_date(val / 1000);
+            },
+          },
+        },
+        tooltip: {
+          showTitle: false,
+          formatter: (datum) => {
+            return { name: formart_date(datum.x / 1000), value: datum.y };
+          },
+        },
       });
 
       line.render();

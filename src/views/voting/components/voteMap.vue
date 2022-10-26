@@ -1,5 +1,10 @@
 <template>
-  <div class="map">
+  <div class="map mt-16">
+    <div class="common-title-box mb-4">
+      <span class="d-flex align-center cardtitle--text"
+        >4EVERLAND Validators Map</span
+      >
+    </div>
     <div
       id="map"
       style="
@@ -15,6 +20,7 @@
 <script>
 import { Scene, PointLayer } from "@antv/l7";
 import { Mapbox } from "@antv/l7-maps";
+import { fetchNodeMapChart } from "@/api/home.js";
 
 export default {
   components: {},
@@ -54,9 +60,18 @@ export default {
         scene.addLayer(pointLayer);
       });
     },
+    getMapChart() {
+      fetchNodeMapChart().then((res) => {
+        const data = res.data.mapValue;
+        this.nodeLocationList = data;
+        this.initMap(data);
+      });
+    },
   },
   created() {},
-  mounted() {},
+  mounted() {
+    this.getMapChart();
+  },
 };
 </script>
 <style lang="less" scoped></style>

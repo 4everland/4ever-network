@@ -7,7 +7,9 @@
             <v-icon v-text="'$proposalIcon'" small class="mr-2"></v-icon
             >Proposal</span
           >
-          <span class="more">View More</span>
+          <span class="more">
+            <v-btn text tile plain to="/governance">View More</v-btn>
+          </span>
         </div>
         <template>
           <v-simple-table root fixed-header>
@@ -22,19 +24,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in majorNodeList" :key="index">
-                  <td class="datanum--text">{{ item.domain }}</td>
+                <tr v-for="(item, index) in proposalList" :key="index">
+                  <td class="datanum--text">{{ item.id }}</td>
                   <td class="datanum--text">
-                    {{ formart_number(item.stake) }}
+                    {{ item.title }}
+                  </td>
+                  <td class="datanum--text d-flex align-center">
+                    <span class="ball"></span>
+                    {{ item.node }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.validator) }}
+                    {{ formart_number(item.slash) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.validatorToken) }}
-                  </td>
-                  <td class="datanum--text">
-                    {{ formart_number(item.reward) }}
+                    {{ formart_number(item.status) }}
                   </td>
                 </tr>
               </tbody>
@@ -48,12 +51,12 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchNodeList } from "@/api/home.js";
+import { fetchProposalList } from "@/api/proposal.js";
 export default {
   components: {},
   data() {
     return {
-      majorNodeList: [],
+      proposalList: [],
     };
   },
   computed: {},
@@ -62,10 +65,8 @@ export default {
     formart_number,
 
     getNodeList() {
-      fetchNodeList({
-        type: "MAJOR",
-      }).then((res) => {
-        this.majorNodeList = res.data.list;
+      fetchProposalList().then((res) => {
+        this.proposalList = res.data.list;
       });
     },
   },
@@ -78,5 +79,13 @@ export default {
 <style lang="less" scoped>
 .block-card {
   padding: 30px 35px;
+}
+.ball {
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(325deg, #79bc5a 0%, #dffcd1 100%);
+  display: inline-block;
+  border-radius: 50%;
+  margin-right: 20px;
 }
 </style>

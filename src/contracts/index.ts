@@ -1,11 +1,12 @@
 import { TransactionResponse } from "@ethersproject/abstract-provider";
 import { providers } from "ethers";
-import { ERC20__factory } from "./ERC20__factory";
-import { POSC__factory } from "./types";
+import {
+  Stake__factory,
+  Election__factory,
+  ERC20__factory,
+} from "@4everland/dao-contracts";
 
 class Contracts {
-  public contractAddress = "0x6B39778aAde00b3a99e463934b614Aa41dFAF09b";
-
   public get provider(): providers.Web3Provider {
     if (!window.ethereum) {
       throw "no ethereum plugin";
@@ -28,12 +29,25 @@ class Contracts {
     });
   }
 
-  public ERC20(addr: string) {
-    return ERC20__factory.connect(addr, this.provider);
+  public get Token() {
+    return ERC20__factory.connect(
+      "0xC9451ba109F3e8339c17d5bfA4A14602BBE8f5cd",
+      this.signer
+    );
   }
 
-  public get POSC() {
-    return POSC__factory.connect(this.contractAddress, this.provider);
+  public get Stake() {
+    return Stake__factory.connect(
+      "0xeb2852579fF160Ae78d86B86Be4C903D7242dEF7",
+      this.signer
+    );
+  }
+
+  public get Election() {
+    return Election__factory.connect(
+      "0xEeBBf635D0D0c03E7a6b21ab99c9a641DF8EA10e",
+      this.signer
+    );
   }
 }
 

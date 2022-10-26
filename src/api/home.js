@@ -29,3 +29,11 @@ export function fetchNodeList(params) {
     params,
   });
 }
+
+export function fetchAccuracyRateLineChart(params) {
+  return request({
+    url: "/linechart/homepage/accuracy",
+    method: "get",
+    params,
+  });
+}

@@ -19,15 +19,40 @@ const routes = [
         component: () => import("../views/explorer/index.vue"),
       },
       {
-        path: "/blockDetail",
-        name: "BlockDetail",
-        component: () => import("../views/BlockDetail.vue"),
+        path: "/nodeDetail/:id",
+        name: "NodeDetail",
+        component: () => import("../views/explorer/nodeDetail.vue"),
       },
       {
-        path: "/nodeDetail",
-        name: "NodeDetail",
-        component: () => import("../views/NodeDetail.vue"),
+        path: "/voting",
+        name: "Voting",
+        component: () => import("../views/voting/index.vue"),
       },
+      {
+        path: "/governance",
+        name: "Governance",
+        component: () => import("../views/governance/index.vue"),
+      },
+      {
+        path: "/proposalDetail/:id",
+        name: "ProposalDetail",
+        component: () => import("../views/governance/proposalDetail.vue"),
+      },
+      {
+        path: "/node",
+        name: "Node",
+        component: () => import("../views/node/index.vue"),
+      },
+      // {
+      //   path: "/blockDetail",
+      //   name: "BlockDetail",
+      //   component: () => import("../views/BlockDetail.vue"),
+      // },
+      // {
+      //   path: "/nodeDetail",
+      //   name: "NodeDetail",
+      //   component: () => import("../views/NodeDetail.vue"),
+      // },
     ],
   },
 ];

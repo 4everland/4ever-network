@@ -20,17 +20,30 @@
                   <th class="text-left cardtitle--text">Reward (4EVER)</th>
                   <th class="text-left cardtitle--text">Slash (4EVER)</th>
                   <th class="text-left cardtitle--text">Status</th>
-                  <th class="text-left cardtitle--text">Action</th>
+                  <th class="text-center cardtitle--text">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in majorNodeList" :key="index">
-                  <td class="datanum--text">{{ item.name }}</td>
+                  <td class="datanum--text d-flex align-center">
+                    <v-img
+                      class="mr-2 rounded-circle"
+                      width="18"
+                      max-width="18"
+                      height="18"
+                      max-height="18"
+                      :src="item.logo"
+                    ></v-img>
+                    {{ item.name }}
+                  </td>
                   <td class="datanum--text">{{ item.domain }}</td>
                   <td class="datanum--text">{{ item.id }}</td>
                   <td class="datanum--text">{{ item.address }}</td>
                   <td class="datanum--text">{{ item.region }}</td>
-                  <td class="datanum--text">{{ item.type }}</td>
+                  <td class="datanum--text">
+                    <span v-if="item.type" class="major">Major</span>
+                    <span v-else class="popular">Popular</span>
+                  </td>
                   <td class="datanum--text">{{ item.version }}</td>
                   <td class="datanum--text">{{ item.posc }}</td>
                   <td class="datanum--text">
@@ -52,7 +65,9 @@
                       background: `${$vuetify.theme.dark ? '#171819' : '#fff'}`,
                     }"
                   >
-                    view
+                    <v-btn icon :to="`/nodeDetail/${item.id}`">
+                      <v-icon v-text="'$viewIcon'" dense></v-icon>
+                    </v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -99,10 +114,40 @@ export default {
   padding: 5px 35px;
 }
 
+table > tbody > tr > td,
+table > thead > tr > th {
+  white-space: nowrap;
+}
+
 table > tbody > tr > td:nth-last-child(1),
 table > thead > tr > th:nth-last-child(1) {
   position: sticky !important;
   position: -webkit-sticky !important;
-  right: 0;
+  right: -1px;
+  text-align: center;
+  min-width: 100px;
+  // background: linear-gradient(270deg, #171819 0%, rgba(0, 0, 0, 0.2) 100%);
+}
+.major {
+  width: 44px;
+  height: 21px;
+  border-radius: 2px;
+  border: 1px solid #e182b9;
+  font-size: 12px;
+  font-weight: bold;
+  color: #e182b9;
+  text-align: center;
+  display: inline-block;
+}
+.popular {
+  width: 54px;
+  height: 21px;
+  border-radius: 2px;
+  border: 1px solid #43a7eb;
+  font-size: 12px;
+  font-weight: bold;
+  color: #43a7eb;
+  text-align: center;
+  display: inline-block;
 }
 </style>
