@@ -3,7 +3,7 @@
     <v-col cols="12">
       <v-card elevation="0" :outlined="$vuetify.theme.dark" class="block-card">
         <template>
-          <v-simple-table root fixed-header>
+          <v-simple-table root fixed-header height="80vh">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -16,7 +16,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in majorNodeList" :key="index">
+                <tr v-for="(item, index) in slashesList" :key="index">
                   <td class="datanum--text d-flex align-center">
                     <v-img
                       class="mr-2 rounded-circle"
@@ -31,11 +31,11 @@
                   <td class="datanum--text">
                     {{ formart_number(item.slash) }}
                   </td>
-                  <td class="datanum--text">{{ item.id }}</td>
-                  <td class="datanum--text">{{ item.address }}</td>
-                  <td class="datanum--text">{{ item.region }}</td>
+                  <td class="datanum--text">{{ item.proposer }}</td>
+                  <td class="datanum--text">{{ item.executor }}</td>
+                  <td class="datanum--text">{{ item.slashAt }}</td>
                   <td class="text-center datanum--text">
-                    <v-btn icon :to="`/proposalDetail/${item.id}`">
+                    <v-btn icon :to="`/proposalDetail/${item.proposalId}`">
                       <v-icon v-text="'$viewIcon'" dense></v-icon>
                     </v-btn>
                   </td>
@@ -51,13 +51,13 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchNodeList } from "@/api/home.js";
+import { fetchSlashesList } from "@/api/explorer.js";
 
 export default {
   components: {},
   data() {
     return {
-      majorNodeList: [],
+      slashesList: [],
     };
   },
   computed: {},
@@ -66,10 +66,8 @@ export default {
     formart_number,
 
     getNodeList() {
-      fetchNodeList({
-        type: "ALL",
-      }).then((res) => {
-        this.majorNodeList = res.data.list;
+      fetchSlashesList().then((res) => {
+        this.slashesList = res.data.list;
       });
     },
   },

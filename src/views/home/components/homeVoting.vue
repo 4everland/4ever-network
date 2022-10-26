@@ -44,7 +44,7 @@
                     <v-btn
                       class="voting-btn btnColor--text"
                       small
-                      @click="handleVoting"
+                      @click="handleVoting(item)"
                       >Voting</v-btn
                     >
                   </td>
@@ -79,8 +79,8 @@ export default {
         this.voteList = res.data.list;
       });
     },
-    handleVoting() {
-      this.$refs.votingDialog.open();
+    handleVoting(data) {
+      this.$refs.votingDialog.open(data);
     },
   },
   created() {

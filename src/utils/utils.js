@@ -49,7 +49,10 @@ export function formart_storage(value) {
   }
 }
 export function formart_date(time) {
-  const date = new Date(time * 1000).toUTCString();
+  if (typeof time === "number" && time.toString().length === 10) {
+    time = time * 1000;
+  }
+  const date = new Date(time).toUTCString();
   // console.log(date)
   const arr = date.split(" ");
   // return date.replace(/\w+\s/, '').replace(/\sGMT.*$/, '')

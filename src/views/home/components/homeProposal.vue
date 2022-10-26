@@ -36,8 +36,8 @@
                   <td class="datanum--text">
                     {{ formart_number(item.slash) }}
                   </td>
-                  <td class="datanum--text">
-                    {{ formart_number(item.status) }}
+                  <td :class="item.status">
+                    {{ item.status | statusFilter }}
                   </td>
                 </tr>
               </tbody>
@@ -54,6 +54,17 @@ import { formart_number } from "@/utils/utils";
 import { fetchProposalList } from "@/api/proposal.js";
 export default {
   components: {},
+  filters: {
+    statusFilter(status) {
+      const statusMap = {
+        PUBLIC: "Public",
+        OBJECT: "Objected",
+        EXECUTED: "Executed",
+        VOTING: "Voting",
+      };
+      return statusMap[status];
+    },
+  },
   data() {
     return {
       proposalList: [],
@@ -87,5 +98,17 @@ export default {
   display: inline-block;
   border-radius: 50%;
   margin-right: 20px;
+}
+.PUBLIC {
+  color: #33b171;
+}
+.OBJECT {
+  color: #6b83ac;
+}
+.EXECUTED {
+  color: #ffa268;
+}
+.VOTING {
+  color: #d17bc4;
 }
 </style>
