@@ -29,21 +29,29 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.name }}
+                  ---logo---
+                  {{ item.logo }}
                 </td>
                 <td class="datanum--text">
                   {{ formart_number(item.validator) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
-                </td>
-                <td class="datanum--text">
                   {{ formart_number(item.apr) }}
                 </td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">123456</td>
+                <td class="datanum--text">
+                  {{ formart_number(item.vote) }}
+                </td>
+
+                <td class="datanum--text">
+                  {{ item.reward }}
+                </td>
+                <td class="datanum--text">
+                  {{ formart_number(item.vote) }}
+                </td>
+
                 <td class="datanum--text">123456</td>
                 <td class="datanum--text">
                   <v-btn
@@ -69,6 +77,25 @@
             </tbody>
           </template>
         </v-simple-table>
+        <template>
+          <div class="text-center">
+            <v-container>
+              <v-row justify="center">
+                <v-col cols="6">
+                  <v-container class="max-width">
+                    <v-pagination
+                      v-model="page"
+                      class="my-4"
+                      :length="pageLength"
+                      :elevation="0"
+                      @input="pageChange"
+                    ></v-pagination>
+                  </v-container>
+                </v-col>
+              </v-row>
+            </v-container>
+          </div>
+        </template>
       </div>
     </v-col>
     <apr-dialog ref="aprDialog" />
@@ -80,7 +107,7 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { fetchVotedList } from "@/api/vote.js";
 import aprDialog from "@/components/Dialog/aprDialog.vue";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
 import claimDialog from "@/components/Dialog/claimDialog.vue";
@@ -89,18 +116,37 @@ export default {
   components: { aprDialog, votingDialog, claimDialog, widthdrawDialog },
   data() {
     return {
-      voteList: [],
+      list: [],
+      page: 1,
+      pageSize: 20,
+      pageLength: 0,
     };
   },
   computed: {},
   watch: {},
   methods: {
     formart_number,
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
+    async getVotedList(params) {
+      try {
+        const address = localStorage.getItem("address");
+        console.log(address);
+        const { data } = await fetchVotedList(address, params);
+        console.log(data);
+        this.list = data.list;
+        this.pageLength = data.page;
+      } catch (error) {
+        alert(error);
+      }
     },
+    pageChange(val) {
+      this.page = val;
+      const params = {
+        page: this.page,
+        pageSize: this.pageSize,
+      };
+      this.getVotedList(params);
+    },
+
     handlerSetApr() {
       this.$refs.aprDialog.open();
     },
@@ -115,7 +161,11 @@ export default {
     },
   },
   created() {
-    this.getNodeList();
+    const params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getVotedList(params);
   },
   mounted() {},
 };

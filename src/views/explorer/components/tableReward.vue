@@ -25,15 +25,34 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.reward }}
                 </td>
-                <td class="datanum--text">123456</td>
+                <td class="datanum--text">{{ item.createdAt }}</td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
+        <template>
+          <div class="text-center">
+            <v-container>
+              <v-row justify="center">
+                <v-col cols="6">
+                  <v-container class="max-width">
+                    <v-pagination
+                      v-model="page"
+                      class="my-4"
+                      :length="pageLength"
+                      :elevation="0"
+                      @input="pageChange"
+                    ></v-pagination>
+                  </v-container>
+                </v-col>
+              </v-row>
+            </v-container>
+          </div>
+        </template>
       </div>
     </v-col>
   </v-row>
@@ -42,26 +61,46 @@
 <script>
 import { formart_number } from "@/utils/utils";
 import { fetchVoteList } from "@/api/vote.js";
+import { fetchRewardLog } from "@/api/node";
 export default {
   components: {},
   data() {
     return {
-      voteList: [],
+      list: [],
+      page: 1,
+      pageSize: 20,
+      pageLength: 0,
     };
   },
   computed: {},
   watch: {},
   methods: {
     formart_number,
-
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
+    async getRewardList(params) {
+      try {
+        const { data } = await fetchRewardLog(params);
+        this.list = data.list;
+        this.pageLength = data.page;
+      } catch (error) {
+        //
+        console.log(error);
+      }
+    },
+    pageChange(val) {
+      this.page = val;
+      const params = {
+        page: this.page,
+        pageSize: this.pageSize,
+      };
+      this.getRewardList(params);
     },
   },
   created() {
-    this.getNodeList();
+    const params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getRewardList(params);
   },
   mounted() {},
 };

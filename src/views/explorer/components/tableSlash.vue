@@ -26,18 +26,18 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.title }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.slash }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.executed }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.slashedAt }}
                 </td>
               </tr>
             </tbody>
@@ -52,7 +52,7 @@
                     <v-pagination
                       v-model="page"
                       class="my-4"
-                      :length="6"
+                      :length="pageLength"
                       :elevation="0"
                       @input="pageChange"
                     ></v-pagination>
@@ -69,37 +69,44 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { fetchNodeSlash } from "@/api/node";
 export default {
   components: {},
   data() {
     return {
-      voteList: [],
+      nodeId: null,
+      list: [],
       page: 1,
-      pageSize: 10,
+      pageSize: 20,
+      pageLength: 0,
     };
   },
-  computed: {},
-  watch: {},
   methods: {
     formart_number,
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
+    async getSlashList(params) {
+      try {
+        const { data } = await fetchNodeSlash(this.nodeId, params);
+        console.log(data);
+        this.list = data.list;
+        this.pageLength = data.page;
+      } catch (err) {
+        //
+        console.log(err);
+      }
     },
     pageChange(val) {
+      this.page = val;
       const params = {
         page: this.page,
         pageSize: this.pageSize,
       };
-      this.getNodeList(params);
+      this.getSlashList(params);
     },
   },
   created() {
-    this.getNodeList();
+    this.nodeId = this.$route.params.id;
+    this.getSlashList();
   },
-  mounted() {},
 };
 </script>
 <style lang="less" scoped></style>

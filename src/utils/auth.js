@@ -33,6 +33,8 @@ export async function connect(callBack) {
       method: "eth_requestAccounts",
     });
   }
+  localStorage.setItem("address", accounts[0]);
+
   // exchangeCode(accounts[0]).then((res) => {
   //   sign(res.data.nonce, callBack);
   // });

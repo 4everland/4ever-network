@@ -15,3 +15,11 @@ export function fetchVoteRank(params) {
     params,
   });
 }
+
+export function fetchVotedList(address, params) {
+  return request({
+    url: `/votes/${address}`,
+    method: "get",
+    params,
+  });
+}

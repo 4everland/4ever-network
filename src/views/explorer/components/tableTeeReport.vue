@@ -31,24 +31,28 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.blockNumber }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.totalSize }}
+                  <!-- {{ formart_number(item.validator) }} -->
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.elapsedTime }}
+                  <!-- {{ formart_number(item.validator) }} -->
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.accuracyRate }}
+                  <!-- {{ formart_number(item.validator) }} -->
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.createdAt }}
+                  <!-- {{ formart_number(item.validator) }} -->
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  <v-btn color="primary" x-small>action</v-btn>
                 </td>
               </tr>
             </tbody>
@@ -63,7 +67,7 @@
                     <v-pagination
                       v-model="page"
                       class="my-4"
-                      :length="6"
+                      :length="pageLength"
                       :elevation="0"
                       @input="pageChange"
                     ></v-pagination>
@@ -80,35 +84,49 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { fetchNodeReport } from "@/api/node";
 export default {
   components: {},
   data() {
     return {
-      voteList: [],
+      list: [],
       page: 1,
-      pageSize: 10,
+      pageSize: 20,
+      nodeId: null,
+      pageLength: 0,
     };
   },
+
   computed: {},
   watch: {},
   methods: {
     formart_number,
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
+    async getNodeReport(params) {
+      try {
+        const { data } = await fetchNodeReport(this.nodeId, params);
+        this.list = data.item;
+        this.pageLength = data.page;
+      } catch (error) {
+        //
+        console.log(error);
+      }
     },
     pageChange(val) {
+      this.page = val;
       const params = {
         page: this.page,
         pageSize: this.pageSize,
       };
-      this.getNodeList(params);
+      this.getNodeReport(params);
     },
   },
   created() {
-    this.getNodeList();
+    this.nodeId = this.$route.params.id;
+    let params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getNodeReport(params);
   },
   mounted() {},
 };

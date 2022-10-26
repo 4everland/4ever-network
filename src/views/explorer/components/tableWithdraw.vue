@@ -24,20 +24,39 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.title }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ formart_number(item.token) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
+                  {{ formart_number(item.withdrawAt) }}
                 </td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
+        <template>
+          <div class="text-center">
+            <v-container>
+              <v-row justify="center">
+                <v-col cols="6">
+                  <v-container class="max-width">
+                    <v-pagination
+                      v-model="page"
+                      class="my-4"
+                      :length="pageLength"
+                      :elevation="0"
+                      @input="pageChange"
+                    ></v-pagination>
+                  </v-container>
+                </v-col>
+              </v-row>
+            </v-container>
+          </div>
+        </template>
       </div>
     </v-col>
   </v-row>
@@ -45,27 +64,49 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { fetchNodeWithdraw } from "@/api/node";
 export default {
   components: {},
   data() {
     return {
-      voteList: [],
+      list: [],
+      nodeId: null,
+      page: 1,
+      pageSize: 20,
+      pageLength: 0,
     };
   },
   computed: {},
   watch: {},
   methods: {
     formart_number,
-
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
+    async getWithdrawList(params) {
+      try {
+        const { data } = await fetchNodeWithdraw(this.nodeId, params);
+        console.log(data);
+        this.list = data.list;
+        this.pageLength = Math.abs(parseInt(data.page));
+      } catch (error) {
+        //
+        console.log(error);
+      }
+    },
+    pageChange(val) {
+      this.page = val;
+      const params = {
+        page: this.page,
+        pageSize: this.pageSize,
+      };
+      this.getWithdrawList(params);
     },
   },
   created() {
-    this.getNodeList();
+    this.nodeId = this.$route.params.id;
+    const params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getWithdrawList(params);
   },
   mounted() {},
 };
