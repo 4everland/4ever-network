@@ -3,7 +3,7 @@
     <v-col cols="12">
       <v-card elevation="0" :outlined="$vuetify.theme.dark" class="block-card">
         <template>
-          <v-simple-table root fixed-header>
+          <v-simple-table root fixed-header height="80vh">
             <template v-slot:default>
               <thead>
                 <tr>

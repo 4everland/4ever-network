@@ -34,11 +34,11 @@
           <div>
             <div class="d-flex justify-space-between mt-6 info-box">
               <span class="info-name">Node ID</span>
-              <span class="info-value datanum--text">bvecsg…-mqe42</span>
+              <span class="info-value datanum--text">{{ data.id }}</span>
             </div>
             <div class="d-flex justify-space-between mt-6 info-box">
               <span class="info-name">APR</span>
-              <span class="info-value datanum--text">5%</span>
+              <span class="info-value datanum--text">{{ data.apr + "%" }}</span>
             </div>
           </div>
         </v-card-text>
@@ -66,11 +66,13 @@ export default {
     return {
       dialog: false,
       value: "",
+      data: {},
     };
   },
   methods: {
-    open() {
+    open(data) {
       this.dialog = true;
+      this.data = data;
     },
     async vote() {
       const reward = await contracts.Stake.pendingReward(

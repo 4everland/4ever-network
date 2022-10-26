@@ -3,7 +3,7 @@
     <v-col cols="12">
       <v-card elevation="0" :outlined="$vuetify.theme.dark" class="block-card">
         <template>
-          <v-simple-table root fixed-header>
+          <v-simple-table root fixed-header height="80vh">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -18,16 +18,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in majorNodeList" :key="index">
+                <tr v-for="(item, index) in teeReportList" :key="index">
                   <td class="datanum--text d-flex align-center">
-                    {{ item.name }}
+                    {{ "#" + item.blockNumber }}
                   </td>
-                  <td class="datanum--text">{{ item.domain }}</td>
-                  <td class="datanum--text">{{ item.id }}</td>
-                  <td class="datanum--text">{{ item.address }}</td>
-                  <td class="datanum--text">{{ item.region }}</td>
+                  <td class="datanum--text">
+                    {{ item.averageAccuracyRate + "%" }}
+                  </td>
+                  <td class="datanum--text">{{ item.totalSize }}</td>
+                  <td class="datanum--text">{{ item.averageElapsedTime }}</td>
+                  <td class="datanum--text">
+                    {{ formart_date(item.blockCreatedAt) }}
+                  </td>
                   <td class="text-center datanum--text">
-                    <v-btn icon @click.stop="openTeeView(item.id)">
+                    <v-btn icon @click.stop="openTeeView(item)">
                       <v-icon v-text="'$viewIcon'" dense></v-icon>
                     </v-btn>
                   </td>
@@ -44,8 +48,8 @@
 
 <script>
 import TeereportView from "./TeereportView.vue";
-import { formart_number } from "@/utils/utils";
-import { fetchNodeList } from "@/api/home.js";
+import { formart_number, formart_date } from "@/utils/utils";
+import { fetchTeeReportList } from "@/api/explorer.js";
 
 export default {
   components: {
@@ -53,22 +57,21 @@ export default {
   },
   data() {
     return {
-      majorNodeList: [],
+      teeReportList: [],
     };
   },
   computed: {},
   watch: {},
   methods: {
     formart_number,
+    formart_date,
     getNodeList() {
-      fetchNodeList({
-        type: "ALL",
-      }).then((res) => {
-        this.majorNodeList = res.data.list;
+      fetchTeeReportList().then((res) => {
+        this.teeReportList = res.data.item;
       });
     },
-    openTeeView(id) {
-      this.$refs.teereportview.openDialog();
+    openTeeView(data) {
+      this.$refs.teereportview.openDialog(data);
     },
   },
   created() {

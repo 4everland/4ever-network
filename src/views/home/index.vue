@@ -95,7 +95,7 @@
             <div class="mb-4">
               <div class="d-flex justify-space-between align-center mb-4">
                 <div>
-                  <span class="title cardtitle--text">User</span>
+                  <span class="title cardtitle--text">Validator</span>
                   <span class="tips">Staked 4ever</span>
                 </div>
                 <div>
@@ -105,7 +105,7 @@
                     dense
                     @change="
                       (val) => {
-                        lineChartChange('USER', val);
+                        lineChartChange('VALIDATOR', val);
                       }
                     "
                   >
@@ -389,7 +389,7 @@ export default {
         params = {
           before,
           after,
-          type: "USER",
+          type: "VALIDATOR",
         };
       }
       const data = await this.getStakedLineChart(params);
@@ -413,7 +413,7 @@ export default {
     },
     getNodeList() {
       fetchNodeList({
-        type: "MAJOR",
+        type: "VALIDATOR",
       }).then((res) => {
         this.majorNodeList = res.data.list;
       });
@@ -442,7 +442,7 @@ export default {
       };
       if (type == "NODE") {
         this.setNodeChart(params);
-      } else if (type == "USER") {
+      } else if (type == "VALIDATOR") {
         this.setUserChart(params);
       }
     },
