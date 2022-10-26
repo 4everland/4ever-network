@@ -14,9 +14,9 @@ export function fetchNodeBalance(nodeId) {
   });
 }
 
-export function fetchRewardLog(params) {
+export function fetchRewardLog(nodeId, params) {
   return request({
-    url: "/rewards",
+    url: `/rewards/${nodeId}`,
     method: "get",
     params,
   });

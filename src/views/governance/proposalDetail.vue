@@ -43,7 +43,7 @@
           </v-card>
         </v-col>
       </v-row>
-      <table-reason />
+      <table-reason :tableList="data.evidence" />
     </v-container>
   </div>
 </template>
@@ -61,27 +61,27 @@ export default {
       dataList: [
         {
           name: "Proposer",
-          value: "-",
+          value: "",
           key: "proposer",
         },
         {
           name: "Node",
-          value: "-",
+          value: "",
           key: "node",
         },
         {
           name: "Voted(4EVER)",
-          value: "-",
+          value: "",
           key: "slash",
         },
         {
           name: "Deadline",
-          value: "-",
+          value: "",
           key: "expiredAt",
         },
         {
           name: "Status",
-          value: "-",
+          value: "",
           key: "status",
         },
       ],
@@ -92,7 +92,13 @@ export default {
   methods: {
     formart_date,
     getInfo(params) {
-      fetchProposalDetail(params).then((res) => {});
+      fetchProposalDetail(params).then((res) => {
+        this.data = res.data;
+        this.dataList.map((item) => {
+          item.value = res.data[item.key];
+          return item;
+        });
+      });
     },
   },
   created() {

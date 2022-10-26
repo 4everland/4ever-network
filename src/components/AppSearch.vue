@@ -5,8 +5,7 @@
       class="teereport-container"
       v-click-outside="onClickOutside"
       @click.stop="onClickIn"
-      >123</v-card
-    >
+    ></v-card>
   </div>
 </template>
 

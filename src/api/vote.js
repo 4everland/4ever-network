@@ -8,6 +8,13 @@ export function fetchVoteList(params) {
   });
 }
 
+export function fetchVoteOverview() {
+  return request({
+    url: "/votes/overview",
+    method: "get",
+  });
+}
+
 export function fetchVoteRank(params) {
   return request({
     url: "/votes/rank",

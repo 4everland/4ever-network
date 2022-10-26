@@ -178,7 +178,7 @@ import tableWithdraw from "./components/tableWithdraw.vue";
 
 import stakeDialog from "@/components/Dialog/stakeDialog.vue";
 
-import { formart_number } from "@/utils/utils";
+import { formart_number, formatToken } from "@/utils/utils";
 
 export default {
   components: {
@@ -199,56 +199,47 @@ export default {
         {
           name: "Domain",
           key: "domain",
-          value: "-",
-          order: 0,
+          value: "",
         },
         {
           name: "Address",
           key: "address",
-          value: "-",
-          order: 2,
+          value: "",
         },
         {
           name: "Location",
           key: "location",
-          value: "-",
-          order: 4,
+          value: "",
         },
         {
           name: "Version",
           key: "version",
-          value: "-",
-          order: 6,
+          value: "",
         },
         {
           name: "Cpu",
           key: "cpu",
-          value: "-",
-          order: 7,
+          value: "",
         },
         {
           name: "Disk",
           key: "disk",
-          value: "-",
-          order: 8,
+          value: "",
         },
         {
           name: "Voting APR",
           key: "apr",
-          value: "-",
-          order: 1,
+          value: "",
         },
         {
           name: "Status",
           key: "status",
-          value: "-",
-          order: 3,
+          value: "",
         },
         {
           name: "CreatedAt",
           key: "createdAt",
           value: "-",
-          order: 5,
         },
       ],
       detailOverview: [
@@ -256,7 +247,7 @@ export default {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "Staked",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: "4EVER",
           price: "11111",
           key: "stake",
@@ -265,7 +256,7 @@ export default {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "Validator",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: null,
           price: null,
           key: "validator",
@@ -274,7 +265,7 @@ export default {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "Voted",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: "4EVER",
           price: "11111",
           key: "vote",
@@ -283,15 +274,15 @@ export default {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "ARP",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: "%",
           price: null,
           key: "apr",
         },
       ],
       detailBalance: {
-        stake: "-",
-        reward: "-",
+        stake: "",
+        reward: "",
       },
       nodeHolder: null,
     };
@@ -305,6 +296,7 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    formatToken,
     getNodeOverview() {
       const nodeId = this.nodeId;
       fetchNodeDetail(nodeId).then((res) => {
@@ -322,8 +314,9 @@ export default {
     getNodeBalance() {
       const nodeId = this.nodeId;
       fetchNodeBalance(nodeId).then((res) => {
-        console.log(res.data);
-        this.detailBalance = res.data;
+        if (res.data) {
+          this.detailBalance = res.data;
+        }
       });
     },
 

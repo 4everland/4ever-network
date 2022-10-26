@@ -9,12 +9,10 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left cardtitle--text">Node</th>
-                <th class="text-left cardtitle--text">Total Voted(4EVER)</th>
-                <th class="text-left cardtitle--text">APR</th>
+                <th class="text-left cardtitle--text">Node ID</th>
+                <th class="text-left cardtitle--text">Validator</th>
                 <th class="text-left cardtitle--text">Voted(4EVER)</th>
-                <th class="text-left cardtitle--text">Reward(4EVER)</th>
-                <th class="text-left cardtitle--text">CreateAt</th>
+                <th class="text-left cardtitle--text">APR</th>
                 <th class="text-left cardtitle--text">Status</th>
                 <th class="text-left cardtitle--text">Action</th>
               </tr>
@@ -31,12 +29,29 @@
                   {{ formart_number(item.vote) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.apr) }}
+                  {{ formart_number(item.apr) + "%" }}
                 </td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">claim</td>
+                <td class="datanum--text">{{ item.status }}</td>
+                <td class="datanum--text">
+                  <v-btn
+                    class="voting-btn btnColor--text"
+                    x-small
+                    @click.stop="handlerVoting(item)"
+                    >Voting</v-btn
+                  >
+                  <v-btn
+                    class="claim-btn btnColor--text"
+                    x-small
+                    @click.stop="handlerClaim"
+                    >Claim</v-btn
+                  >
+                  <v-btn
+                    class="widthdraw-btn btnColor--text"
+                    x-small
+                    @click.stop="handlerWidthdraw"
+                    >Widthdraw</v-btn
+                  >
+                </td>
               </tr>
             </tbody>
           </template>
@@ -92,4 +107,29 @@ export default {
   mounted() {},
 };
 </script>
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.voting-btn {
+  width: 74px;
+  height: 21px;
+  background: linear-gradient(270deg, #ff6ceb 0%, #ffb881 100%);
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 11px;
+}
+.claim-btn {
+  width: 74px;
+  height: 18px;
+  background: linear-gradient(270deg, #53ccfb 0%, #fbb2dd 100%);
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 11px;
+}
+.widthdraw-btn {
+  width: 99px;
+  height: 21px;
+  background: linear-gradient(270deg, #6357ab 0%, #ffcd93 100%);
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 11px;
+}
+</style>

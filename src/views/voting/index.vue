@@ -48,8 +48,8 @@
 <script>
 import voteMap from "./components/voteMap.vue";
 import tableValidator from "./components/tableValidator.vue";
-
 import { formart_number } from "@/utils/utils";
+import { fetchVoteOverview } from "@/api/vote.js";
 
 export default {
   components: { voteMap, tableValidator },
@@ -58,36 +58,36 @@ export default {
       detailOverview: [
         {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
-          name: "Staked",
+          name: "Total Node",
           tips: "111111",
-          value: "1234566",
-          unit: "4EVER",
-          price: "11111",
-          key: "stake",
+          value: "",
+          unit: null,
+          price: "",
+          key: "node",
         },
         {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
-          name: "Validator",
+          name: "Total Validators",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: null,
           price: null,
           key: "validator",
         },
         {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
-          name: "Voted",
+          name: "Voted(4EVER)",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: "4EVER",
-          price: "11111",
-          key: "vote",
+          price: "",
+          key: "validatorToken",
         },
         {
           icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "ARP",
           tips: "111111",
-          value: "1234566",
+          value: "",
           unit: "%",
           price: null,
           key: "apr",
@@ -99,8 +99,18 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    getOverview() {
+      fetchVoteOverview().then((res) => {
+        this.detailOverview.map((item) => {
+          item.value = res.data[item.key];
+          return item;
+        });
+      });
+    },
   },
-  created() {},
+  created() {
+    this.getOverview();
+  },
   mounted() {},
 };
 </script>

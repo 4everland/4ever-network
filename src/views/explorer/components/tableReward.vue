@@ -71,6 +71,7 @@ export default {
       page: 1,
       pageSize: 20,
       pageLength: 0,
+      nodeId: null,
     };
   },
   computed: {},
@@ -80,7 +81,7 @@ export default {
     formart_date,
     async getRewardList(params) {
       try {
-        const { data } = await fetchRewardLog(params);
+        const { data } = await fetchRewardLog(this.nodeId, params);
         this.list = data.list;
         this.pageLength = data.page;
       } catch (error) {
@@ -98,6 +99,7 @@ export default {
     },
   },
   created() {
+    this.nodeId = this.$route.params.id;
     const params = {
       page: this.page,
       pageSize: this.pageSize,

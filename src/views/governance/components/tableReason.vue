@@ -14,9 +14,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in tableList" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.reportId }}
                 </td>
                 <td class="datanum--text">
                   {{ formart_number(item.validator) }}
@@ -50,9 +50,9 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
 export default {
   components: {},
+  props: ["tableList"],
   data() {
     return {
       voteList: [],
@@ -63,16 +63,8 @@ export default {
   watch: {},
   methods: {
     formart_number,
-
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
-    },
   },
-  created() {
-    this.getNodeList();
-  },
+  created() {},
   mounted() {},
 };
 </script>

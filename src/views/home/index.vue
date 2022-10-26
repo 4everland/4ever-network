@@ -413,7 +413,7 @@ export default {
     },
     getNodeList() {
       fetchNodeList({
-        type: "VALIDATOR",
+        type: "NODE",
       }).then((res) => {
         this.majorNodeList = res.data.list;
       });
