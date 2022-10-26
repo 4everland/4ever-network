@@ -16,9 +16,11 @@
               as network updates and management, and the voting will be
               automatically implemented.
             </div>
-            <div>
-              <v-btn class="banner-btn">Vote</v-btn>
-              <v-btn class="banner-btn">Learn more</v-btn>
+            <div class="mt-6">
+              <v-btn class="banner-btn btnColor--text">Vote</v-btn>
+              <v-btn class="banner-btn-base ml-8 white--text" outlined
+                >Learn more</v-btn
+              >
             </div>
           </v-sheet>
         </v-col>
@@ -71,7 +73,7 @@
 
 <script>
 import tableProposals from "./components/tableProposals.vue";
-
+import { fetchProposalOverview } from "@/api/proposal.js";
 import { formart_number } from "@/utils/utils";
 
 export default {
@@ -81,23 +83,23 @@ export default {
       detailOverview: [
         {
           name: "Total proposal",
-          value: "1234566",
-          key: "stake",
+          value: "",
+          key: "totalProposal",
         },
         {
           name: "Under publicity",
-          value: "1234566",
-          key: "validator",
+          value: "",
+          key: "inPublic",
         },
         {
           name: "Executed",
-          value: "1234566",
-          key: "vote",
+          value: "",
+          key: "executed",
         },
         {
           name: "Rejected",
-          value: "1234566",
-          key: "apr",
+          value: "",
+          key: "objected",
         },
       ],
       governanceList: [
@@ -117,8 +119,18 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    getOverview() {
+      fetchProposalOverview().then((res) => {
+        this.detailOverview.map((item) => {
+          item.value = res.data[item.key];
+          return item;
+        });
+      });
+    },
   },
-  created() {},
+  created() {
+    this.getOverview();
+  },
   mounted() {},
 };
 </script>
@@ -144,14 +156,20 @@ export default {
       font-weight: bold;
       color: #d8d8d8;
     }
-    .banner-btn {
-      width: 90px;
+    .banner-btn-base {
+      width: 110px;
       height: 24px;
-      background: linear-gradient(270deg, #c143df 0%, #ffb867 100%);
       border-radius: 4px;
       font-size: 12px;
       font-weight: bold;
-      margin-top: 80px;
+    }
+    .banner-btn {
+      width: 90px;
+      height: 24px;
+      background: linear-gradient(270deg, #53ccfb 0%, #fbb2dd 100%);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
     }
   }
   .detail-overview {

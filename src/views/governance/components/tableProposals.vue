@@ -9,34 +9,42 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left cardtitle--text">Node</th>
-                <th class="text-left cardtitle--text">Total Voted(4EVER)</th>
-                <th class="text-left cardtitle--text">APR</th>
-                <th class="text-left cardtitle--text">Voted(4EVER)</th>
-                <th class="text-left cardtitle--text">Reward(4EVER)</th>
-                <th class="text-left cardtitle--text">CreateAt</th>
+                <th class="text-left cardtitle--text">ID</th>
+                <th class="text-left cardtitle--text">Proponent</th>
+                <th class="text-left cardtitle--text">Penalty node</th>
+                <th class="text-left cardtitle--text">Penalty amount</th>
+                <th class="text-left cardtitle--text">Proposal time</th>
                 <th class="text-left cardtitle--text">Status</th>
-                <th class="text-left cardtitle--text">Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in proposalList" :key="index">
                 <td class="datanum--text d-flex align-center">
                   {{ item.id }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.proposer }}
+                </td>
+                <td class="datanum--text d-flex align-center">
+                  <v-img
+                    class="mr-2 rounded-circle"
+                    width="18"
+                    max-width="18"
+                    height="18"
+                    max-height="18"
+                    :src="item.logo"
+                  ></v-img>
+                  {{ item.node }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
+                  {{ formart_number(item.slash) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.apr) }}
+                  {{ formart_date(item.createdAt) }}
                 </td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">123456</td>
-                <td class="datanum--text">claim</td>
+                <td :class="item.status">
+                  {{ item.status | statusFilter }}
+                </td>
               </tr>
             </tbody>
           </template>
@@ -65,13 +73,24 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { formart_number, formart_date } from "@/utils/utils";
+import { fetchProposalList } from "@/api/proposal.js";
 export default {
   components: {},
+  filters: {
+    statusFilter(status) {
+      const statusMap = {
+        PUBLIC: "Public",
+        OBJECT: "Objected",
+        EXECUTED: "Executed",
+        VOTING: "Voting",
+      };
+      return statusMap[status];
+    },
+  },
   data() {
     return {
-      voteList: [],
+      proposalList: [],
       page: 1,
     };
   },
@@ -79,10 +98,10 @@ export default {
   watch: {},
   methods: {
     formart_number,
-
+    formart_date,
     getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
+      fetchProposalList().then((res) => {
+        this.proposalList = res.data.list;
       });
     },
   },

@@ -115,26 +115,16 @@
                   <div class="node-block-value datanum--text">
                     {{ detailBalance.stake }} 4EVER
                   </div>
-                  <div class="node-block-price datanum--text">$ 111,224,1</div>
+                  <!-- <div class="node-block-price datanum--text">$ 111,224,1</div> -->
                   <div class="node-block-btn-box">
                     <v-btn
-                      class="
-                        node-block-btn
-                        stake-btn
-                        btnColor--text
-                        text-capitalize
-                      "
+                      class="node-block-btn stake-btn btnColor--text text-capitalize"
                       elevation="0"
                       @click="handleStake"
                       >Stake</v-btn
                     >
                     <v-btn
-                      class="
-                        node-block-btn
-                        unstake-btn
-                        btnColor--text
-                        text-capitalize
-                      "
+                      class="node-block-btn unstake-btn btnColor--text text-capitalize"
                       elevation="0"
                       @click="handleUnstake"
                       >Unstake</v-btn
@@ -150,15 +140,10 @@
                   <div class="node-block-value datanum--text">
                     {{ detailBalance.reward }} 4EVER
                   </div>
-                  <div class="node-block-price datanum--text">$ 111,224,1</div>
+                  <!-- <div class="node-block-price datanum--text">$ 111,224,1</div> -->
                   <div class="node-block-btn-box justify-center">
                     <v-btn
-                      class="
-                        node-block-btn
-                        claim-btn
-                        btnColor--text
-                        text-capitalize
-                      "
+                      class="node-block-btn claim-btn btnColor--text text-capitalize"
                       elevation="0"
                       >Claim</v-btn
                     >

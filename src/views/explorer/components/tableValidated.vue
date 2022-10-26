@@ -55,7 +55,7 @@
                   <v-btn
                     class="voting-btn btnColor--text"
                     x-small
-                    @click.stop="handlerVoting"
+                    @click.stop="handlerVoting(item)"
                     >Voting</v-btn
                   >
                   <v-btn
@@ -147,8 +147,8 @@ export default {
     handlerSetApr() {
       this.$refs.aprDialog.open();
     },
-    handlerVoting() {
-      this.$refs.votingDialog.open();
+    handlerVoting(data) {
+      this.$refs.votingDialog.open(data);
     },
     handlerClaim() {
       this.$refs.claimDialog.open();

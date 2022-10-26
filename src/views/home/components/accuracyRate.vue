@@ -62,14 +62,14 @@ export default {
         xAxis: {
           label: {
             formatter(val) {
-              return formart_date(val);
+              return formart_date(parseInt(val));
             },
           },
         },
         tooltip: {
           showTitle: false,
           formatter: (datum) => {
-            return { name: formart_date(datum.x), value: datum.y };
+            return { name: formart_date(parseInt(datum.x)), value: datum.y };
           },
         },
       });

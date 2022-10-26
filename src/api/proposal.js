@@ -7,3 +7,18 @@ export function fetchProposalList(params) {
     params,
   });
 }
+
+export function fetchProposalOverview() {
+  return request({
+    url: "/proposals/overview",
+    method: "get",
+  });
+}
+
+export function fetchProposalDetail(id, params) {
+  return request({
+    url: `/proposals/${id}`,
+    method: "get",
+    params,
+  });
+}

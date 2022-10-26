@@ -99,16 +99,4 @@ export default {
   border-radius: 50%;
   margin-right: 20px;
 }
-.PUBLIC {
-  color: #33b171;
-}
-.OBJECT {
-  color: #6b83ac;
-}
-.EXECUTED {
-  color: #ffa268;
-}
-.VOTING {
-  color: #d17bc4;
-}
 </style>
