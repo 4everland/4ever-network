@@ -42,7 +42,7 @@
                   {{ formart_number(item.apr) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
+                  {{ formart_number(item.myVoted) }}
                 </td>
                 <td class="datanum--text">
                   {{ formart_number(item.reward) }}
@@ -132,7 +132,7 @@ export default {
         this.list = data.list;
         this.pageLength = data.page;
       } catch (error) {
-        alert(error);
+        console.log(error);
       }
     },
     pageChange(val) {
