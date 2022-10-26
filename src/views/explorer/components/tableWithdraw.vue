@@ -32,7 +32,7 @@
                   {{ formart_number(item.token) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.withdrawAt) }}
+                  {{ formart_date(item.withdrawAt) }}
                 </td>
               </tr>
             </tbody>
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, formart_date } from "@/utils/utils";
 import { fetchNodeWithdraw } from "@/api/node";
 export default {
   components: {},
@@ -80,12 +80,13 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    formart_date,
     async getWithdrawList(params) {
       try {
         const { data } = await fetchNodeWithdraw(this.nodeId, params);
         console.log(data);
         this.list = data.list;
-        this.pageLength = Math.abs(parseInt(data.page));
+        this.pageLength = data.page;
       } catch (error) {
         //
         console.log(error);

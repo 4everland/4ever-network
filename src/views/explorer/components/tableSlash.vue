@@ -31,13 +31,13 @@
                   {{ item.title }}
                 </td>
                 <td class="datanum--text">
-                  {{ item.slash }}
+                  {{ formart_number(item.slash) }}
                 </td>
                 <td class="datanum--text">
                   {{ item.executed }}
                 </td>
                 <td class="datanum--text">
-                  {{ item.slashedAt }}
+                  {{ formart_date(item.slashedAt) }}
                 </td>
               </tr>
             </tbody>
@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, formart_date } from "@/utils/utils";
 import { fetchNodeSlash } from "@/api/node";
 export default {
   components: {},
@@ -83,10 +83,10 @@ export default {
   },
   methods: {
     formart_number,
+    formart_date,
     async getSlashList(params) {
       try {
         const { data } = await fetchNodeSlash(this.nodeId, params);
-        console.log(data);
         this.list = data.list;
         this.pageLength = data.page;
       } catch (err) {

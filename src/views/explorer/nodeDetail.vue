@@ -106,25 +106,35 @@
                 </div> -->
               </v-col>
             </v-row>
-            <v-row class="mt-12" no-gutters>
+            <v-row class="mt-12" no-gutters v-if="isSelfNode">
               <v-col cols="12" md="6">
                 <div class="boxbackgroud ma-0 mr-md-6 rounded node-block">
                   <div class="node-block-type">Insufficient</div>
                   <div><v-icon small>mdi-content-copy</v-icon></div>
                   <div class="node-block-title">Staked</div>
                   <div class="node-block-value datanum--text">
-                    42,233,423,525 4EVER
+                    {{ detailBalance.stake }} 4EVER
                   </div>
                   <div class="node-block-price datanum--text">$ 111,224,1</div>
                   <div class="node-block-btn-box">
                     <v-btn
-                      class="node-block-btn stake-btn btnColor--text text-capitalize"
+                      class="
+                        node-block-btn
+                        stake-btn
+                        btnColor--text
+                        text-capitalize
+                      "
                       elevation="0"
                       @click="handleStake"
                       >Stake</v-btn
                     >
                     <v-btn
-                      class="node-block-btn unstake-btn btnColor--text text-capitalize"
+                      class="
+                        node-block-btn
+                        unstake-btn
+                        btnColor--text
+                        text-capitalize
+                      "
                       elevation="0"
                       @click="handleUnstake"
                       >Unstake</v-btn
@@ -138,12 +148,17 @@
                   <div><v-icon small>mdi-content-copy</v-icon></div>
                   <div class="node-block-title">My Reward</div>
                   <div class="node-block-value datanum--text">
-                    42,233,423,525 4EVER
+                    {{ detailBalance.reward }} 4EVER
                   </div>
                   <div class="node-block-price datanum--text">$ 111,224,1</div>
                   <div class="node-block-btn-box justify-center">
                     <v-btn
-                      class="node-block-btn claim-btn btnColor--text text-capitalize"
+                      class="
+                        node-block-btn
+                        claim-btn
+                        btnColor--text
+                        text-capitalize
+                      "
                       elevation="0"
                       >Claim</v-btn
                     >
@@ -151,12 +166,12 @@
                 </div>
               </v-col>
             </v-row>
-            <table-validated />
-            <table-reward />
+            <table-validated v-if="isSelfNode" />
+            <table-reward v-if="isSelfNode" />
             <table-validator />
             <table-teeReport />
             <table-slash />
-            <table-withdraw />
+            <table-withdraw v-if="isSelfNode" />
           </v-card>
         </v-col>
       </v-row>
@@ -166,7 +181,7 @@
 </template>
 
 <script>
-import { fetchNodeDetail } from "@/api/node.js";
+import { fetchNodeDetail, fetchNodeBalance } from "@/api/node.js";
 
 import Logo from "@/components/Logo.vue";
 import tableValidated from "./components/tableValidated.vue";
@@ -289,15 +304,26 @@ export default {
           key: "apr",
         },
       ],
+      detailBalance: {
+        stake: "-",
+        reward: "-",
+      },
+      nodeHolder: null,
     };
   },
-  computed: {},
+  computed: {
+    isSelfNode() {
+      // return this.nodeHolder == localStorage.getItem("address");
+      return true;
+    },
+  },
   watch: {},
   methods: {
     formart_number,
     getNodeOverview() {
       const nodeId = this.nodeId;
       fetchNodeDetail(nodeId).then((res) => {
+        this.nodeHolder = res.data.address;
         this.detailMore.map((item) => {
           item.value = res.data[item.key];
           return item;
@@ -308,6 +334,14 @@ export default {
         });
       });
     },
+    getNodeBalance() {
+      const nodeId = this.nodeId;
+      fetchNodeBalance(nodeId).then((res) => {
+        console.log(res.data);
+        this.detailBalance = res.data;
+      });
+    },
+
     copyNodeId(nodeId) {
       console.log(nodeId);
     },
@@ -324,6 +358,7 @@ export default {
   created() {
     this.nodeId = this.$route.params.id;
     this.getNodeOverview();
+    this.getNodeBalance();
   },
   mounted() {},
 };

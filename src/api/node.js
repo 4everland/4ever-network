@@ -7,6 +7,13 @@ export function fetchNodeDetail(nodeId) {
   });
 }
 
+export function fetchNodeBalance(nodeId) {
+  return request({
+    url: `/nodes/${nodeId}/balance`,
+    method: "get",
+  });
+}
+
 export function fetchRewardLog(params) {
   return request({
     url: "/rewards",
@@ -15,17 +22,17 @@ export function fetchRewardLog(params) {
   });
 }
 
-// export function fetchSlashList(page, pageSize) {
-//   return request({
-//     url: "/slashes",
-//     method: "get",
-//     params: { page, pageSize },
-//   });
-// }
-
 export function fetchNodeWithdraw(nodeId, params) {
   return request({
     url: `/nodes/${nodeId}/withdrawals`,
+    method: "get",
+    params,
+  });
+}
+
+export function fetchNodeVoters(nodeId, params) {
+  return request({
+    url: `/nodes/${nodeId}/voters`,
     method: "get",
     params,
   });

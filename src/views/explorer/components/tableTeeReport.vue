@@ -36,20 +36,14 @@
                   {{ item.blockNumber }}
                 </td>
                 <td class="datanum--text">
-                  {{ item.totalSize }}
-                  <!-- {{ formart_number(item.validator) }} -->
+                  {{ formart_storage(item.totalSize) }}
                 </td>
                 <td class="datanum--text">
                   {{ item.elapsedTime }}
-                  <!-- {{ formart_number(item.validator) }} -->
                 </td>
+                <td class="datanum--text">{{ item.accuracyRate }}%</td>
                 <td class="datanum--text">
-                  {{ item.accuracyRate }}
-                  <!-- {{ formart_number(item.validator) }} -->
-                </td>
-                <td class="datanum--text">
-                  {{ item.createdAt }}
-                  <!-- {{ formart_number(item.validator) }} -->
+                  {{ formart_date(item.createdAt) }}
                 </td>
                 <td class="datanum--text">
                   <v-btn color="primary" x-small>action</v-btn>
@@ -83,7 +77,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, formart_storage, formart_date } from "@/utils/utils";
 import { fetchNodeReport } from "@/api/node";
 export default {
   components: {},
@@ -101,6 +95,8 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    formart_storage,
+    formart_date,
     async getNodeReport(params) {
       try {
         const { data } = await fetchNodeReport(this.nodeId, params);

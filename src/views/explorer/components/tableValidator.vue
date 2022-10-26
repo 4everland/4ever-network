@@ -24,15 +24,19 @@
                 <th class="text-left cardtitle--text boxbackgroud">
                   Voted(4EVER)
                 </th>
+                <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
+              <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.address }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ formart_number(item.token) }}
+                </td>
+                <td class="datanum--text">
+                  {{ formart_date(item.createdAt) }}
                 </td>
               </tr>
             </tbody>
@@ -47,7 +51,7 @@
                     <v-pagination
                       v-model="page"
                       class="my-4"
-                      :length="6"
+                      :length="pageLength"
                       :elevation="0"
                       @input="pageChange"
                     ></v-pagination>
@@ -63,36 +67,49 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { formart_number, formart_date } from "@/utils/utils";
+import { fetchNodeVoters } from "@/api/node.js";
 export default {
   components: {},
   data() {
     return {
-      voteList: [],
+      list: [],
       page: 1,
       pageSize: 10,
+      pageLength: 0,
+      nodeId: null,
     };
   },
   computed: {},
   watch: {},
   methods: {
     formart_number,
-    getNodeList(params) {
-      fetchVoteList(params).then((res) => {
-        this.voteList = res.data.list;
-      });
+    formart_date,
+    async getNodeVoters(params) {
+      try {
+        const { data } = await fetchNodeVoters(this.nodeId, params);
+        this.list = data.list;
+        this.pageLength = data.page;
+      } catch (error) {
+        //
+      }
     },
     pageChange(val) {
+      this.page = val;
       const params = {
         page: this.page,
         pageSize: this.pageSize,
       };
-      this.getNodeList(params);
+      this.getNodeVoters(params);
     },
   },
   created() {
-    this.getNodeList();
+    this.nodeId = this.$route.params.id;
+    const params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getNodeVoters(params);
   },
   mounted() {},
 };

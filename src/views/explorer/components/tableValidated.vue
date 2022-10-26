@@ -36,7 +36,7 @@
                   {{ item.logo }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ formart_number(item.vote) }}
                 </td>
                 <td class="datanum--text">
                   {{ formart_number(item.apr) }}
@@ -44,14 +44,12 @@
                 <td class="datanum--text">
                   {{ formart_number(item.vote) }}
                 </td>
-
                 <td class="datanum--text">
-                  {{ item.reward }}
+                  {{ formart_number(item.reward) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
+                  {{ formart_date(item.voteAt) }}
                 </td>
-
                 <td class="datanum--text">123456</td>
                 <td class="datanum--text">
                   <v-btn
@@ -106,7 +104,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, formart_date } from "@/utils/utils";
 import { fetchVotedList } from "@/api/vote.js";
 import aprDialog from "@/components/Dialog/aprDialog.vue";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
@@ -126,12 +124,11 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    formart_date,
     async getVotedList(params) {
       try {
         const address = localStorage.getItem("address");
-        console.log(address);
         const { data } = await fetchVotedList(address, params);
-        console.log(data);
         this.list = data.list;
         this.pageLength = data.page;
       } catch (error) {

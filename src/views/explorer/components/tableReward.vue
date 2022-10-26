@@ -27,9 +27,11 @@
             <tbody>
               <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text">
-                  {{ item.reward }}
+                  {{ formart_number(item.reward) }}
                 </td>
-                <td class="datanum--text">{{ item.createdAt }}</td>
+                <td class="datanum--text">
+                  {{ formart_date(item.createdAt) }}
+                </td>
               </tr>
             </tbody>
           </template>
@@ -59,8 +61,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
-import { fetchVoteList } from "@/api/vote.js";
+import { formart_number, formart_date } from "@/utils/utils";
 import { fetchRewardLog } from "@/api/node";
 export default {
   components: {},
@@ -76,6 +77,7 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    formart_date,
     async getRewardList(params) {
       try {
         const { data } = await fetchRewardLog(params);
