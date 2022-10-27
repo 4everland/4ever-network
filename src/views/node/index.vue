@@ -31,7 +31,12 @@
         </div>
         <div class="card-input">
           <span>Node ID:</span>
-          <input type="text" class="int inputBg" placeholder="Enter" />
+          <input
+            v-model="nodeId"
+            type="text"
+            class="int inputBg"
+            placeholder="Enter"
+          />
         </div>
         <div class="card-btn">
           <v-btn
@@ -64,34 +69,36 @@
             <span>Stake:</span>
             <div class="inputBg ml-4">
               <input
+                v-model="stakeAmount"
                 type="text"
                 class="int ml-0"
                 placeholder="Enter"
                 style="width: 380px"
               />
-              <v-btn text tile plain color="#43A7EB">Max</v-btn>
+              <v-btn text tile plain color="#43A7EB" @click="onMax">Max</v-btn>
             </div>
           </div>
         </div>
         <div class="card-btn">
+          <div v-if="isApproved">
+            <v-btn small color="#00A8F1" @click="handelViewNow" outlined
+              >View Now</v-btn
+            >
+            <v-btn
+              small
+              color="#00A8F1"
+              class="white--text ml-6"
+              @click="handelStake"
+              >Stake</v-btn
+            >
+          </div>
           <v-btn
+            v-else
             small
             color="#00A8F1"
             class="white--text"
             @click="handelApprove"
             >Approve</v-btn
-          >
-          <br />
-          <br />
-          <v-btn small color="#00A8F1" @click="handelViewNow" outlined
-            >View Now</v-btn
-          >
-          <v-btn
-            small
-            color="#00A8F1"
-            class="white--text ml-6"
-            @click="handelStake"
-            >Stake</v-btn
           >
         </div>
       </v-card>
@@ -127,9 +134,13 @@ import { BigNumber } from "ethers";
 import contracts from "@/contracts";
 export default {
   components: {},
+
   data() {
     return {
+      nodeId: "",
       balance: null,
+      stakeAmount: null,
+      isApproved: false,
       detailOverview: [
         {
           name: "Total proposal",
@@ -165,17 +176,22 @@ export default {
       ],
     };
   },
-  computed: {},
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+  },
   watch: {},
   methods: {
     formart_number,
     async handelRegister() {
+      const nodeId = this.nodeId;
       console.log(contracts.Stake);
       //   register(
       //   manifest: string,
       //   overrides?: Overrides & { from?: string | Promise<string> }
       // )
-      const tx = await contracts.Stake.register("aaaa");
+      const tx = await contracts.Stake.register(nodeId);
       console.log(tx);
       const receipt = await tx.wait();
       console.log(receipt);
@@ -192,13 +208,9 @@ export default {
     },
     async handelStake() {
       const minStake = await contracts.Stake.minStake();
-      const alreadyStaked = await contracts.Stake.candidateInfo(
-        "0x3A1A365D9Ee59B47471Cfe31451b4Fd1D7A83Daa"
-      );
+      const alreadyStaked = await contracts.Stake.candidateInfo(this.account);
       console.log(alreadyStaked.amount.toString(), minStake.toString());
-      const tx = await contracts.Stake.stake(
-        BigNumber.from("500000000000000000000000")
-      );
+      const tx = await contracts.Stake.stake(BigNumber.from(this.stakeAmount));
       console.log(tx);
       const receipt = await tx.wait();
       console.log(receipt);
@@ -206,16 +218,18 @@ export default {
     async handelViewNow() {},
     async getBalance() {
       console.log(contracts);
-      const balance = await contracts.Token.balanceOf(
-        "0x3A1A365D9Ee59B47471Cfe31451b4Fd1D7A83Daa"
-      );
+      const balance = await contracts.Token.balanceOf(this.account);
       const allowance = await contracts.Token.allowance(
-        "0x3A1A365D9Ee59B47471Cfe31451b4Fd1D7A83Daa",
+        this.account,
         contracts.Stake.address
       );
       const isApproved = allowance.gt(balance) && allowance.gt(0);
       console.log("allowance", allowance);
       this.balance = balance;
+      this.isApproved = isApproved;
+    },
+    async onMax() {
+      this.stakeAmount = this.balance;
     },
   },
   created() {},

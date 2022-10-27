@@ -27,15 +27,7 @@
                       </v-btn>
                     </span>
                     <div class="node-desc">
-                      Describe: As an established exchange and an early
-                      supporter of REI, BigONE has a mature experience in the
-                      operation and maintenance of validator nodes and a strict
-                      risk control system to ensure the safe and stable
-                      operation of nodes.Describe: As an established exchange
-                      and an early supporter of REI, BigONE has a mature
-                      experience in the operation and maintenance of validator
-                      nodes and a strict risk control system to ensure the safe
-                      and stable operation of nodes.
+                      {{ description }}
                     </div>
                   </div>
                 </v-expansion-panel-header>
@@ -285,6 +277,7 @@ export default {
         reward: "",
       },
       nodeHolder: null,
+      description: null,
     };
   },
   computed: {
@@ -301,6 +294,7 @@ export default {
       const nodeId = this.nodeId;
       fetchNodeDetail(nodeId).then((res) => {
         this.nodeHolder = res.data.address;
+        this.description = res.data.description;
         this.detailMore.map((item) => {
           item.value = res.data[item.key];
           return item;

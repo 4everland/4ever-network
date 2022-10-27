@@ -12,7 +12,7 @@ Vue.use(Vuetify);
 
 const vuetify = new Vuetify({
   theme: {
-    dark: false,
+    dark: true,
     themes: {
       light: {
         cardtitle: "#7F92A0",
