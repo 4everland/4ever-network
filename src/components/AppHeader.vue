@@ -149,10 +149,9 @@ export default {
     ]),
     ...mapMutations(["UPDATE_ACCOUNT", "UPDATE_BALANCE"]),
     async connectWallet() {
-      connect().then((account) => {
-        console.log(account);
-        this.account = account;
-      });
+      const account = await connect();
+      console.log(account);
+      this.account = account;
       // await this.updateAccount();
     },
     handleClaim() {

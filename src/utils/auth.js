@@ -19,29 +19,24 @@ export function removeToken() {
 }
 
 export async function connect() {
-  let accounts;
-  return new Promise((resolve, reject) => {
-    if (!window.ethereum) {
-      window.open("https://metamask.io/download.html", "_blank");
-      return vm.$dialog.error({
-        text: "Please install MetaMask to use this app.",
-        title: "Error",
-      });
-    }
-    (async () => {
-      accounts = await window.ethereum.request({
-        method: "eth_accounts",
-      });
-      if (accounts.length == 0) {
-        accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-      }
-      localStorage.setItem("address", accounts[0]);
-      getUserNode(accounts[0]);
-      resolve(accounts[0]);
-    })();
+  if (!window.ethereum) {
+    window.open("https://metamask.io/download.html", "_blank");
+    return vm.$dialog.error({
+      text: "Please install MetaMask to use this app.",
+      title: "Error",
+    });
+  }
+  let accounts = await window.ethereum.request({
+    method: "eth_accounts",
   });
+  if (accounts.length == 0) {
+    accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+  }
+  localStorage.setItem("address", accounts[0]);
+  getUserNode(accounts[0]);
+  return accounts[0];
 }
 
 export function getUserNode(address) {
