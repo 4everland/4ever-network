@@ -289,13 +289,16 @@ export default {
         stake: "",
         reward: "",
       },
-      nodeHolder: null,
+      nodeHolder: "",
       description: null,
     };
   },
   computed: {
     isSelfNode() {
-      return this.nodeHolder == localStorage.getItem("address");
+      return (
+        this.nodeHolder.toLowerCase() ==
+        localStorage.getItem("address").toLowerCase()
+      );
       // return true;
     },
   },
