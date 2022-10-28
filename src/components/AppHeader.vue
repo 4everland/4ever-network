@@ -42,16 +42,43 @@
         </div>
         <AppSearch ref="search" />
       </v-container>
-
-      <v-btn
-        v-if="formatAccount"
-        small
-        elevation="1"
-        color="#00A8F1"
-        class="white--text"
-        :outlined="$vuetify.theme.dark"
-        >{{ formatAccount }}</v-btn
-      >
+      <div class="text-center" v-if="account">
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              small
+              elevation="1"
+              color="#00A8F1"
+              class="white--text"
+              :outlined="$vuetify.theme.dark"
+              v-bind="attrs"
+              v-on="on"
+              >{{ formatAccount(account) }}</v-btn
+            >
+          </template>
+          <v-list>
+            <v-list-item v-if="myNodeId">
+              <v-list-item-title>
+                <v-btn
+                  text
+                  plain
+                  tile
+                  style="width: 100%"
+                  :to="`/nodeDetail/${myNodeId}`"
+                  >My Account</v-btn
+                >
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn text plain tile style="width: 100%" @click="logout"
+                  >Logout Node</v-btn
+                >
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
       <v-btn
         v-else
         small
@@ -72,7 +99,6 @@
         <v-icon v-if="$vuetify.theme.dark">mdi-white-balance-sunny</v-icon>
         <v-icon v-else> mdi-brightness-2</v-icon>
       </v-btn>
-      <!-- <v-switch v-model="$vuetify.theme.dark"></v-switch> -->
     </v-app-bar>
   </div>
 </template>
@@ -88,21 +114,13 @@ import { connect, getToken, removeToken } from "@/utils/auth";
 export default {
   components: { Logo, AppSearch },
   computed: {
-    account() {
-      return this.$store.state.account;
-    },
-    formatAccount() {
-      const account = this.$store.state.account;
-      if (account.length > 0) {
-        return (
-          account.substr(0, 10) + "...." + account.substr(account.length - 8, 8)
-        );
-      }
-      return account;
+    myNodeId() {
+      return localStorage.getItem("nodeId");
     },
   },
   data() {
     return {
+      account: localStorage.getItem("address"),
       isLoading: true,
       rewards: 0,
       isLogin: false,
@@ -131,8 +149,10 @@ export default {
     ]),
     ...mapMutations(["UPDATE_ACCOUNT", "UPDATE_BALANCE"]),
     async connectWallet() {
-      connect();
-
+      connect().then((account) => {
+        console.log(account);
+        this.account = account;
+      });
       // await this.updateAccount();
     },
     handleClaim() {
@@ -184,6 +204,20 @@ export default {
     formart_date,
     openTeeView() {
       this.$refs.search.openDialog();
+    },
+    logout() {
+      this.$store.state.account = "";
+      localStorage.setItem("address", "");
+      localStorage.setItem("myNodeId", "");
+      window.location.reload();
+    },
+    formatAccount(account) {
+      if (account.length > 0) {
+        return (
+          account.substr(0, 10) + "...." + account.substr(account.length - 8, 8)
+        );
+      }
+      return account;
     },
   },
 };

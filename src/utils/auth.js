@@ -2,6 +2,8 @@ import vm from "@/main.js";
 import Cookies from "js-cookie";
 // import contracts from "@/contracts";
 import store from "@/store";
+import { fetchUserNode } from "@/api/user.js";
+
 const TokenKey = "Token";
 
 export function getToken() {
@@ -16,46 +18,34 @@ export function removeToken() {
   return Cookies.remove(TokenKey);
 }
 
-export async function connect(callBack) {
-  if (!window.ethereum) {
-    window.open("https://metamask.io/download.html", "_blank");
-    return vm.$dialog.error({
-      text: "Please install MetaMask to use this app.",
-      title: "Error",
-    });
-  }
-
-  let accounts = await window.ethereum.request({
-    method: "eth_accounts",
+export async function connect() {
+  let accounts;
+  return new Promise((resolve, reject) => {
+    if (!window.ethereum) {
+      window.open("https://metamask.io/download.html", "_blank");
+      return vm.$dialog.error({
+        text: "Please install MetaMask to use this app.",
+        title: "Error",
+      });
+    }
+    (async () => {
+      accounts = await window.ethereum.request({
+        method: "eth_accounts",
+      });
+      if (accounts.length == 0) {
+        accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+      }
+      localStorage.setItem("address", accounts[0]);
+      getUserNode(accounts[0]);
+      resolve(accounts[0]);
+    })();
   });
-  if (accounts.length == 0) {
-    accounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-  }
-  localStorage.setItem("address", accounts[0]);
-
-  // exchangeCode(accounts[0]).then((res) => {
-  //   sign(res.data.nonce, callBack);
-  // });
 }
 
-// export async function sign(nonce, callBack) {
-//   try {
-//     const msg = nonce;
-//     const sig = await contracts.signer.signMessage(msg);
-//     const account = store.state.account.toLowerCase();
-//     login(account, sig).then((res) => {
-//       setToken(res.data.token, new Date(res.data.expiresIn));
-//       if (callBack) {
-//         callBack();
-//       } else {
-//         window.location.reload();
-//       }
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   } finally {
-//     console.log("finsh");
-//   }
-// }
+export function getUserNode(address) {
+  fetchUserNode(address).then((res) => {
+    localStorage.setItem("nodeId", res.data.id);
+  });
+}

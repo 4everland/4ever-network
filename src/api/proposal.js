@@ -22,3 +22,11 @@ export function fetchProposalDetail(id, params) {
     params,
   });
 }
+
+export function sendProposal(data) {
+  return request({
+    url: "/proposals",
+    method: "post",
+    data,
+  });
+}

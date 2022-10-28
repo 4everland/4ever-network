@@ -106,7 +106,7 @@
         <div class="card-tips datanum--text">
           You can add your node information on the
           <a
-            href="https://github.com/"
+            href="https://github.com/liqwa1234/node"
             target="_blank"
             rel="noopener noreferrer"
             >GitHub link</a
