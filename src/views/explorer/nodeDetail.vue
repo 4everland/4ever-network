@@ -56,8 +56,17 @@
                         :key="item.key"
                       >
                         <div class="d-flex justify-space-between">
-                          <span class="color-main-text">
+                          <span class="color-main-text d-flex align-center">
                             {{ item.name }}
+                            <v-btn
+                              icon
+                              small
+                              v-if="item.edit && isSelfNode"
+                              class="ml-2"
+                              @click="handlerAprChange"
+                            >
+                              <v-icon small> mdi-pencil </v-icon>
+                            </v-btn>
                           </span>
                           <span class="datanum--text">
                             {{ item.value }}
@@ -154,6 +163,7 @@
       </v-row>
     </v-container>
     <stake-dialog ref="stakeDialog" />
+    <apr-dialog ref="aprDialog" />
   </div>
 </template>
 
@@ -169,6 +179,7 @@ import tableSlash from "./components/tableSlash.vue";
 import tableWithdraw from "./components/tableWithdraw.vue";
 
 import stakeDialog from "@/components/Dialog/stakeDialog.vue";
+import aprDialog from "@/components/Dialog/aprDialog.vue";
 
 import { formart_number, formatToken } from "@/utils/utils";
 
@@ -182,6 +193,7 @@ export default {
     tableSlash,
     tableWithdraw,
     stakeDialog,
+    aprDialog,
   },
   data() {
     return {
@@ -222,6 +234,7 @@ export default {
           name: "Voting APR",
           key: "apr",
           value: "",
+          edit: true,
         },
         {
           name: "Status",
@@ -282,8 +295,8 @@ export default {
   },
   computed: {
     isSelfNode() {
-      // return this.nodeHolder == localStorage.getItem("address");
-      return true;
+      return this.nodeHolder == localStorage.getItem("address");
+      // return true;
     },
   },
   watch: {},
@@ -325,6 +338,9 @@ export default {
     },
     handleUnstake() {
       this.$refs.stakeDialog.open();
+    },
+    handlerAprChange() {
+      this.$refs.aprDialog.open();
     },
   },
   created() {

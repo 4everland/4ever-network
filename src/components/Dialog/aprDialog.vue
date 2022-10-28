@@ -22,7 +22,9 @@
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <input type="text" class="int" v-model="value" />
-              <v-btn text tile plain color="#43A7EB">Max</v-btn>
+              <v-btn text tile plain color="#43A7EB" @click="maxValue"
+                >Max</v-btn
+              >
             </div>
           </div>
           <div class="d-flex justify-space-between mt-6">
@@ -44,7 +46,7 @@
             class="ml-8"
             elevation="0"
             color="primary"
-            @click="dialog = false"
+            @click="setApr"
             small
             >Confirm</v-btn
           >
@@ -54,6 +56,7 @@
   </div>
 </template>
 <script>
+import contracts from "@/contracts";
 export default {
   data() {
     return {
@@ -64,6 +67,22 @@ export default {
   methods: {
     open() {
       this.dialog = true;
+    },
+    maxValue() {
+      this.value = 10;
+    },
+    async setApr() {
+      let val = parseInt(this.value);
+      if (val > 10) {
+        return this.$dialog.error({
+          text: "Error",
+          title: "Error",
+        });
+      }
+      let apr = (this.value / 100) * 1e6;
+      const tx = await contracts.Stake.setVoteRewardCoef(apr);
+      const receipt = await tx.wait(2);
+      console.log(receipt);
     },
   },
 };
