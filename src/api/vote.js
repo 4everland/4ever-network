@@ -30,3 +30,11 @@ export function fetchVotedList(address, params) {
     params,
   });
 }
+
+export function fetchBeforeVote(data) {
+  return request({
+    url: "/votes",
+    method: "post",
+    data,
+  });
+}

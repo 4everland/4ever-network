@@ -1,5 +1,5 @@
 <template>
-  <div class="voting">
+  <div class="voting" ref="scrollDiv">
     <v-container>
       <v-row>
         <v-col cols="12">
@@ -8,7 +8,9 @@
             <div class="banner-tips">
               Token holders can earn revenue by staking and voting nodes.
             </div>
-            <v-btn class="banner-btn btnColor--text">Vote</v-btn>
+            <v-btn class="banner-btn btnColor--text" @click="onScroll"
+              >Vote</v-btn
+            >
           </v-sheet>
         </v-col>
       </v-row>
@@ -22,12 +24,11 @@
             class="text-center pa-8 after-border"
           >
             <div class="d-flex align-center justify-center mb-2">
-              <v-img max-height="18" max-width="18" :src="item.icon"></v-img>
               <span class="ml-2 overview-item-title">{{ item.name }}</span>
             </div>
             <div class="mb-2">
               <span class="overview-item-num datanum--text">
-                {{ formart_number(item.value) }}
+                {{ item.value }}
               </span>
               <span class="overview-item-title">
                 {{ item.unit }}
@@ -48,7 +49,7 @@
 <script>
 import voteMap from "./components/voteMap.vue";
 import tableValidator from "./components/tableValidator.vue";
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchVoteOverview } from "@/api/vote.js";
 
 export default {
@@ -57,40 +58,48 @@ export default {
     return {
       detailOverview: [
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "Total Node",
           tips: "111111",
           value: "",
           unit: null,
           price: "",
           key: "node",
+          format(val) {
+            return bignumFormatter(val);
+          },
         },
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "Total Validators",
           tips: "111111",
           value: "",
           unit: null,
           price: null,
           key: "validator",
+          format(val) {
+            return bignumFormatter(val);
+          },
         },
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "Voted(4EVER)",
           tips: "111111",
           value: "",
           unit: "4EVER",
           price: "",
           key: "validatorToken",
+          format(val) {
+            return bignumFormatter(val / 1e18);
+          },
         },
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
           name: "ARP",
           tips: "111111",
           value: "",
           unit: "%",
           price: null,
           key: "apr",
+          format(val) {
+            return val / 1e4 + "%";
+          },
         },
       ],
     };
@@ -102,8 +111,17 @@ export default {
     getOverview() {
       fetchVoteOverview().then((res) => {
         this.detailOverview.map((item) => {
-          item.value = res.data[item.key];
+          item.value = item.format(res.data[item.key]);
           return item;
+        });
+      });
+    },
+    onScroll() {
+      this.$nextTick(() => {
+        const height = this.$refs.scrollDiv.clientHeight;
+        window.scrollTo({
+          top: height,
+          behavior: "smooth",
         });
       });
     },

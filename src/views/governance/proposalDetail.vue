@@ -106,7 +106,7 @@ export default {
   },
   computed: {
     account() {
-      return localStorage.getItem("address");
+      return this.$store.state.account;
     },
   },
   watch: {},

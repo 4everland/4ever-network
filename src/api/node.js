@@ -1,9 +1,10 @@
 import request from "../utils/request";
 
-export function fetchNodeDetail(nodeId) {
+export function fetchNodeDetail(nodeId, params) {
   return request({
     url: `/nodes/${nodeId}`,
     method: "get",
+    params,
   });
 }
 
@@ -14,17 +15,17 @@ export function fetchNodeBalance(nodeId) {
   });
 }
 
-export function fetchRewardLog(nodeId, params) {
-  return request({
-    url: `/rewards/${nodeId}`,
-    method: "get",
-    params,
-  });
-}
+// export function fetchRewardLog(nodeId, params) {
+//   return request({
+//     url: `/rewards/${nodeId}`,
+//     method: "get",
+//     params,
+//   });
+// }
 
-export function fetchNodeWithdraw(nodeId, params) {
+export function fetchNodeWithdraw(address, params) {
   return request({
-    url: `/nodes/${nodeId}/withdrawals`,
+    url: `/nodes/${address}/withdrawals`,
     method: "get",
     params,
   });

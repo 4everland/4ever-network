@@ -22,9 +22,9 @@
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <input type="text" class="int" v-model="value" />
-              <v-btn text tile plain color="#43A7EB" @click="maxValue"
+              <!-- <v-btn text tile plain color="#43A7EB" @click="maxValue"
                 >Max</v-btn
-              >
+              > -->
             </div>
           </div>
           <div class="d-flex justify-space-between mt-6">
@@ -80,9 +80,19 @@ export default {
         });
       }
       let apr = (this.value / 100) * 1e6;
-      const tx = await contracts.Stake.setVoteRewardCoef(apr);
-      const receipt = await tx.wait(2);
-      console.log(receipt);
+      try {
+        const tx = await contracts.Stake.setVoteRewardCoef(apr);
+        const receipt = await tx.wait(2);
+        console.log(receipt);
+        if (receipt) {
+          this.dialog = false;
+        }
+      } catch (error) {
+        return this.$dialog.notify.error(error.data.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      }
     },
   },
 };
@@ -124,11 +134,11 @@ export default {
     height: 48px;
     .int {
       height: 48px;
-      width: 300px;
+      width: 100%;
       font-size: 18px;
       font-weight: 600;
       color: #7794a5;
-      padding-left: 20px;
+      padding: 0 20px;
       &::placeholder {
         color: #7b92a2;
       }

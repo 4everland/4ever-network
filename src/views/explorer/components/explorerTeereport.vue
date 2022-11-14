@@ -23,10 +23,16 @@
                     {{ "#" + item.blockNumber }}
                   </td>
                   <td class="datanum--text">
-                    {{ item.averageAccuracyRate + "%" }}
+                    {{ item.averageAccuracyRate / 100 + "%" }}
                   </td>
-                  <td class="datanum--text">{{ item.totalSize }}</td>
-                  <td class="datanum--text">{{ item.averageElapsedTime }}</td>
+                  <td class="datanum--text">
+                    {{ formart_storage(item.totalSize) }}
+                  </td>
+                  <td class="datanum--text">
+                    {{ item.averageElapsedTime }}
+                    <!-- <span style="color: #7f92a0; font-size: 12px">S</span> -->
+                    <span>S</span>
+                  </td>
                   <td class="datanum--text">
                     {{ formart_date(item.blockCreatedAt) }}
                   </td>
@@ -48,7 +54,7 @@
 
 <script>
 import TeereportView from "./TeereportView.vue";
-import { formart_number, formart_date } from "@/utils/utils";
+import { formart_number, formart_date, formart_storage } from "@/utils/utils";
 import { fetchTeeReportList } from "@/api/explorer.js";
 
 export default {
@@ -65,6 +71,7 @@ export default {
   methods: {
     formart_number,
     formart_date,
+    formart_storage,
     getNodeList() {
       fetchTeeReportList().then((res) => {
         this.teeReportList = res.data.item;

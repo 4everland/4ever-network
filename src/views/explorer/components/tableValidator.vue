@@ -24,7 +24,7 @@
                 <th class="text-left cardtitle--text boxbackgroud">
                   Voted(4EVER)
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
+                <!-- <th class="text-left cardtitle--text boxbackgroud">CreateAt</th> -->
               </tr>
             </thead>
             <tbody>
@@ -33,16 +33,16 @@
                   {{ item.address }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.token) }}
+                  {{ bignumFormatter(item.token / 1e18) }}
                 </td>
-                <td class="datanum--text">
+                <!-- <td class="datanum--text">
                   {{ formart_date(item.createdAt) }}
-                </td>
+                </td> -->
               </tr>
             </tbody>
           </template>
         </v-simple-table>
-        <template>
+        <template v-if="pageLength > 0">
           <div class="text-center">
             <v-container>
               <v-row justify="center">
@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { formart_number, formart_date } from "@/utils/utils";
+import { formart_number, formart_date, bignumFormatter } from "@/utils/utils";
 import { fetchNodeVoters } from "@/api/node.js";
 export default {
   components: {},
@@ -84,12 +84,13 @@ export default {
   watch: {},
   methods: {
     formart_number,
+    bignumFormatter,
     formart_date,
     async getNodeVoters(params) {
       try {
         const { data } = await fetchNodeVoters(this.nodeId, params);
         this.list = data.list;
-        this.pageLength = data.page;
+        this.pageLength = data.total;
       } catch (error) {
         //
       }

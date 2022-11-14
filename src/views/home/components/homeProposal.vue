@@ -34,7 +34,7 @@
                     {{ item.node }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.slash) }}
+                    {{ bignumFormatter(item.slash / 1e18) }}
                   </td>
                   <td :class="item.status">
                     {{ item.status | statusFilter }}
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchProposalList } from "@/api/proposal.js";
 export default {
   components: {},
@@ -74,9 +74,12 @@ export default {
   watch: {},
   methods: {
     formart_number,
-
+    bignumFormatter,
     getNodeList() {
-      fetchProposalList().then((res) => {
+      const params = {
+        pageSize: 6,
+      };
+      fetchProposalList(params).then((res) => {
         this.proposalList = res.data.list;
       });
     },

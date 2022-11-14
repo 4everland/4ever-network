@@ -27,7 +27,7 @@
                 <tr v-for="(item, index) in voteList" :key="index">
                   <td class="datanum--text d-flex align-center">
                     <span class="ball"></span>
-                    {{ item.id }}
+                    {{ item.nodeId }}
                     <span v-if="item.isMajor" class="major">Major</span>
                     <span v-else class="popular">Popular</span>
                   </td>
@@ -35,10 +35,10 @@
                     {{ formart_number(item.validator) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.vote) }}
+                    {{ bignumFormatter(item.vote / 1e18) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.apr) }}
+                    {{ formart_number(item.apr / 1e4) + "%" }}
                   </td>
                   <td class="datanum--text">
                     <v-btn
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchVoteList } from "@/api/vote.js";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
 export default {
@@ -70,12 +70,21 @@ export default {
       voteList: [],
     };
   },
-  computed: {},
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+  },
   watch: {},
   methods: {
     formart_number,
+    bignumFormatter,
     getNodeList() {
-      fetchVoteList().then((res) => {
+      const params = {
+        pageSize: 6,
+        address: this.account,
+      };
+      fetchVoteList(params).then((res) => {
         this.voteList = res.data.list;
       });
     },

@@ -1,7 +1,15 @@
-import contracts from "@/contracts";
-import { formart_rewards } from "@/utils/utils";
 import Vue from "vue";
 import Vuex from "vuex";
+import { connect, getUserNode } from "@/utils/auth";
+import {
+  getBalance,
+  getMyStake,
+  getMyReward,
+  getStakeApproved,
+  getVoteApproved,
+  stakeApprove,
+  voteApprove,
+} from "@/utils/contracts";
 
 Vue.use(Vuex);
 
@@ -10,35 +18,101 @@ export default new Vuex.Store({
     account: "",
     chainId: "",
     balance: "0",
-    holder: null,
+    isStakeApproved: false,
+    isVoteApproved: false,
+    myNodeId: null,
+    showMyAccount: false,
+    myStake: "",
+    myNodeStake: 0,
+    myReward: 0,
   },
   mutations: {
-    UPDATE_ACCOUNT(state, value) {
-      state.account = value;
+    UPDATE_ACCOUNT(state, account) {
+      state.account = account;
     },
-    UPDATE_CHAINID(state, value) {
-      state.chainId = value;
+    UPDATE_CHAINID(state, chainId) {
+      state.chainId = chainId;
     },
-    UPDATE_BALANCE(state, value) {
-      state.balance = value;
+    UPDATE_BALANCE(state, balance) {
+      state.balance = balance;
     },
-    UPDATE_HOLDER(state, value) {
-      state.holder = value;
+    UPDATE_STAKEAPPROVED(state, isStakeApproved) {
+      state.isStakeApproved = isStakeApproved;
+    },
+    UPDATE_VOTEAPPROVED(state, isVoteApproved) {
+      state.isVoteApproved = isVoteApproved;
+    },
+    UPDATE_MYNODEID(state, myNodeId) {
+      state.myNodeId = myNodeId;
+    },
+    UPDATE_SHOWMYACCOUNT(state, showMyAccount) {
+      state.showMyAccount = showMyAccount;
+    },
+    UPDATE_MYSTAKE(state, myStake) {
+      state.myStake = myStake;
+    },
+    UPDATE_MYNODESTAKE(state, myNodeStake) {
+      state.myNodeStake = myNodeStake;
+    },
+    UPDATE_MYREWARD(state, myReward) {
+      state.myReward = myReward;
     },
   },
   actions: {
+    async getConnect({ commit, dispatch }) {
+      const account = await connect();
+      if (account) {
+        const info = await getUserNode(account);
+        console.log(info);
+        commit("UPDATE_ACCOUNT", account);
+        commit("UPDATE_MYNODEID", info.id);
+        commit("UPDATE_SHOWMYACCOUNT", info.hasData);
+        commit("UPDATE_MYSTAKE", info.stake);
+        dispatch("updateChainId");
+        dispatch("updateStakeApproved");
+        dispatch("updateVoteApproved");
+        dispatch("updateBalance");
+        dispatch("updateMyNodeStake");
+        dispatch("updateMyReward");
+      }
+    },
     async getAccount({ commit, dispatch }) {
-      let accounts = await window.ethereum.request({
-        method: "eth_accounts",
-      });
-      if (accounts.length !== 0) {
-        commit("UPDATE_ACCOUNT", accounts[0]);
-        // const isExists = await contracts.POSC.holderExists(accounts[0]);
-        // commit("UPDATE_HOLDER", isExists);
-        // if (!isExists) return commit("UPDATE_BALANCE", "-");
-        // setInterval(() => {
-        // 	dispatch("updateBalance");
-        // }, 10000);
+      try {
+        if (!window.ethereum) {
+          return;
+        }
+        let accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length == 0) {
+          accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+        }
+        return accounts[0];
+      } catch (error) {
+        return null;
+      }
+    },
+    async updateBalance({ commit, state, dispatch }) {
+      const account = state.account;
+      if (account) {
+        const balance = await getBalance(account);
+        commit("UPDATE_BALANCE", balance.toString());
+      }
+    },
+    async updateStakeApproved({ commit, state, dispatch }) {
+      const account = state.account;
+      if (account) {
+        const isStakeApproved = await getStakeApproved(account);
+        commit("UPDATE_STAKEAPPROVED", isStakeApproved);
+      }
+    },
+    async updateVoteApproved({ commit, state, dispatch }) {
+      const account = state.account;
+      if (account) {
+        const isVoteApproved = await getVoteApproved(account);
+        commit("UPDATE_VOTEAPPROVED", isVoteApproved);
       }
     },
     async updateAccount({ state, commit, dispatch }) {
@@ -58,39 +132,45 @@ export default new Vuex.Store({
       });
       chainId = parseInt(chainId, 16);
       commit("UPDATE_CHAINID", chainId);
-      if (chainId != 1 && chainId != 4)
-        return Vue.prototype.$message.error(
-          "Please select the correct network!"
-        );
-      dispatch("getAccount");
     },
-    async updateBalance({ state, commit }) {
-      // console.log("---------");
-      // if (state.chainId !== 1 && state.chainId !== 4)
-      // 	return Vue.prototype.$message.error(
-      // 		"Please select the correct network!"
-      // 	);
-
-      // const isExists = await contracts.POSC.holderExists(state.account);
-      // if (!isExists) return;
-      const a = await contracts.POSC.holders(state.account);
-      const reward = await contracts.POSC.reward(a.pid);
-      // console.log(reward.toString(), "REWARD");
-      commit("UPDATE_BALANCE", formart_rewards(reward.toString()));
-      // commit("UPDATE_HOLDER", isExists);
-    },
-    async claim({ state, dispatch }) {
-      const data = contracts.POSC.interface.encodeFunctionData("claim", [
-        state.account,
-      ]);
-      const tx = await contracts.sendTransaction({
-        to: contracts.contractAddress,
-        data,
+    async updateStakeApprove({ commit, state, dispatch }) {
+      stakeApprove().then((res) => {
+        // dispatch("updateStakeApproved");
+        commit("UPDATE_STAKEAPPROVED", true);
       });
-      const receipt = tx.wait();
-      return receipt;
-      // console.log("receipt", receipt);
-      // dispatch("updateBalance");
+    },
+    async updateVoteApprove({ commit, state, dispatch }) {
+      const receipt = await voteApprove();
+      if (receipt) {
+        await commit("UPDATE_VOTEAPPROVED", true);
+        return receipt;
+      }
+    },
+    async updateMyNodeStake({ commit, state, dispatch }) {
+      const myNodeId = state.myNodeId;
+      const account = state.account;
+      if (myNodeId) {
+        const myNodeStake = await getMyStake(account);
+        commit("UPDATE_MYNODESTAKE", myNodeStake);
+      }
+    },
+    async updateMyReward({ commit, state, dispatch }) {
+      const myNodeId = state.myNodeId;
+      const account = state.account;
+      if (myNodeId) {
+        const myReward = await getMyReward(account);
+        commit("UPDATE_MYREWARD", myReward);
+      }
+    },
+    async logout({ commit, state, dispatch }) {
+      commit("UPDATE_ACCOUNT", "");
+      commit("UPDATE_CHAINID", "");
+      commit("UPDATE_BALANCE", "");
+      commit("UPDATE_STAKEAPPROVED", false);
+      commit("UPDATE_VOTEAPPROVED", false);
+      commit("UPDATE_MYNODEID", null);
+      commit("UPDATE_SHOWMYACCOUNT", false);
+      commit("UPDATE_MYSTAKE", "");
     },
   },
   modules: {},

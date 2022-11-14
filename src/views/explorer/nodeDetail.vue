@@ -7,12 +7,48 @@
             <div class="d-flex align-center justify-space-between mb-4">
               <div class="d-flex align-center">
                 <Logo class="mr-4" />
-                <span v-if="true" class="major">Major</span>
+                <span v-if="nodeData.isMajor" class="major">Major</span>
                 <span v-else class="popular">Popular</span>
               </div>
-              <div>
-                <v-btn>Voting</v-btn>
-                <v-btn>Claim</v-btn>
+              <div v-if="!isSelfNode">
+                <v-btn
+                  class="voting-btn btnColor--text mx-2"
+                  x-small
+                  @click.stop="handlerVoting(nodeData)"
+                  >Voting</v-btn
+                >
+                <v-btn
+                  v-if="nodeData.isVote"
+                  class="claim-btn btnColor--text mx-2"
+                  x-small
+                  @click.stop="handlerUserClaim(nodeData)"
+                  >Claim</v-btn
+                >
+              </div>
+              <div v-else>
+                <v-btn
+                  icon
+                  small
+                  class="ml-2"
+                  href="https://github.com/liqwa1234/node"
+                  target="_blank"
+                >
+                  <v-icon small> mdi-pencil </v-icon>
+                </v-btn>
+                <v-menu>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn icon small class="ml-2" v-bind="attrs" v-on="on">
+                      <v-icon small> mdi-dots-vertical </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item>
+                      <v-btn tile text @click="handleUnstake"
+                        >logout node</v-btn
+                      >
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
               </div>
             </div>
             <v-expansion-panels accordion flat v-model="panel">
@@ -22,7 +58,11 @@
                     <span class="node-id"
                       >{{ nodeId }}
 
-                      <v-btn icon @click.stop="copyNodeId(nodeId)">
+                      <v-btn
+                        id="copyBtn"
+                        icon
+                        @click.stop="copyNodeId($event, nodeId)"
+                      >
                         <v-icon small>mdi-content-copy</v-icon>
                       </v-btn>
                     </span>
@@ -87,23 +127,19 @@
                 class="text-center pa-8 after-border"
               >
                 <div class="d-flex align-center justify-center mb-2">
-                  <v-img
-                    max-height="18"
-                    max-width="18"
-                    :src="item.icon"
-                  ></v-img>
+                  <v-img max-width="18" :src="item.icon"></v-img>
                   <span class="ml-2 overview-item-title">{{ item.name }}</span>
                 </div>
                 <div class="mb-2">
                   <span class="overview-item-num datanum--text">
-                    {{ formart_number(item.value) }}
+                    {{ item.value }}
                   </span>
                   <span class="overview-item-title">
                     {{ item.unit }}
                   </span>
                 </div>
                 <!-- <div v-if="item.price" class="text-center overview-item-title">
-                  $ {{ formart_number(item.price) }}
+                  $ {{ bignumFormatter(item.price) }}
                 </div> -->
               </v-col>
             </v-row>
@@ -114,38 +150,35 @@
                   <div><v-icon small>mdi-content-copy</v-icon></div>
                   <div class="node-block-title">Staked</div>
                   <div class="node-block-value datanum--text">
-                    {{ detailBalance.stake }} 4EVER
+                    {{ bignumFormatter(myNodeStake) }} 4EVER
                   </div>
                   <!-- <div class="node-block-price datanum--text">$ 111,224,1</div> -->
-                  <div class="node-block-btn-box">
+                  <div class="node-block-btn-box justify-center">
                     <v-btn
                       class="node-block-btn stake-btn btnColor--text text-capitalize"
                       elevation="0"
                       @click="handleStake"
                       >Stake</v-btn
                     >
-                    <v-btn
-                      class="node-block-btn unstake-btn btnColor--text text-capitalize"
-                      elevation="0"
-                      @click="handleUnstake"
-                      >Unstake</v-btn
-                    >
                   </div>
                 </div>
               </v-col>
               <v-col cols="12" md="6">
                 <div class="boxbackgroud ma-0 mr-md-6 rounded node-block">
-                  <div class="node-block-type">Insufficient</div>
+                  <div class="node-block-type" style="visibility: hidden">
+                    Insufficient
+                  </div>
                   <div><v-icon small>mdi-content-copy</v-icon></div>
                   <div class="node-block-title">My Reward</div>
                   <div class="node-block-value datanum--text">
-                    {{ detailBalance.reward }} 4EVER
+                    {{ bignumFormatter(myReward) }} 4EVER
                   </div>
                   <!-- <div class="node-block-price datanum--text">$ 111,224,1</div> -->
                   <div class="node-block-btn-box justify-center">
                     <v-btn
                       class="node-block-btn claim-btn btnColor--text text-capitalize"
                       elevation="0"
+                      @click="handlerClaim"
                       >Claim</v-btn
                     >
                   </div>
@@ -153,7 +186,7 @@
               </v-col>
             </v-row>
             <table-validated v-if="isSelfNode" />
-            <table-reward v-if="isSelfNode" />
+            <!-- <table-reward v-if="isSelfNode" /> -->
             <table-validator />
             <table-teeReport />
             <table-slash />
@@ -164,15 +197,21 @@
     </v-container>
     <stake-dialog ref="stakeDialog" />
     <apr-dialog ref="aprDialog" />
+    <voting-dialog ref="votingDialog" />
+    <claim-dialog ref="claimDialog" />
   </div>
 </template>
 
 <script>
-import { fetchNodeDetail, fetchNodeBalance } from "@/api/node.js";
+import Clipboard from "clipboard";
+
+import contracts from "@/contracts";
+
+import { fetchNodeDetail } from "@/api/node.js";
 
 import Logo from "@/components/Logo.vue";
 import tableValidated from "./components/tableValidated.vue";
-import tableReward from "./components/tableReward.vue";
+// import tableReward from "./components/tableReward.vue";
 import tableValidator from "./components/tableValidator.vue";
 import tableTeeReport from "./components/tableTeeReport.vue";
 import tableSlash from "./components/tableSlash.vue";
@@ -180,25 +219,36 @@ import tableWithdraw from "./components/tableWithdraw.vue";
 
 import stakeDialog from "@/components/Dialog/stakeDialog.vue";
 import aprDialog from "@/components/Dialog/aprDialog.vue";
+import votingDialog from "@/components/Dialog/votingDialog.vue";
+import claimDialog from "@/components/Dialog/claimDialog.vue";
+import { BigNumber } from "@ethersproject/bignumber";
 
-import { formart_number, formatToken } from "@/utils/utils";
+import {
+  formart_number,
+  formart_date,
+  formatToken,
+  bignumFormatter,
+} from "@/utils/utils";
 
 export default {
   components: {
     Logo,
     tableValidated,
-    tableReward,
+    // tableReward,
     tableValidator,
     tableTeeReport,
     tableSlash,
     tableWithdraw,
     stakeDialog,
     aprDialog,
+    votingDialog,
+    claimDialog,
   },
   data() {
     return {
       nodeId: null,
       panel: null,
+      nodeData: {},
       detailMore: [
         {
           name: "Domain",
@@ -235,6 +285,9 @@ export default {
           key: "apr",
           value: "",
           edit: true,
+          format(val) {
+            return val / 1e4 + "%";
+          },
         },
         {
           name: "Status",
@@ -244,94 +297,162 @@ export default {
         {
           name: "CreatedAt",
           key: "createdAt",
-          value: "-",
+          value: "",
+          format(val) {
+            return formart_date(val);
+          },
         },
       ],
       detailOverview: [
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
+          icon: require("@/assets/imgs/nodeDetail/Staked.png"),
           name: "Staked",
-          tips: "111111",
+          tips: "",
           value: "",
           unit: "4EVER",
-          price: "11111",
+          price: "",
           key: "stake",
+          format(val) {
+            return bignumFormatter(val / 1e18);
+          },
         },
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
+          icon: require("@/assets/imgs/nodeDetail/Validator.png"),
           name: "Validator",
-          tips: "111111",
+          tips: "",
           value: "",
           unit: null,
           price: null,
           key: "validator",
+          format(val) {
+            return bignumFormatter(val);
+          },
         },
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
+          icon: require("@/assets/imgs/nodeDetail/Voted.png"),
           name: "Voted",
-          tips: "111111",
+          tips: "",
           value: "",
           unit: "4EVER",
-          price: "11111",
+          price: "",
           key: "vote",
+          format(val) {
+            return bignumFormatter(val / 1e18);
+          },
         },
         {
-          icon: require("@/assets/imgs/home/NodeRunner.png"),
+          icon: require("@/assets/imgs/nodeDetail/ARP.png"),
           name: "ARP",
-          tips: "111111",
+          tips: "",
           value: "",
           unit: "%",
           price: null,
           key: "apr",
+
+          format(val) {
+            return val / 1e4;
+          },
         },
       ],
-      detailBalance: {
-        stake: "",
-        reward: "",
-      },
       nodeHolder: "",
       description: null,
+      Timer: null,
     };
   },
   computed: {
     isSelfNode() {
-      return (
-        this.nodeHolder.toLowerCase() ==
-        localStorage.getItem("address").toLowerCase()
-      );
-      // return true;
+      const account = this.$store.state.account;
+      if (account) {
+        return this.nodeHolder.toLowerCase() == account.toLowerCase();
+      } else {
+        return false;
+      }
+    },
+    account() {
+      return this.$store.state.account;
+    },
+    myNodeStake() {
+      return this.$store.state.myNodeStake;
+    },
+    myReward() {
+      return this.$store.state.myReward;
     },
   },
-  watch: {},
+  watch: {
+    $route() {
+      this.getNodeOverview();
+    },
+    account(newVal) {
+      if (newVal) {
+        // this.getNodeOverview();
+      }
+    },
+    isSelfNode(newVal) {
+      if (newVal) {
+        this.Timer = setInterval(() => {
+          console.log("refresh reward");
+          this.$store.dispatch("updateMyReward");
+        }, 5000);
+      }
+    },
+  },
   methods: {
     formart_number,
+    formart_date,
     formatToken,
-    getNodeOverview() {
-      const nodeId = this.nodeId;
-      fetchNodeDetail(nodeId).then((res) => {
+    bignumFormatter,
+    async getNodeOverview() {
+      const account = await this.$store.dispatch("getAccount");
+      const id = this.$route.params.id;
+      const params = {
+        address: account,
+      };
+      fetchNodeDetail(id, params).then((res) => {
+        this.nodeData = res.data;
         this.nodeHolder = res.data.address;
+        this.nodeId = res.data.nodeId;
         this.description = res.data.description;
         this.detailMore.map((item) => {
-          item.value = res.data[item.key];
+          if (item.format) {
+            item.value = item.format(res.data[item.key]);
+          } else {
+            item.value = res.data[item.key];
+          }
           return item;
         });
         this.detailOverview.map((item) => {
-          item.value = res.data[item.key];
+          item.value = item.format(res.data[item.key]);
           return item;
         });
       });
     },
-    getNodeBalance() {
-      const nodeId = this.nodeId;
-      fetchNodeBalance(nodeId).then((res) => {
-        if (res.data) {
-          this.detailBalance = res.data;
-        }
+    copyNodeId(e, nodeId) {
+      const clipboard = new Clipboard(e.target, { text: () => nodeId });
+      clipboard.on("success", (e) => {
+        clipboard.off("error");
+        clipboard.off("success");
+        clipboard.destroy();
+        return this.$dialog.notify.success("Successfully", {
+          position: "top-right",
+          timeout: 5000,
+        });
       });
+      clipboard.on("error", (e) => {
+        clipboard.off("error");
+        clipboard.off("success");
+        clipboard.destroy();
+        return this.$dialog.notify.error("Error", {
+          position: "top-right",
+          timeout: 5000,
+        });
+      });
+      clipboard.onClick(e);
     },
-
-    copyNodeId(nodeId) {
-      console.log(nodeId);
+    handlerVoting(data) {
+      this.$refs.votingDialog.open(data);
+    },
+    handlerUserClaim(data) {
+      this.$refs.claimDialog.open(data);
     },
     viewMore() {
       console.log(this.panel);
@@ -339,19 +460,66 @@ export default {
     handleStake() {
       this.$refs.stakeDialog.open();
     },
-    handleUnstake() {
-      this.$refs.stakeDialog.open();
+    async handleUnstake() {
+      try {
+        const tx = await contracts.Stake.applyQuit({ gasLimit: 400000 });
+        console.log(tx);
+        const receipt = await tx.wait();
+        console.log(receipt);
+      } catch (error) {
+        console.log(error);
+        return this.$dialog.notify.error(error.data.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      }
+
+      // const candidateApply = await contracts.Stake.candidateApplyInfo(
+      //   this.account
+      // );
+      // candidateApply.amount
+      // const lastApplyQuitTimestamp = candidateApply.lastApplyQuitTimestamp;
+      // const stakeFrozenPeriod = await contracts.Stake.stakeFrozenPeriod();
+
+      // const tx = await contracts.Stake.quit(this.account);
+    },
+    async handlerClaim() {
+      try {
+        const tx = await contracts.Stake.claim(this.account);
+        console.log(tx);
+        const receipt = await tx.wait();
+        console.log(receipt);
+      } catch (error) {
+        console.log(error);
+        return this.$dialog.notify.error(error.data.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      }
     },
     handlerAprChange() {
       this.$refs.aprDialog.open();
     },
+    async getStake() {
+      const candidate = await contracts.Stake.candidateInfo(this.account);
+      console.log("stake", candidate);
+      this.stake = candidate.amount.div((1e18).toString());
+    },
+    async getReward() {
+      const reward = await contracts.Stake.pendingReward(this.account);
+      console.log("reward", reward);
+      this.reward = reward.div((1e18).toString());
+    },
   },
   created() {
-    this.nodeId = this.$route.params.id;
     this.getNodeOverview();
-    this.getNodeBalance();
   },
   mounted() {},
+  destroyed() {
+    if (this.Timer) {
+      clearTimeout(this.Timer);
+    }
+  },
 };
 </script>
 <style lang="less" scoped>
@@ -380,6 +548,22 @@ export default {
       color: #43a7eb;
       text-align: center;
       display: inline-block;
+    }
+    .voting-btn {
+      width: 74px;
+      height: 30px;
+      background: linear-gradient(270deg, #ff6ceb 0%, #ffb881 100%);
+      border-radius: 4px;
+      display: inline-block;
+      font-size: 11px;
+    }
+    .claim-btn {
+      width: 74px;
+      height: 30px;
+      background: linear-gradient(270deg, #53ccfb 0%, #fbb2dd 100%);
+      border-radius: 4px;
+      display: inline-block;
+      font-size: 11px;
     }
     .node-id {
       font-size: 12px;
@@ -471,6 +655,8 @@ export default {
           font-weight: bold;
         }
         .stake-btn {
+          width: 315px;
+          height: 28px;
           background: linear-gradient(270deg, #7dc55d 0%, #defbd1 100%);
         }
         .unstake-btn {

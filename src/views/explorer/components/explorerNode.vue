@@ -37,26 +37,26 @@
                     {{ item.name }}
                   </td>
                   <td class="datanum--text">{{ item.domain }}</td>
-                  <td class="datanum--text">{{ item.id }}</td>
+                  <td class="datanum--text">{{ item.nodeId }}</td>
                   <td class="datanum--text">{{ item.address }}</td>
                   <td class="datanum--text">{{ item.region }}</td>
                   <td class="datanum--text">
-                    <span v-if="item.type" class="major">Major</span>
+                    <span v-if="item.isMajor" class="major">Major</span>
                     <span v-else class="popular">Popular</span>
                   </td>
-                  <td class="datanum--text">{{ item.version }}</td>
-                  <td class="datanum--text">{{ item.posc }}</td>
+                  <td class="datanum--text">{{ item.version || "unknow" }}</td>
+                  <td class="datanum--text">{{ item.posc / 1e4 + "%" }}</td>
                   <td class="datanum--text">
-                    {{ formart_number(item.stake) }}
+                    {{ bignumFormatter(item.stake / 1e18) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.voted) }}
+                    {{ bignumFormatter(item.voted / 1e18) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.reward) }}
+                    {{ bignumFormatter(item.reward / 1e18) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.slash) }}
+                    {{ bignumFormatter(item.slash / 1e18) }}
                   </td>
                   <td class="datanum--text">{{ item.status }}</td>
                   <td
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchNodeList } from "@/api/home.js";
 
 export default {
@@ -94,7 +94,7 @@ export default {
   watch: {},
   methods: {
     formart_number,
-
+    bignumFormatter,
     getNodeList() {
       fetchNodeList({
         type: "ALL",

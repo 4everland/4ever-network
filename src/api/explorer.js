@@ -8,6 +8,13 @@ export function fetchTeeReportList(params) {
   });
 }
 
+export function fetchReportDetail(height) {
+  return request({
+    url: `/report/${height}`,
+    method: "get",
+  });
+}
+
 export function fetchSlashesList(params) {
   return request({
     url: `/slashes`,

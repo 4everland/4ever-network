@@ -141,7 +141,7 @@ export default {
     height: 300px;
     max-width: 1350px;
     max-height: 300px;
-    background-image: url("../../assets/imgs/voting/banner.png");
+    background-image: url("../../assets/imgs/governance/banner.png");
     background-position: 0 0;
     background-size: contain;
     border-radius: 4px;

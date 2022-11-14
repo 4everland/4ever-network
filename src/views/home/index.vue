@@ -13,7 +13,7 @@
               <span class="ml-2 overview-item-title">{{ item.title }}</span>
             </div>
             <div class="overview-item-num datanum--text">
-              {{ formart_number(item.value) }}
+              {{ item.value }}
             </div>
           </v-card>
           <div
@@ -152,7 +152,7 @@
                         {{ formart_number(item.node) }}
                       </td>
                       <td class="datanum--text">
-                        {{ formart_number(item.token) }}
+                        {{ formart_number(item.token / 1e18) }}
                       </td>
                     </tr>
                   </tbody>
@@ -191,16 +191,16 @@
                     <tr v-for="(item, index) in majorNodeList" :key="index">
                       <td class="cardtitle--text">{{ item.domain }}</td>
                       <td class="datanum--text">
-                        {{ formart_number(item.stake) }}
+                        {{ bignumFormatter(item.stake / 1e18) }}
                       </td>
                       <td class="datanum--text">
                         {{ formart_number(item.validator) }}
                       </td>
                       <td class="datanum--text">
-                        {{ formart_number(item.validatorToken) }}
+                        {{ bignumFormatter(item.validatorToken / 1e18) }}
                       </td>
                       <td class="datanum--text">
-                        {{ formart_number(item.reward) }}
+                        {{ bignumFormatter(item.reward / 1e18) }}
                       </td>
                     </tr>
                   </tbody>
@@ -219,8 +219,15 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import {
+  formart_number,
+  formart_date,
+  formart_storage,
+  nFormatter,
+  bignumFormatter,
+} from "@/utils/utils";
 import { Line } from "@antv/g2plot";
+import { BigNumber } from "ethers";
 
 import nodeMap from "./components/nodeMap.vue";
 import accuracyRate from "./components/accuracyRate.vue";
@@ -238,6 +245,8 @@ import {
 export default {
   components: { nodeMap, accuracyRate, homeVoting, homeProposal, homeUserRank },
   data() {
+    const that = this;
+
     return {
       nodeChoose: 0,
       userChoose: 0,
@@ -248,6 +257,9 @@ export default {
           value: "",
           key: "nodeRunner",
           colors: ["#9032CF", "#D1A8EE"],
+          format(val) {
+            return that.bignumFormatter(val);
+          },
         },
         {
           icon: require("@/assets/imgs/home/TeeReport.png"),
@@ -255,6 +267,9 @@ export default {
           value: "",
           key: "totalTeeReport",
           colors: ["#F45F93", "#F6B7CC"],
+          format(val) {
+            return that.bignumFormatter(val);
+          },
         },
         {
           icon: require("@/assets/imgs/home/TotalSupply.png"),
@@ -262,6 +277,9 @@ export default {
           value: "",
           key: "totalSupply",
           colors: ["#7DC55D", "#DEFBD1"],
+          format(val) {
+            return that.bignumFormatter(val / 1e18);
+          },
         },
         {
           icon: require("@/assets/imgs/home/TotalStake.png"),
@@ -269,6 +287,9 @@ export default {
           value: "",
           key: "totalStake",
           colors: ["#5190DD", "#6CF5F7"],
+          format(val) {
+            return that.bignumFormatter(val / 1e18);
+          },
         },
       ],
       totalList: [
@@ -276,21 +297,33 @@ export default {
           name: "Total TeeReport",
           value: "",
           key: "totalTeeReport",
+          format(val) {
+            return val;
+          },
         },
         {
           name: "Total File",
           value: "",
           key: "totalFile",
+          format(val) {
+            return val;
+          },
         },
         {
           name: "Total Storage",
           value: "",
           key: "totalStorage",
+          format(val) {
+            return formart_storage(val);
+          },
         },
         {
           name: "Average Accuracy Rate",
           value: "",
           key: "avgAccuracyRate",
+          format(val) {
+            return val / 100 + "%";
+          },
         },
       ],
       tokenList: [
@@ -323,12 +356,15 @@ export default {
       mapData: {},
       nodeLocationList: [],
       majorNodeList: [],
+      nodeLine: null,
+      userLine: null,
     };
   },
   computed: {},
   watch: {},
   methods: {
     formart_number,
+    bignumFormatter,
     init() {
       this.getOverview();
       this.getNodeList();
@@ -341,67 +377,112 @@ export default {
     getOverview() {
       fetchHomeOverview().then((res) => {
         this.overView.map((item) => {
-          item.value = res.data[item.key];
+          item.value = item.format(res.data[item.key]);
           return item;
         });
         this.totalList.map((item) => {
-          item.value = res.data[item.key];
+          item.value = item.format(res.data[item.key]);
           return item;
         });
         this.tokenList.map((item) => {
-          item.value = res.data[item.key];
+          item.value = bignumFormatter(res.data[item.key] / 1e18);
           return item;
         });
       });
     },
     async getStakedLineChart(params) {
       const { data } = await fetchStakesLinechart(params);
-      return data;
+      const formatData = this.formatListNum(data);
+      return formatData;
     },
-    async setNodeChart(params) {
-      if (!params) {
-        let currentDate = new Date();
-        let before = currentDate.getTime();
-        let after = currentDate.setDate(currentDate.getDate() - 7);
-        params = {
-          before,
-          after,
-          type: "NODE",
-        };
-      }
+    async setNodeChart() {
+      let currentDate = new Date();
+      let before = currentDate.getTime();
+      let after = currentDate.setDate(currentDate.getDate() - 7);
+      const params = {
+        before,
+        after,
+        type: "NODE",
+      };
       const data = await this.getStakedLineChart(params);
       const line = new Line("nodeChart", {
         height: 110,
+        autoFit: false,
         padding: "auto",
         data,
         xField: "x",
         yField: "y",
         smooth: true,
+        xAxis: {
+          label: {
+            formatter(val) {
+              return formart_date(parseInt(val), "{m} {d} {y}");
+            },
+          },
+        },
+        yAxis: {
+          label: {
+            formatter(val) {
+              return nFormatter(val, 2);
+            },
+          },
+        },
+        tooltip: {
+          showTitle: false,
+          formatter: (datum) => {
+            return {
+              name: formart_date(parseInt(datum.x), "{m} {d} {y}"),
+              value: nFormatter(datum.y, 2),
+            };
+          },
+        },
       });
-
+      this.nodeLine = line;
       line.render();
     },
-    async setUserChart(params) {
-      if (!params) {
-        let currentDate = new Date();
-        let before = currentDate.getTime();
-        let after = currentDate.setDate(currentDate.getDate() - 7);
-        params = {
-          before,
-          after,
-          type: "VALIDATOR",
-        };
-      }
+    async setUserChart() {
+      let currentDate = new Date();
+      let before = currentDate.getTime();
+      let after = currentDate.setDate(currentDate.getDate() - 7);
+      const params = {
+        before,
+        after,
+        type: "VALIDATOR",
+      };
       const data = await this.getStakedLineChart(params);
       const line = new Line("userChart", {
         height: 110,
+        autoFit: false,
         padding: "auto",
         data,
         xField: "x",
         yField: "y",
         smooth: true,
+        xAxis: {
+          label: {
+            formatter(val) {
+              return formart_date(parseInt(val), "{m} {d} {y}");
+            },
+          },
+        },
+        yAxis: {
+          label: {
+            formatter(val) {
+              return nFormatter(val, 2);
+            },
+          },
+        },
+        tooltip: {
+          showTitle: false,
+          formatter: (datum) => {
+            return {
+              name: formart_date(parseInt(datum.x), "{m} {d} {y}"),
+              value: nFormatter(datum.y, 2),
+            };
+          },
+        },
       });
-
+      this.userLine = line;
       line.render();
     },
     getMapChart() {
@@ -412,13 +493,15 @@ export default {
       });
     },
     getNodeList() {
-      fetchNodeList({
+      const params = {
+        pageSize: 6,
         type: "NODE",
-      }).then((res) => {
+      };
+      fetchNodeList(params).then((res) => {
         this.majorNodeList = res.data.list;
       });
     },
-    lineChartChange(type, val) {
+    async lineChartChange(type, val) {
       let currentDate = new Date();
       let before = currentDate.getTime();
       let after = null;
@@ -441,10 +524,19 @@ export default {
         type,
       };
       if (type == "NODE") {
-        this.setNodeChart(params);
+        const data = await this.getStakedLineChart(params);
+        this.nodeLine.changeData(data);
       } else if (type == "VALIDATOR") {
-        this.setUserChart(params);
+        const data = await this.getStakedLineChart(params);
+        this.userLine.changeData(data);
       }
+    },
+    formatListNum(data) {
+      data.map((item) => {
+        const newY = BigNumber.from(item.y);
+        item.y = newY.div("1000000000000000000");
+      });
+      return data;
     },
   },
   created() {

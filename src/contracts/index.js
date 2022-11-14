@@ -91,14 +91,14 @@ var Contracts = /** @class */ (function () {
     });
     Object.defineProperty(Contracts.prototype, "Stake", {
         get: function () {
-            return dao_contracts_1.Stake__factory.connect("0xeb2852579fF160Ae78d86B86Be4C903D7242dEF7", this.signer);
+            return dao_contracts_1.Stake__factory.connect("0x8950FFB67dBccbc1A0299a539300B2B83724a859", this.signer);
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(Contracts.prototype, "Election", {
         get: function () {
-            return dao_contracts_1.Election__factory.connect("0xEeBBf635D0D0c03E7a6b21ab99c9a641DF8EA10e", this.signer);
+            return dao_contracts_1.Election__factory.connect("0x59986bA1D3894cdbEf4338AFC02Dfcd2eb2f45Bb", this.signer);
         },
         enumerable: false,
         configurable: true

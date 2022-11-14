@@ -36,24 +36,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in voteList" :key="index">
+                  <tr v-for="(item, index) in reportList" :key="index">
                     <td class="datanum--text d-flex align-center">
-                      {{ item.id }}
+                      {{ item.nodeId }}
                     </td>
                     <td class="datanum--text">
-                      {{ formart_number(item.validator) }}
+                      {{ formart_number(item.accuracyRate / 100) + "%" }}
                     </td>
                     <td class="datanum--text">
-                      {{ formart_number(item.validator) }}
+                      {{ formart_storage(item.totalSize) }}
                     </td>
                     <td class="datanum--text">
-                      {{ formart_number(item.validator) }}
+                      {{ formart_number(item.elapsedTime) }}
+                      <span>S</span>
                     </td>
                   </tr>
                 </tbody>
               </template>
             </v-simple-table>
-            <template>
+            <!-- <template>
               <div class="text-center">
                 <v-container>
                   <v-row justify="center">
@@ -71,7 +72,7 @@
                   </v-row>
                 </v-container>
               </div>
-            </template>
+            </template> -->
           </div>
         </v-col>
       </v-row>
@@ -80,16 +81,16 @@
 </template>
 
 <script>
-import { formart_number, formart_date } from "@/utils/utils";
+import { formart_number, formart_date, formart_storage } from "@/utils/utils";
 
-import { fetchVoteList } from "@/api/vote.js";
+import { fetchReportDetail } from "@/api/explorer.js";
 export default {
   components: {},
   data() {
     return {
       dialog: false,
       data: {},
-      voteList: [],
+      reportList: [],
       page: 1,
       pageSize: 10,
     };
@@ -99,10 +100,10 @@ export default {
   methods: {
     formart_number,
     formart_date,
-    getNodeList() {
-      fetchVoteList().then((res) => {
-        this.voteList = res.data.list;
-      });
+    formart_storage,
+    async getNodeList(height) {
+      const { data } = await fetchReportDetail(height);
+      this.reportList = data.reports;
     },
     pageChange(val) {
       const params = {
@@ -111,9 +112,10 @@ export default {
       };
       this.getNodeList(params);
     },
-    openDialog(data) {
-      this.dialog = true;
+    async openDialog(data) {
+      await this.getNodeList(data.blockNumber);
       this.data = data;
+      this.dialog = true;
     },
     closeDialog() {
       this.dialog = false;
@@ -124,7 +126,7 @@ export default {
     },
   },
   created() {
-    this.getNodeList();
+    // this.getNodeList();
   },
   mounted() {},
 };

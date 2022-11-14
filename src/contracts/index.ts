@@ -38,14 +38,14 @@ class Contracts {
 
   public get Stake() {
     return Stake__factory.connect(
-      "0xeb2852579fF160Ae78d86B86Be4C903D7242dEF7",
+      "0x8950FFB67dBccbc1A0299a539300B2B83724a859",
       this.signer
     );
   }
 
   public get Election() {
     return Election__factory.connect(
-      "0xEeBBf635D0D0c03E7a6b21ab99c9a641DF8EA10e",
+      "0x59986bA1D3894cdbEf4338AFC02Dfcd2eb2f45Bb",
       this.signer
     );
   }

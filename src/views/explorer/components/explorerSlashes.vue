@@ -29,7 +29,7 @@
                     {{ item.name }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.slash) }}
+                    {{ bignumFormatter(item.slash) }}
                   </td>
                   <td class="datanum--text">{{ item.proposer }}</td>
                   <td class="datanum--text">{{ item.executor }}</td>
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchSlashesList } from "@/api/explorer.js";
 
 export default {
@@ -64,7 +64,7 @@ export default {
   watch: {},
   methods: {
     formart_number,
-
+    bignumFormatter,
     getNodeList() {
       fetchSlashesList().then((res) => {
         this.slashesList = res.data.list;

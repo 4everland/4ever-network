@@ -58,8 +58,9 @@
                     <v-pagination
                       v-model="page"
                       class="my-4"
-                      :length="6"
+                      :length="totalPage"
                       :elevation="0"
+                      @input="pageChange"
                     ></v-pagination>
                   </v-container>
                 </v-col>
@@ -92,6 +93,8 @@ export default {
     return {
       proposalList: [],
       page: 1,
+      pageSize: 20,
+      totalPage: 0,
     };
   },
   computed: {},
@@ -99,14 +102,27 @@ export default {
   methods: {
     formart_number,
     formart_date,
-    getNodeList() {
+    getNodeList(params) {
       fetchProposalList().then((res) => {
         this.proposalList = res.data.list;
+        this.totalPage = res.data.total;
       });
+    },
+    pageChange(val) {
+      this.page = val;
+      const params = {
+        page: this.page,
+        pageSize: this.pageSize,
+      };
+      this.getNodeList(params);
     },
   },
   created() {
-    this.getNodeList();
+    let params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getNodeList(params);
   },
   mounted() {},
 };

@@ -13,7 +13,9 @@
           </div>
         </v-card-title>
         <v-card-text>
-          <div class="text-right balance">Balance: 24,524,424 4EVER</div>
+          <div class="text-right balance">
+            Balance: {{ formart_number(balance) }} 4EVER
+          </div>
           <div class="input-box">
             <div
               class="dialog-prepend inputBg"
@@ -49,7 +51,7 @@
             class="ml-8"
             elevation="0"
             color="primary"
-            @click="dialog = false"
+            @click="onWithdraw"
             small
             >Confirm</v-btn
           >
@@ -59,16 +61,64 @@
   </div>
 </template>
 <script>
+import contracts from "@/contracts";
+import { formart_number } from "@/utils/utils";
+import { BigNumber } from "@ethersproject/bignumber";
+import { fetchBeforeVote } from "@/api/vote";
+
 export default {
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+    balance() {
+      return this.$store.state.balance;
+    },
+  },
   data() {
     return {
       dialog: false,
       value: "",
+      data: {},
     };
   },
   methods: {
-    open() {
+    formart_number,
+    open(data) {
       this.dialog = true;
+      this.data = data;
+    },
+    async onWithdraw() {
+      const amount = BigNumber.from(this.value).mul((1e18).toString());
+      const candidate = this.account;
+      const nodeId = this.data.id;
+      const body = {
+        amount: "-" + amount.toString(),
+        candidate,
+        nodeId,
+      };
+      const { data } = await fetchBeforeVote(body);
+      const anchor = data.anchor;
+
+      //申请
+      // const tx = await contracts.Election.applyWithdraw(
+      //   this.data.address,
+      //   amount,
+      //   anchor,
+      //   10
+      // )
+
+      //申请条件
+      const voterApply = await contracts.Election.voterApply(this.account);
+      const lastApplyTimestamp = voterApply.lastApplyWithdrawTimestamp;
+      const frozenPeriod = await contracts.Election.voteFronzenPeriod();
+      // Date.now() / 1000 > lastApplyTimestamp + frozenPeriod;
+
+      //提现
+      // const tx = await contracts.Election.withdraw(this.data.address, amount);
+      // console.log(tx);
+      // const receipt = await tx.wait();
+      // console.log(receipt);
     },
   },
 };

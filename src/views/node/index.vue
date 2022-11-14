@@ -16,7 +16,10 @@
           md="4"
           class="pa-8"
         >
-          <div class="d-flex align-center">
+          <div
+            class="d-flex align-center"
+            :class="index == step ? 'active' : ''"
+          >
             <div class="num-tag">{{ index + 1 }}</div>
             <span class="governance-system-text datanum--text">
               {{ formart_number(item.name) }}
@@ -24,7 +27,7 @@
           </div>
         </v-col>
       </v-row>
-      <v-card elevation="0" class="mt-8 card-block">
+      <v-card elevation="0" class="mt-8 card-block" v-show="step == 0">
         <div class="card-tips datanum--text">
           Welcome to the 4EVERLAND network! All you need to do is provide your
           node ID and stake 4EVER to become a node and enjoy the benefits.
@@ -44,19 +47,20 @@
             color="#00A8F1"
             class="white--text"
             @click="handelRegister"
+            :loading="registerLoading"
             >Next</v-btn
           >
         </div>
       </v-card>
-      <v-card elevation="0" class="mt-8 card-block">
+      <v-card elevation="0" class="mt-8 card-block" v-show="step == 1">
         <div
           class="card-tips datanum--text text-center"
           style="max-width: 860px"
         >
-          Registering a node is required to stake at least 50,000 4EVER for the
-          maintenance of the network. Generally, the more you stake, the more
-          you're rewarded, but if your node does not operate as it should, part
-          of your stake will be deducted as a result.
+          Registering a node is required to stake at least 1,000,000 4EVER for
+          the maintenance of the network. Generally, the more you stake, the
+          more you're rewarded, but if your node does not operate as it should,
+          part of your stake will be deducted as a result.
         </div>
 
         <div class="card-input">
@@ -80,7 +84,7 @@
           </div>
         </div>
         <div class="card-btn">
-          <div v-if="isApproved">
+          <div v-if="isStakeApproved">
             <v-btn small color="#00A8F1" @click="handelViewNow" outlined
               >View Now</v-btn
             >
@@ -88,6 +92,7 @@
               small
               color="#00A8F1"
               class="white--text ml-6"
+              :loading="stakeLoading"
               @click="handelStake"
               >Stake</v-btn
             >
@@ -97,12 +102,13 @@
             small
             color="#00A8F1"
             class="white--text"
+            :loading="approveLoading"
             @click="handelApprove"
             >Approve</v-btn
           >
         </div>
       </v-card>
-      <v-card elevation="0" class="mt-8 card-block">
+      <v-card elevation="0" class="mt-8 card-block" v-show="step == 2">
         <div class="card-tips datanum--text">
           You can add your node information on the
           <a
@@ -130,17 +136,17 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
+import { stake } from "@/utils/contracts";
 import { BigNumber } from "ethers";
 import contracts from "@/contracts";
+
 export default {
   components: {},
-
   data() {
     return {
+      step: 0,
       nodeId: "",
-      balance: null,
       stakeAmount: null,
-      isApproved: false,
       detailOverview: [
         {
           name: "Total proposal",
@@ -174,68 +180,118 @@ export default {
           name: "Node Info",
         },
       ],
+      registerLoading: false,
+      stakeLoading: false,
+      approveLoading: false,
     };
   },
   computed: {
     account() {
       return this.$store.state.account;
     },
+    balance() {
+      return this.$store.state.balance;
+    },
+    isStakeApproved() {
+      return this.$store.state.isStakeApproved;
+    },
+    myNodeId() {
+      return this.$store.state.myNodeId;
+    },
+    myStake() {
+      return this.$store.state.myStake;
+    },
   },
-  watch: {},
+  watch: {
+    isStakeApproved(newVal, oldVal) {
+      if (newVal) {
+        this.approveLoading = false;
+      }
+    },
+    // myNodeId(newVal, oldVal) {
+    //   console.log(newVal);
+    //   if (newVal) {
+    //     this.step = 1;
+    //   }
+    // },
+    // myStake(newVal, oldVal) {
+    //   console.log(newVal);
+    //   if (newVal >= 500000 * 1e18) {
+    //     this.step = 2;
+    //   }
+    // },
+  },
   methods: {
     formart_number,
+    async connectWallet() {
+      await this.$store.dispatch("getConnect");
+    },
     async handelRegister() {
       const nodeId = this.nodeId;
-      console.log(contracts.Stake);
-      //   register(
-      //   manifest: string,
-      //   overrides?: Overrides & { from?: string | Promise<string> }
-      // )
-      const tx = await contracts.Stake.register(nodeId);
-      console.log(tx);
-      const receipt = await tx.wait();
-      console.log(receipt);
+      this.registerLoading = true;
+      try {
+        const tx = await contracts.Stake.register(nodeId);
+        console.log(tx);
+        const receipt = await tx.wait();
+        console.log(receipt);
+        if (receipt) {
+          this.step = 1;
+          console.log(this.step);
+        }
+      } catch (error) {
+        return this.$dialog.notify.error(error.data.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.registerLoading = false;
+      }
     },
     async handelApprove() {
-      const uint256Max = BigNumber.from("1").shl(256).sub(1);
-      const tx = await contracts.Token.approve(
-        contracts.Stake.address,
-        uint256Max
-      );
-      console.log(tx);
-      const receipt = await tx.wait();
-      console.log(receipt);
+      this.approveLoading = true;
+      this.$store.dispatch("updateStakeApprove");
     },
     async handelStake() {
-      const minStake = await contracts.Stake.minStake();
-      const alreadyStaked = await contracts.Stake.candidateInfo(this.account);
-      console.log(alreadyStaked.amount.toString(), minStake.toString());
-      const tx = await contracts.Stake.stake(BigNumber.from(this.stakeAmount));
-      console.log(tx);
-      const receipt = await tx.wait();
-      console.log(receipt);
+      const amount = BigNumber.from(this.stakeAmount).mul((1e18).toString());
+      this.stakeLoading = true;
+      stake(this.account, amount)
+        .then((res) => {
+          if (res) {
+            this.step = 2;
+          }
+          this.stakeLoading = false;
+        })
+        .catch((err) => {
+          this.stakeLoading = false;
+        });
     },
-    async handelViewNow() {},
-    async getBalance() {
-      console.log(contracts);
-      const balance = await contracts.Token.balanceOf(this.account);
-      const allowance = await contracts.Token.allowance(
-        this.account,
-        contracts.Stake.address
-      );
-      const isApproved = allowance.gt(balance) && allowance.gt(0);
-      console.log("allowance", allowance);
-      this.balance = balance;
-      this.isApproved = isApproved;
+    async handelViewNow() {
+      this.$router.push("/");
     },
+
     async onMax() {
       this.stakeAmount = this.balance;
     },
   },
-  created() {},
-  mounted() {
-    this.getBalance();
+  async created() {
+    if (!this.account) {
+      try {
+        await this.connectWallet();
+      } catch (error) {
+        console.log(error);
+        if (error.code == 4001) {
+          this.$router.push("/");
+        }
+      }
+    }
+    if (this.myNodeId) {
+      this.step = 1;
+    }
+    if (this.myStake >= 500000 * 1e18) {
+      this.step = 2;
+    }
   },
+  mounted() {},
 };
 </script>
 <style lang="less" scoped>
@@ -277,6 +333,16 @@ export default {
       font-weight: 600;
       color: #666;
       margin-left: 26px;
+    }
+    .active {
+      .num-tag {
+        background-image: url("../../assets/imgs/node/tag_active.png");
+      }
+      .governance-system-text {
+        background: linear-gradient(270deg, #c143df 0%, #ffb867 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
     }
   }
   .card-block {

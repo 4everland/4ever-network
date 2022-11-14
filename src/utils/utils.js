@@ -48,17 +48,62 @@ export function formart_storage(value) {
     return storage.div(scale).toString() + "T";
   }
 }
-export function formart_date(time) {
+export function formart_date(time, cFormat) {
+  const format = cFormat || "{m} {d} {y} {h}";
   if (typeof time === "number" && time.toString().length === 10) {
     time = time * 1000;
   }
   const date = new Date(time).toUTCString();
-  // console.log(date)
   const arr = date.split(" ");
   // return date.replace(/\w+\s/, '').replace(/\sGMT.*$/, '')
-  return arr[2] + " " + arr[1] + ", " + arr[3] + " " + arr[4];
+  const formatObj = {
+    m: arr[2],
+    d: arr[1],
+    y: arr[3],
+    h: arr[4],
+  };
+  const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
+    const value = formatObj[key];
+    return value;
+  });
+  return time_str;
+  // return arr[2] + " " + arr[1] + ", " + arr[3] + " " + arr[4];
 }
 
+/**
+ * 1000000 to 1,000,000
+ * @param {Number|String} num
+ * @returns {String}
+ */
 export function formart_number(num) {
   return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+export function nFormatter(num, digits) {
+  const si = [
+    { value: 1, symbol: "" },
+    { value: 1e3, symbol: "K" },
+    { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "G" },
+    { value: 1e12, symbol: "T" },
+    { value: 1e15, symbol: "P" },
+    { value: 1e18, symbol: "E" },
+  ];
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  let i;
+  for (i = si.length - 1; i > 0; i--) {
+    if (num >= si[i].value) {
+      break;
+    }
+  }
+  return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
+}
+
+export function bignumFormatter(num) {
+  if (num > 999999999) {
+    num = parseFloat(parseFloat(num / 1e10).toFixed(2));
+    return formart_number(num) + "B";
+  } else {
+    return formart_number(parseFloat(parseFloat(num).toFixed(2)));
+  }
 }

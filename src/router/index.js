@@ -3,6 +3,11 @@ import VueRouter from "vue-router";
 import Layout from "../layout/index.vue";
 Vue.use(VueRouter);
 
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch((err) => err);
+};
+
 const routes = [
   {
     path: "/",
@@ -22,6 +27,11 @@ const routes = [
         path: "/nodeDetail/:id",
         name: "NodeDetail",
         component: () => import("../views/explorer/nodeDetail.vue"),
+      },
+      {
+        path: "/accountDetail",
+        name: "AccountDetail",
+        component: () => import("../views/explorer/accountDetail.vue"),
       },
       {
         path: "/voting",

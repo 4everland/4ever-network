@@ -6,7 +6,7 @@
           <logo />
         </v-btn>
         <div>
-          <v-btn
+          <!-- <v-btn
             class="text-capitalize"
             depressed
             icon
@@ -14,7 +14,7 @@
             @click.stop="openTeeView()"
           >
             <v-icon small> mdi-magnify </v-icon>
-          </v-btn>
+          </v-btn> -->
           <v-btn
             class="text-capitalize"
             depressed
@@ -65,6 +65,18 @@
                   tile
                   style="width: 100%"
                   :to="`/nodeDetail/${myNodeId}`"
+                  >My Node</v-btn
+                >
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item v-if="showMyAccount">
+              <v-list-item-title>
+                <v-btn
+                  text
+                  plain
+                  tile
+                  style="width: 100%"
+                  :to="`/accountDetail`"
                   >My Account</v-btn
                 >
               </v-list-item-title>
@@ -109,18 +121,22 @@ import Logo from "../components/Logo.vue";
 import AppSearch from "./AppSearch.vue";
 import { mapActions, mapMutations } from "vuex";
 import { fetchSearchValue } from "@/api/api";
-import { connect, getToken, removeToken } from "@/utils/auth";
 
 export default {
   components: { Logo, AppSearch },
   computed: {
+    account() {
+      return this.$store.state.account;
+    },
     myNodeId() {
-      return localStorage.getItem("nodeId");
+      return this.$store.state.myNodeId;
+    },
+    showMyAccount() {
+      return this.$store.state.showMyAccount;
     },
   },
   data() {
     return {
-      account: localStorage.getItem("address"),
       isLoading: true,
       rewards: 0,
       isLogin: false,
@@ -133,11 +149,9 @@ export default {
   },
   created() {
     if (!window.ethereum) return;
-    // this.updateChainId();
-
-    this.getAccount();
-
-    // this.listen();
+    if (!this.account) {
+      this.connectWallet();
+    }
   },
   methods: {
     ...mapActions([
@@ -149,10 +163,7 @@ export default {
     ]),
     ...mapMutations(["UPDATE_ACCOUNT", "UPDATE_BALANCE"]),
     async connectWallet() {
-      const account = await connect();
-      console.log(account);
-      this.account = account;
-      // await this.updateAccount();
+      await this.$store.dispatch("getConnect");
     },
     handleClaim() {
       if (this.$store.state.balance == 0)
@@ -204,11 +215,9 @@ export default {
     openTeeView() {
       this.$refs.search.openDialog();
     },
-    logout() {
-      this.$store.state.account = "";
-      localStorage.setItem("address", "");
-      localStorage.setItem("myNodeId", "");
-      window.location.reload();
+    async logout() {
+      await this.$store.dispatch("logout");
+      this.$router.push("/");
     },
     formatAccount(account) {
       if (account.length > 0) {

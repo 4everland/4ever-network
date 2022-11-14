@@ -38,7 +38,7 @@
             </tbody>
           </template>
         </v-simple-table>
-        <template>
+        <template v-if="pageLength > 0">
           <div class="text-center">
             <v-container>
               <v-row justify="center">
@@ -76,17 +76,20 @@ export default {
       pageLength: 0,
     };
   },
-  computed: {},
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+  },
   watch: {},
   methods: {
     formart_number,
     formart_date,
     async getWithdrawList(params) {
       try {
-        const { data } = await fetchNodeWithdraw(this.nodeId, params);
-        console.log(data);
+        const { data } = await fetchNodeWithdraw(this.account, params);
         this.list = data.list;
-        this.pageLength = data.page;
+        this.pageLength = data.total;
       } catch (error) {
         //
         console.log(error);

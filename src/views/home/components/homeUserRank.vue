@@ -25,7 +25,7 @@
                     {{ formart_number(item.voteTimes) }}
                   </td>
                   <td class="datanum--text">
-                    {{ formart_number(item.voteToken) }}
+                    {{ bignumFormatter(item.voteToken / 1e18) }}
                   </td>
                 </tr>
               </tbody>
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchVoteRank } from "@/api/vote.js";
 export default {
   components: {},
@@ -51,9 +51,12 @@ export default {
   watch: {},
   methods: {
     formart_number,
-
+    bignumFormatter,
     getNodeList() {
-      fetchVoteRank().then((res) => {
+      const params = {
+        pageSize: 10,
+      };
+      fetchVoteRank(params).then((res) => {
         this.voteRankList = res.data.list;
       });
     },

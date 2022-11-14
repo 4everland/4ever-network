@@ -10,7 +10,7 @@
         </v-card-title>
         <v-card-text class="mt-6">
           <div class="d-flex justify-end">
-            <span>Balance: 24,524,424 4EVER</span>
+            <span> Balance: {{ formart_number(balance) }} 4EVER</span>
           </div>
           <div class="input-box">
             <div
@@ -18,14 +18,19 @@
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <div class="ball"></div>
-              <div>APR</div>
+              <div>Stake</div>
             </div>
             <div
               class="int-box"
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
-              <input type="text" class="int" v-model="value" />
-              <v-btn text tile plain color="#43A7EB">Max</v-btn>
+              <input
+                type="text"
+                class="int"
+                v-model="value"
+                placeholder="Enter amount"
+              />
+              <v-btn text tile plain color="#43A7EB" @click="onMax">Max</v-btn>
             </div>
           </div>
         </v-card-text>
@@ -43,7 +48,7 @@
             class="ml-8"
             elevation="0"
             color="primary"
-            @click="dialog = false"
+            @click="handlerStake"
             small
             >Confirm</v-btn
           >
@@ -53,7 +58,19 @@
   </div>
 </template>
 <script>
+import { formart_number } from "@/utils/utils";
+import { stake } from "@/utils/contracts";
+import { BigNumber } from "ethers";
+
 export default {
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+    balance() {
+      return this.$store.state.balance;
+    },
+  },
   data() {
     return {
       dialog: false,
@@ -61,8 +78,23 @@ export default {
     };
   },
   methods: {
+    formart_number,
     open() {
       this.dialog = true;
+    },
+    async onMax() {
+      this.value = this.balance;
+    },
+    async handlerStake() {
+      const amount = BigNumber.from(this.value).mul((1e18).toString());
+      stake(this.account, amount).then((res) => {
+        this.dialog = false;
+        this.$store.dispatch("updateMyNodeStake");
+        return this.$dialog.notify.success("Successfully", {
+          position: "top-right",
+          timeout: 5000,
+        });
+      });
     },
   },
 };

@@ -37,3 +37,11 @@ export function fetchAccuracyRateLineChart(params) {
     params,
   });
 }
+
+export function fetchReportList(params) {
+  return request({
+    url: "/report",
+    method: "get",
+    params,
+  });
+}

@@ -5,7 +5,7 @@
         <span class="d-flex align-center cardtitle--text">All Validators</span>
       </div>
       <v-card elevation="0" class="rounded px-4 py-2">
-        <v-simple-table root fixed-header height="500">
+        <v-simple-table root fixed-header>
           <template v-slot:default>
             <thead>
               <tr>
@@ -20,16 +20,16 @@
             <tbody>
               <tr v-for="(item, index) in voteList" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.id }}
+                  {{ item.nodeId }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ bignumFormatter(item.validator) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
+                  {{ bignumFormatter(item.vote / 1e18) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.apr) + "%" }}
+                  {{ bignumFormatter(item.apr / 1e4) + "%" }}
                 </td>
                 <td class="datanum--text">{{ item.status }}</td>
                 <td class="datanum--text">
@@ -40,17 +40,19 @@
                     >Voting</v-btn
                   >
                   <v-btn
-                    class="claim-btn btnColor--text"
+                    v-if="item.isVote"
+                    class="claim-btn btnColor--text ml-2"
                     x-small
-                    @click.stop="handlerClaim"
+                    @click.stop="handlerClaim(item)"
                     >Claim</v-btn
                   >
-                  <v-btn
+                  <!-- <v-btn
+                    v-if="item.isVote"
                     class="widthdraw-btn btnColor--text"
                     x-small
-                    @click.stop="handlerWidthdraw"
+                    @click.stop="handlerWidthdraw(item)"
                     >Widthdraw</v-btn
-                  >
+                  > -->
                 </td>
               </tr>
             </tbody>
@@ -65,8 +67,9 @@
                     <v-pagination
                       v-model="page"
                       class="my-4"
-                      :length="6"
+                      :length="pageLength"
                       :elevation="0"
+                      @input="pageChange"
                     ></v-pagination>
                   </v-container>
                 </v-col>
@@ -76,33 +79,70 @@
         </template>
       </v-card>
     </v-col>
+    <voting-dialog ref="votingDialog" />
+    <claim-dialog ref="claimDialog" />
+    <widthdraw-dialog ref="widthdrawDialog" />
   </v-row>
 </template>
 
 <script>
-import { formart_number } from "@/utils/utils";
+import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchVoteList } from "@/api/vote.js";
+import votingDialog from "@/components/Dialog/votingDialog.vue";
+import claimDialog from "@/components/Dialog/claimDialog.vue";
+import widthdrawDialog from "@/components/Dialog/widthdrawDialog.vue";
 export default {
-  components: {},
+  components: { votingDialog, claimDialog, widthdrawDialog },
   data() {
     return {
       voteList: [],
       page: 1,
+      pageSize: 10,
+      pageLength: 0,
     };
   },
-  computed: {},
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+  },
   watch: {},
   methods: {
     formart_number,
-
-    getNodeList() {
-      fetchVoteList().then((res) => {
+    bignumFormatter,
+    async getNodeList(params) {
+      const account = await this.$store.dispatch("getAccount");
+      params.address = account;
+      fetchVoteList(params).then((res) => {
         this.voteList = res.data.list;
+        this.pageLength = res.data.total;
       });
+    },
+    pageChange(val) {
+      this.page = val;
+      const params = {
+        page: this.page,
+        pageSize: this.pageSize,
+        address: this.account,
+      };
+      this.getNodeList(params);
+    },
+    handlerVoting(data) {
+      this.$refs.votingDialog.open(data);
+    },
+    handlerClaim(data) {
+      this.$refs.claimDialog.open(data);
+    },
+    handlerWidthdraw(data) {
+      this.$refs.widthdrawDialog.open(data);
     },
   },
   created() {
-    this.getNodeList();
+    let params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getNodeList(params);
   },
   mounted() {},
 };

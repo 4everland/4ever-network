@@ -36,7 +36,7 @@
             </tbody>
           </template>
         </v-simple-table>
-        <template>
+        <template v-if="pageLength > 0">
           <div class="text-center">
             <v-container>
               <v-row justify="center">
@@ -83,7 +83,7 @@ export default {
       try {
         const { data } = await fetchRewardLog(this.nodeId, params);
         this.list = data.list;
-        this.pageLength = data.page;
+        this.pageLength = data.total;
       } catch (error) {
         //
         console.log(error);

@@ -20,9 +20,6 @@
                 <th class="text-left cardtitle--text boxbackgroud">
                   Voted(4EVER)
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">
-                  Reward(4EVER)
-                </th>
                 <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
                 <th class="text-left cardtitle--text boxbackgroud">Status</th>
                 <th class="text-left cardtitle--text boxbackgroud">Action</th>
@@ -31,51 +28,71 @@
             <tbody>
               <tr v-for="(item, index) in list" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.name }}
-                  ---logo---
-                  {{ item.logo }}
+                  <v-img
+                    class="mr-2 rounded-circle"
+                    width="18"
+                    max-width="18"
+                    height="18"
+                    max-height="18"
+                    :src="item.logo"
+                  ></v-img>
+                  {{ item.nodeId }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.vote) }}
+                  {{ bignumFormatter(item.totalVote / 1e18) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.apr) }}
+                  {{ bignumFormatter(item.apr / 1e4) + "%" }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.myVoted) }}
+                  {{ bignumFormatter(item.vote / 1e18) }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.reward) }}
+                  {{ formart_date(item.votedAt) }}
                 </td>
-                <td class="datanum--text">
-                  {{ formart_date(item.voteAt) }}
-                </td>
-                <td class="datanum--text">123456</td>
+                <td class="datanum--text">{{ item.status }}</td>
                 <td class="datanum--text">
                   <v-btn
-                    class="voting-btn btnColor--text"
+                    class="voting-btn btnColor--text mx-2"
                     x-small
                     @click.stop="handlerVoting(item)"
                     >Voting</v-btn
                   >
-                  <v-btn
-                    class="claim-btn btnColor--text"
+                  <!-- <v-btn
+                    class="claim-btn btnColor--text mx-2"
                     x-small
-                    @click.stop="handlerClaim"
+                    @click.stop="handlerClaim(item)"
                     >Claim</v-btn
                   >
                   <v-btn
-                    class="widthdraw-btn btnColor--text"
+                    class="widthdraw-btn btnColor--text mx-2"
                     x-small
-                    @click.stop="handlerWidthdraw"
+                    @click.stop="handlerWidthdraw(item)"
                     >Widthdraw</v-btn
-                  >
+                  > -->
+                  <v-menu>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn icon small class="ml-2" v-bind="attrs" v-on="on">
+                        <v-icon small> mdi-dots-vertical </v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item>
+                        <v-btn tile text @click.stop="handlerClaim(item)"
+                          >Claim</v-btn
+                        >
+                      </v-list-item>
+                      <v-list-item>
+                        <v-btn tile text>Apply</v-btn>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
-        <template>
+        <template v-if="pageLength > 0">
           <div class="text-center">
             <v-container>
               <v-row justify="center">
@@ -104,7 +121,7 @@
 </template>
 
 <script>
-import { formart_number, formart_date } from "@/utils/utils";
+import { formart_number, formart_date, bignumFormatter } from "@/utils/utils";
 import { fetchVotedList } from "@/api/vote.js";
 import aprDialog from "@/components/Dialog/aprDialog.vue";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
@@ -120,17 +137,22 @@ export default {
       pageLength: 0,
     };
   },
-  computed: {},
+  computed: {
+    account() {
+      return this.$store.state.account;
+    },
+  },
   watch: {},
   methods: {
     formart_number,
+    bignumFormatter,
     formart_date,
     async getVotedList(params) {
       try {
-        const address = localStorage.getItem("address");
-        const { data } = await fetchVotedList(address, params);
+        const account = this.account;
+        const { data } = await fetchVotedList(account, params);
         this.list = data.list;
-        this.pageLength = data.page;
+        this.pageLength = data.total;
       } catch (error) {
         console.log(error);
       }
@@ -150,11 +172,11 @@ export default {
     handlerVoting(data) {
       this.$refs.votingDialog.open(data);
     },
-    handlerClaim() {
-      this.$refs.claimDialog.open();
+    handlerClaim(data) {
+      this.$refs.claimDialog.open(data);
     },
-    handlerWidthdraw() {
-      this.$refs.widthdrawDialog.open();
+    handlerWidthdraw(data) {
+      this.$refs.widthdrawDialog.open(data);
     },
   },
   created() {
@@ -178,7 +200,7 @@ export default {
 }
 .claim-btn {
   width: 74px;
-  height: 18px;
+  height: 21px;
   background: linear-gradient(270deg, #53ccfb 0%, #fbb2dd 100%);
   border-radius: 4px;
   display: inline-block;
