@@ -1,12 +1,12 @@
 <template>
-  <div class="governance">
+  <div class="governance" ref="scrollDiv">
     <v-container>
       <v-row>
         <v-col cols="12">
           <v-sheet class="banner pt-12 pl-16">
             <div class="banner-tips">Voting Rewards</div>
             <div class="banner-title">Voting in the Governance System</div>
-            <div class="banner-tips">
+            <div class="banner-tips mt-2">
               The Sentinel program will collect the information of the evil node
               with two-thirds of the signatures of the master node to initiate
               governance and publicity. If the evil node files an appeal, each
@@ -16,8 +16,10 @@
               as network updates and management, and the voting will be
               automatically implemented.
             </div>
-            <div class="mt-6">
-              <v-btn class="banner-btn btnColor--text">Vote</v-btn>
+            <div class="mt-10">
+              <v-btn class="banner-btn btnColor--text" @click="onScroll"
+                >Vote</v-btn
+              >
               <v-btn class="banner-btn-base ml-8 white--text" outlined
                 >Learn more</v-btn
               >
@@ -124,6 +126,15 @@ export default {
         this.detailOverview.map((item) => {
           item.value = res.data[item.key];
           return item;
+        });
+      });
+    },
+    onScroll() {
+      this.$nextTick(() => {
+        const height = this.$refs.scrollDiv.clientHeight;
+        window.scrollTo({
+          top: height,
+          behavior: "smooth",
         });
       });
     },

@@ -16,18 +16,28 @@
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left cardtitle--text">Node ID</th>
-                  <th class="text-left cardtitle--text">Validators</th>
-                  <th class="text-left cardtitle--text">Voting</th>
-                  <th class="text-left cardtitle--text">APR</th>
-                  <th class="text-left cardtitle--text">Action</th>
+                  <th class="text-left tableHeader--text">Node ID</th>
+                  <th class="text-left tableHeader--text">Validators</th>
+                  <th class="text-left tableHeader--text">Voting</th>
+                  <th class="text-left tableHeader--text">Commision rate</th>
+                  <th class="text-left tableHeader--text">Status</th>
+                  <th class="text-left tableHeader--text">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in voteList" :key="index">
                   <td class="datanum--text d-flex align-center">
-                    <span class="ball"></span>
-                    {{ item.nodeId }}
+                    <v-img
+                      v-if="item.logo"
+                      class="mr-2 rounded-circle"
+                      width="24"
+                      max-width="24"
+                      height="24"
+                      max-height="24"
+                      :src="item.logo"
+                    ></v-img>
+                    <span class="ball" v-else></span>
+                    {{ formatNodeId(item.nodeId) }}
                     <span v-if="item.isMajor" class="major">Major</span>
                     <span v-else class="popular">Popular</span>
                   </td>
@@ -41,7 +51,11 @@
                     {{ formart_number(item.apr / 1e4) + "%" }}
                   </td>
                   <td class="datanum--text">
+                    {{ item.status }}
+                  </td>
+                  <td class="datanum--text">
                     <v-btn
+                      v-if="item.status != 'QUITTING'"
                       class="voting-btn btnColor--text"
                       small
                       @click="handleVoting(item)"
@@ -53,6 +67,9 @@
             </template>
           </v-simple-table>
         </template>
+        <div class="py-6" v-if="voteList.length == 0">
+          <table-empty />
+        </div>
       </v-card>
     </v-col>
     <voting-dialog ref="votingDialog" />
@@ -60,11 +77,13 @@
 </template>
 
 <script>
-import { formart_number, bignumFormatter } from "@/utils/utils";
+import { formart_number, bignumFormatter, formatNodeId } from "@/utils/utils";
 import { fetchVoteList } from "@/api/vote.js";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: { votingDialog },
+  components: { votingDialog, TableEmpty },
   data() {
     return {
       voteList: [],
@@ -79,6 +98,7 @@ export default {
   methods: {
     formart_number,
     bignumFormatter,
+    formatNodeId,
     getNodeList() {
       const params = {
         pageSize: 6,

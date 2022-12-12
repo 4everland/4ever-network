@@ -4,21 +4,18 @@
       <v-card class="pa-4 rounded">
         <v-card-title class="dialog-top">
           <span class="dialog-title cardtitle--text">Voting</span>
-          <v-btn icon class="close-btn" @click="dialog = false">
+          <v-btn icon class="close-btn" @click="close">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <div class="text-right balance">
-            Balance: {{ formart_number(balance) }} 4EVER
-          </div>
           <div class="input-box">
             <div
               class="dialog-prepend inputBg"
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <div class="ball"></div>
-              <div>Stake</div>
+              <div>Amount</div>
             </div>
             <div
               class="int-box"
@@ -33,27 +30,25 @@
               <v-btn text tile plain color="#43A7EB" @click="onMax">Max</v-btn>
             </div>
           </div>
-          <div>
+          <div class="text-right balance">
+            Balance: {{ formart_number(balance) }} 4EVER
+          </div>
+          <!-- <div>
             <div class="d-flex justify-space-between mt-6 info-box">
               <span class="info-name">Node ID</span>
               <span class="info-value datanum--text">{{ data.nodeId }}</span>
             </div>
             <div class="d-flex justify-space-between mt-6 info-box">
-              <span class="info-name">APR</span>
+              <span class="info-name">Commision rate</span>
               <span class="info-value datanum--text">{{
                 data.apr / 1e4 + "%"
               }}</span>
             </div>
-          </div>
+          </div> -->
         </v-card-text>
         <v-card-actions class="justify-center">
           <div v-if="isVoteApproved">
-            <v-btn
-              elevation="0"
-              outlined
-              color="primary"
-              @click="dialog = false"
-              small
+            <v-btn elevation="0" outlined color="primary" @click="close" small
               >Cancel</v-btn
             >
             <v-btn
@@ -114,6 +109,10 @@ export default {
       this.dialog = true;
       this.data = data;
     },
+    close() {
+      this.dialog = false;
+      this.value = "";
+    },
     async handelApprove() {
       this.approveLoading = true;
       await this.$store.dispatch("updateVoteApprove");
@@ -133,7 +132,18 @@ export default {
           candidate,
           nodeId,
         };
-        const { data } = await fetchBeforeVote(body);
+        const res = await fetchBeforeVote(body);
+        const data = res.data;
+        if (res.code == "409") {
+          this.$dialog.notify.error(
+            "The voting will result in the same total number of votes as the existing nodes, which is not permitted. Please enter again.",
+            {
+              position: "top-right",
+              timeout: 5000,
+            }
+          );
+          return;
+        }
         const anchor = data.anchor;
         const tx = await contracts.Election.vote(
           this.data.address,
@@ -143,7 +153,6 @@ export default {
           10
         );
         console.log(tx);
-        this.dialog = false;
         const receipt = await tx.wait();
         console.log(receipt);
         if (receipt) {
@@ -151,6 +160,7 @@ export default {
             position: "top-right",
             timeout: 5000,
           });
+          this.close();
         }
       } catch (error) {
         console.log(error);
@@ -183,6 +193,7 @@ export default {
   font-size: 12px;
   font-weight: bold;
   color: #7794a5;
+  margin-top: 18px;
 }
 .input-box {
   display: flex;

@@ -4,7 +4,7 @@
       <v-card class="pa-4 rounded">
         <v-card-title class="dialog-top">
           <span class="dialog-title cardtitle--text">Widthdraw</span>
-          <v-btn icon class="close-btn" @click="dialog = false">
+          <v-btn icon class="close-btn" @click="close">
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <div class="tips">
@@ -13,16 +13,16 @@
           </div>
         </v-card-title>
         <v-card-text>
-          <div class="text-right balance">
+          <!-- <div class="text-right balance">
             Balance: {{ formart_number(balance) }} 4EVER
-          </div>
+          </div> -->
           <div class="input-box">
             <div
               class="dialog-prepend inputBg"
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <div class="ball"></div>
-              <div>Stake</div>
+              <div>Amount</div>
             </div>
             <div
               class="int-box"
@@ -33,27 +33,43 @@
                 class="int"
                 v-model="value"
                 placeholder="Enter amount"
+                :disabled="disabled"
               />
-              <v-btn text tile plain color="#43A7EB">Max</v-btn>
+              <v-btn
+                text
+                tile
+                plain
+                color="#43A7EB"
+                @click="onMax"
+                v-if="!disabled"
+                >Max</v-btn
+              >
             </div>
           </div>
         </v-card-text>
         <v-card-actions class="justify-center">
-          <v-btn
-            elevation="0"
-            outlined
-            color="primary"
-            @click="dialog = false"
-            small
+          <v-btn elevation="0" outlined color="primary" @click="close" small
             >Cancel</v-btn
           >
           <v-btn
+            v-if="type == 'apply'"
             class="ml-8"
             elevation="0"
             color="primary"
             @click="onWithdraw"
             small
-            >Confirm</v-btn
+            :loading="applyLoading"
+            >Apply</v-btn
+          >
+          <v-btn
+            v-else
+            class="ml-8"
+            elevation="0"
+            color="primary"
+            @click="onClaim"
+            small
+            :loading="widthdrawLoading"
+            >Widthdraw</v-btn
           >
         </v-card-actions>
       </v-card>
@@ -71,24 +87,57 @@ export default {
     account() {
       return this.$store.state.account;
     },
-    balance() {
-      return this.$store.state.balance;
-    },
+    // balance() {
+    //   return this.$store.state.balance;
+    // },
   },
   data() {
     return {
       dialog: false,
       value: "",
       data: {},
+      type: "apply",
+      balance: 0,
+      applyLoading: false,
+      widthdrawLoading: false,
+      disabled: false,
     };
   },
   methods: {
     formart_number,
-    open(data) {
+    async open(data, type) {
+      const balance = await contracts.Election.voters(
+        data.address,
+        this.account
+      );
+      console.log(balance);
+      console.log(balance.amount.div((1e18).toString()));
+      this.balance = balance.amount.div((1e18).toString());
       this.dialog = true;
       this.data = data;
+      this.type = type;
+      this.disabled = false;
+    },
+    close() {
+      this.dialog = false;
+      this.value = "";
+    },
+    async claim(data, type) {
+      // const balance = await contracts.Election.voterApplyInfo(this.account);
+      // console.log(balance);
+      // console.log(balance.pendingWithdraw.toString());
+      this.balance = data.amount / 1e18;
+      this.value = data.amount / 1e18;
+      this.dialog = true;
+      this.data = data;
+      this.type = type;
+      this.disabled = true;
+    },
+    onMax() {
+      this.value = this.balance;
     },
     async onWithdraw() {
+      this.applyLoading = true;
       const amount = BigNumber.from(this.value).mul((1e18).toString());
       const candidate = this.account;
       const nodeId = this.data.id;
@@ -97,28 +146,62 @@ export default {
         candidate,
         nodeId,
       };
-      const { data } = await fetchBeforeVote(body);
-      const anchor = data.anchor;
+      try {
+        const { data } = await fetchBeforeVote(body);
+        const anchor = data.anchor;
+        //apply
+        const tx = await contracts.Election.applyWithdraw(
+          this.data.address,
+          amount,
+          anchor,
+          10
+        );
+        console.log(tx);
+        const receipt = await tx.wait();
+        console.log(receipt);
+      } catch (error) {
+        console.log(error);
+        this.$dialog.notify.error(error.data.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.applyLoading = false;
+        this.close();
+      }
+    },
+    async onClaim() {
+      this.widthdrawLoading = true;
+      const amount = BigNumber.from(this.value).mul((1e18).toString());
 
-      //申请
-      // const tx = await contracts.Election.applyWithdraw(
-      //   this.data.address,
-      //   amount,
-      //   anchor,
-      //   10
-      // )
-
-      //申请条件
-      const voterApply = await contracts.Election.voterApply(this.account);
-      const lastApplyTimestamp = voterApply.lastApplyWithdrawTimestamp;
-      const frozenPeriod = await contracts.Election.voteFronzenPeriod();
-      // Date.now() / 1000 > lastApplyTimestamp + frozenPeriod;
-
-      //提现
-      // const tx = await contracts.Election.withdraw(this.data.address, amount);
-      // console.log(tx);
-      // const receipt = await tx.wait();
-      // console.log(receipt);
+      //widthdraw
+      const nonce = this.data.nonce;
+      try {
+        const tx = await contracts.Election.withdraw(
+          nonce,
+          this.account,
+          amount
+        );
+        console.log(tx);
+        const receipt = await tx.wait();
+        console.log(receipt);
+        if (receipt) {
+          this.$dialog.notify.success("Successfully", {
+            position: "top-right",
+            timeout: 5000,
+          });
+          this.$emit("widthdrawSuccess");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$dialog.notify.error(error.data.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.widthdrawLoading = false;
+        this.close();
+      }
     },
   },
 };

@@ -23,6 +23,14 @@ export function fetchNodeBalance(nodeId) {
 //   });
 // }
 
+export function fetchNodeApply(address, params) {
+  return request({
+    url: `/nodes/${address}/apply`,
+    method: "get",
+    params,
+  });
+}
+
 export function fetchNodeWithdraw(address, params) {
   return request({
     url: `/nodes/${address}/withdrawals`,

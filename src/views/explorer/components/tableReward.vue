@@ -3,25 +3,21 @@
     <v-col cols="12">
       <div class="common-title-box mb-8">
         <span class="d-flex align-center cardtitle--text">
-          <v-icon v-text="'$votingIcon'" small class="mr-2"></v-icon
+          <v-icon v-text="'$rewardIcon'" small class="mr-2"></v-icon
           >Reward</span
         >
       </div>
       <div class="boxbackgroud rounded px-4 py-2">
-        <v-simple-table
-          root
-          fixed-header
-          dense
-          height="220"
-          class="boxbackgroud"
-        >
+        <v-simple-table root fixed-header dense class="boxbackgroud">
           <template v-slot:default>
             <thead class="boxbackgroud">
               <tr>
-                <th class="text-left cardtitle--text boxbackgroud">
+                <th class="text-left tableHeader--text boxbackgroud">
                   Reward(4EVER)
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
+                <th class="text-left tableHeader--text boxbackgroud">
+                  CreateAt
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -56,6 +52,9 @@
           </div>
         </template>
       </div>
+      <div class="boxbackgroud rounded px-4 py-2" v-if="list.length == 0">
+        <table-empty />
+      </div>
     </v-col>
   </v-row>
 </template>
@@ -63,8 +62,10 @@
 <script>
 import { formart_number, formart_date } from "@/utils/utils";
 import { fetchRewardLog } from "@/api/node";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: {},
+  components: { TableEmpty },
   data() {
     return {
       list: [],
@@ -95,7 +96,7 @@ export default {
         page: this.page,
         pageSize: this.pageSize,
       };
-      this.getRewardList(params);
+      // this.getRewardList(params);
     },
   },
   created() {
@@ -104,7 +105,7 @@ export default {
       page: this.page,
       pageSize: this.pageSize,
     };
-    this.getRewardList(params);
+    // this.getRewardList(params);
   },
   mounted() {},
 };

@@ -3,26 +3,24 @@
     <v-col cols="12">
       <div class="common-title-box mb-8">
         <span class="d-flex align-center cardtitle--text">
-          <v-icon v-text="'$votingIcon'" small class="mr-2"></v-icon>Slash</span
+          <v-icon v-text="'$slashIcon'" small class="mr-2"></v-icon>Slash</span
         >
       </div>
       <div class="boxbackgroud rounded px-4 py-2">
-        <v-simple-table
-          root
-          fixed-header
-          dense
-          height="400"
-          class="boxbackgroud"
-        >
+        <v-simple-table root fixed-header dense class="boxbackgroud">
           <template v-slot:default>
             <thead class="boxbackgroud">
               <tr>
-                <th class="text-left cardtitle--text boxbackgroud">Title</th>
-                <th class="text-left cardtitle--text boxbackgroud">
+                <th class="text-left tableHeader--text boxbackgroud">Title</th>
+                <th class="text-left tableHeader--text boxbackgroud">
                   Slash(4EVER)
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">Execute</th>
-                <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
+                <th class="text-left tableHeader--text boxbackgroud">
+                  Execute
+                </th>
+                <th class="text-left tableHeader--text boxbackgroud">
+                  CreateAt
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -31,7 +29,7 @@
                   {{ item.title }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.slash) }}
+                  {{ bignumFormatter(item.slash / 1e18) }}
                 </td>
                 <td class="datanum--text">
                   {{ item.executed }}
@@ -63,15 +61,19 @@
           </div>
         </template>
       </div>
+      <div class="boxbackgroud rounded px-4 py-2" v-if="list.length == 0">
+        <table-empty />
+      </div>
     </v-col>
   </v-row>
 </template>
 
 <script>
-import { formart_number, formart_date } from "@/utils/utils";
+import { formart_number, formart_date, bignumFormatter } from "@/utils/utils";
 import { fetchNodeSlash } from "@/api/node";
+import TableEmpty from "@/components/TableEmpty.vue";
 export default {
-  components: {},
+  components: { TableEmpty },
   data() {
     return {
       nodeId: null,
@@ -84,6 +86,7 @@ export default {
   methods: {
     formart_number,
     formart_date,
+    bignumFormatter,
     async getSlashList(params) {
       try {
         const { data } = await fetchNodeSlash(this.nodeId, params);

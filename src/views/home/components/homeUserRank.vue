@@ -13,9 +13,11 @@
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left cardtitle--text">User voting address</th>
-                  <th class="text-left cardtitle--text">Number of votes</th>
-                  <th class="text-left cardtitle--text">Voting amount</th>
+                  <th class="text-left tableHeader--text">
+                    User voting address
+                  </th>
+                  <th class="text-left tableHeader--text">Number of votes</th>
+                  <th class="text-left tableHeader--text">Voting amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -32,6 +34,9 @@
             </template>
           </v-simple-table>
         </template>
+        <div class="py-6" v-if="voteRankList.length == 0">
+          <table-empty />
+        </div>
       </v-card>
     </v-col>
   </v-row>
@@ -40,8 +45,10 @@
 <script>
 import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchVoteRank } from "@/api/vote.js";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: {},
+  components: { TableEmpty },
   data() {
     return {
       voteRankList: [],
@@ -54,7 +61,7 @@ export default {
     bignumFormatter,
     getNodeList() {
       const params = {
-        pageSize: 10,
+        pageSize: 6,
       };
       fetchVoteRank(params).then((res) => {
         this.voteRankList = res.data.list;

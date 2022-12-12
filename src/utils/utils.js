@@ -101,9 +101,16 @@ export function nFormatter(num, digits) {
 
 export function bignumFormatter(num) {
   if (num > 999999999) {
-    num = parseFloat(parseFloat(num / 1e10).toFixed(2));
+    num = parseFloat(parseFloat(num / 1e9).toFixed(2));
     return formart_number(num) + "B";
   } else {
     return formart_number(parseFloat(parseFloat(num).toFixed(2)));
   }
+}
+
+export function formatNodeId(nodeId) {
+  if (nodeId.length > 0) {
+    return nodeId.substr(0, 12) + "...." + nodeId.substr(nodeId.length - 4, 4);
+  }
+  return nodeId;
 }

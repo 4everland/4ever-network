@@ -4,7 +4,7 @@
       <v-card class="pa-4 rounded">
         <v-card-title class="dialog-top">
           <span class="dialog-title cardtitle--text">Stake</span>
-          <v-btn icon class="close-btn" @click="dialog = false">
+          <v-btn icon class="close-btn" @click="close">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -36,22 +36,29 @@
         </v-card-text>
 
         <v-card-actions class="justify-center">
-          <v-btn
-            elevation="0"
-            outlined
-            color="primary"
-            @click="dialog = false"
-            small
+          <v-btn elevation="0" outlined color="primary" @click="close" small
             >Cancel</v-btn
           >
           <v-btn
+            v-if="isStakeApproved"
             class="ml-8"
             elevation="0"
             color="primary"
+            :loading="stakeLoading"
             @click="handlerStake"
             small
             >Confirm</v-btn
           >
+          <div v-else>
+            <v-btn
+              small
+              color="primary"
+              class="ml-8"
+              :loading="approveLoading"
+              @click="handelApprove"
+              >Approve</v-btn
+            >
+          </div>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -70,10 +77,15 @@ export default {
     balance() {
       return this.$store.state.balance;
     },
+    isStakeApproved() {
+      return this.$store.state.isStakeApproved;
+    },
   },
   data() {
     return {
       dialog: false,
+      approveLoading: false,
+      stakeLoading: false,
       value: "",
     };
   },
@@ -82,19 +94,29 @@ export default {
     open() {
       this.dialog = true;
     },
+    close() {
+      this.dialog = false;
+      this.value = "";
+    },
     async onMax() {
       this.value = this.balance;
     },
     async handlerStake() {
       const amount = BigNumber.from(this.value).mul((1e18).toString());
+      this.stakeLoading = true;
       stake(this.account, amount).then((res) => {
-        this.dialog = false;
+        this.close();
         this.$store.dispatch("updateMyNodeStake");
-        return this.$dialog.notify.success("Successfully", {
+        this.$dialog.notify.success("Successfully", {
           position: "top-right",
           timeout: 5000,
         });
+        this.stakeLoading = false;
       });
+    },
+    async handelApprove() {
+      this.approveLoading = true;
+      this.$store.dispatch("updateStakeApprove");
     },
   },
 };

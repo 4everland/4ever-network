@@ -29,6 +29,11 @@ const routes = [
         component: () => import("../views/explorer/nodeDetail.vue"),
       },
       {
+        path: "/teereportDetail/:id",
+        name: "TeereportDetail",
+        component: () => import("../views/explorer/teereportDetail.vue"),
+      },
+      {
         path: "/accountDetail",
         name: "AccountDetail",
         component: () => import("../views/explorer/accountDetail.vue"),

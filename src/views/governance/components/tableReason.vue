@@ -9,23 +9,23 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left cardtitle--text">Validator ID</th>
-                <th class="text-left cardtitle--text">TeeReport ID</th>
+                <th class="text-left tableHeader--text">Validator ID</th>
+                <th class="text-left tableHeader--text">TeeReport ID</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in tableList" :key="index">
                 <td class="datanum--text d-flex align-center">
-                  {{ item.reportId }}
+                  {{ item.validator }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.validator) }}
+                  {{ item.reportId }}
                 </td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
-        <template>
+        <!-- <template>
           <div class="text-center">
             <v-container>
               <v-row justify="center">
@@ -42,7 +42,10 @@
               </v-row>
             </v-container>
           </div>
-        </template>
+        </template> -->
+        <div class="rounded px-4 py-2" v-if="tableList.length == 0">
+          <table-empty />
+        </div>
       </v-card>
     </v-col>
   </v-row>
@@ -50,8 +53,10 @@
 
 <script>
 import { formart_number } from "@/utils/utils";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: {},
+  components: { TableEmpty },
   props: ["tableList"],
   data() {
     return {

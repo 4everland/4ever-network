@@ -3,24 +3,20 @@
     <v-col cols="12">
       <div class="common-title-box mb-8">
         <span class="d-flex align-center cardtitle--text">
-          <v-icon v-text="'$votingIcon'" small class="mr-2"></v-icon
+          <v-icon v-text="'$widthdrawIcon'" small class="mr-2"></v-icon
           >Withdraw</span
         >
       </div>
       <div class="boxbackgroud rounded px-4 py-2">
-        <v-simple-table
-          root
-          fixed-header
-          dense
-          height="220"
-          class="boxbackgroud"
-        >
+        <v-simple-table root fixed-header dense class="boxbackgroud">
           <template v-slot:default>
             <thead class="boxbackgroud">
               <tr>
-                <th class="text-left cardtitle--text boxbackgroud">Detail</th>
-                <th class="text-left cardtitle--text boxbackgroud">Amount</th>
-                <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
+                <th class="text-left tableHeader--text boxbackgroud">Detail</th>
+                <th class="text-left tableHeader--text boxbackgroud">Amount</th>
+                <th class="text-left tableHeader--text boxbackgroud">
+                  CreateAt
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -29,7 +25,7 @@
                   {{ item.title }}
                 </td>
                 <td class="datanum--text">
-                  {{ formart_number(item.token) }}
+                  {{ bignumFormatter(item.token / 1e18) }}
                 </td>
                 <td class="datanum--text">
                   {{ formart_date(item.withdrawAt) }}
@@ -58,15 +54,20 @@
           </div>
         </template>
       </div>
+      <div class="boxbackgroud rounded px-4 py-2" v-if="list.length == 0">
+        <table-empty />
+      </div>
     </v-col>
   </v-row>
 </template>
 
 <script>
-import { formart_number, formart_date } from "@/utils/utils";
+import { formart_number, formart_date, bignumFormatter } from "@/utils/utils";
 import { fetchNodeWithdraw } from "@/api/node";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: {},
+  components: { TableEmpty },
   data() {
     return {
       list: [],
@@ -78,13 +79,15 @@ export default {
   },
   computed: {
     account() {
-      return this.$store.state.account;
+      const addr = localStorage.getItem("address");
+      return this.$store.state.account || addr;
     },
   },
   watch: {},
   methods: {
     formart_number,
     formart_date,
+    bignumFormatter,
     async getWithdrawList(params) {
       try {
         const { data } = await fetchNodeWithdraw(this.account, params);

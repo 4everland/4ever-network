@@ -4,6 +4,7 @@ import { connect, getUserNode } from "@/utils/auth";
 import {
   getBalance,
   getMyStake,
+  getMyApplyStakeInfo,
   getMyReward,
   getStakeApproved,
   getVoteApproved,
@@ -64,6 +65,7 @@ export default new Vuex.Store({
       if (account) {
         const info = await getUserNode(account);
         console.log(info);
+        localStorage.setItem("address", account);
         commit("UPDATE_ACCOUNT", account);
         commit("UPDATE_MYNODEID", info.id);
         commit("UPDATE_SHOWMYACCOUNT", info.hasData);
@@ -151,7 +153,11 @@ export default new Vuex.Store({
       const account = state.account;
       if (myNodeId) {
         const myNodeStake = await getMyStake(account);
-        commit("UPDATE_MYNODESTAKE", myNodeStake);
+        const myApplyStakeInfo = await getMyApplyStakeInfo(account);
+        commit(
+          "UPDATE_MYNODESTAKE",
+          myNodeStake.add(myApplyStakeInfo).div((1e18).toString())
+        );
       }
     },
     async updateMyReward({ commit, state, dispatch }) {
@@ -171,6 +177,7 @@ export default new Vuex.Store({
       commit("UPDATE_MYNODEID", null);
       commit("UPDATE_SHOWMYACCOUNT", false);
       commit("UPDATE_MYSTAKE", "");
+      localStorage.setItem("address", "");
     },
   },
   modules: {},

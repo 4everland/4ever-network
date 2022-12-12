@@ -16,11 +16,11 @@
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left cardtitle--text">ID</th>
-                  <th class="text-left cardtitle--text">Title</th>
-                  <th class="text-left cardtitle--text">Validator</th>
-                  <th class="text-left cardtitle--text">Slash(4EVER)</th>
-                  <th class="text-left cardtitle--text">Status</th>
+                  <th class="text-left tableHeader--text">ID</th>
+                  <th class="text-left tableHeader--text">Title</th>
+                  <th class="text-left tableHeader--text">Validator</th>
+                  <th class="text-left tableHeader--text">Slash(4EVER)</th>
+                  <th class="text-left tableHeader--text">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -30,20 +30,32 @@
                     {{ item.title }}
                   </td>
                   <td class="datanum--text d-flex align-center">
-                    <span class="ball"></span>
+                    <v-img
+                      v-if="item.logo"
+                      class="mr-2 rounded-circle"
+                      width="24"
+                      max-width="24"
+                      height="24"
+                      max-height="24"
+                      :src="item.logo"
+                    ></v-img>
+                    <span class="ball mr-2" v-else></span>
                     {{ item.node }}
                   </td>
                   <td class="datanum--text">
                     {{ bignumFormatter(item.slash / 1e18) }}
                   </td>
                   <td :class="item.status">
-                    {{ item.status | statusFilter }}
+                    {{ item.status }}
                   </td>
                 </tr>
               </tbody>
             </template>
           </v-simple-table>
         </template>
+        <div class="py-6" v-if="proposalList.length == 0">
+          <table-empty />
+        </div>
       </v-card>
     </v-col>
   </v-row>
@@ -52,8 +64,10 @@
 <script>
 import { formart_number, bignumFormatter } from "@/utils/utils";
 import { fetchProposalList } from "@/api/proposal.js";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: {},
+  components: { TableEmpty },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -95,11 +109,10 @@ export default {
   padding: 30px 35px;
 }
 .ball {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   background: linear-gradient(325deg, #79bc5a 0%, #dffcd1 100%);
   display: inline-block;
   border-radius: 50%;
-  margin-right: 20px;
 }
 </style>

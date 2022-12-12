@@ -6,9 +6,22 @@
           <v-card outlined class="node-detail-block-card">
             <div class="d-flex align-center justify-space-between mb-4">
               <div class="d-flex align-center">
-                <Logo class="mr-4" />
+                <!-- <Logo class="mr-4" /> -->
+                <v-img
+                  v-if="nodeData.logo"
+                  class="mr-4 rounded-circle"
+                  width="60"
+                  max-width="60"
+                  height="60"
+                  max-height="60"
+                  :src="nodeData.logo"
+                ></v-img>
+                <span class="ball mr-4" v-else></span>
                 <span v-if="nodeData.isMajor" class="major">Major</span>
                 <span v-else class="popular">Popular</span>
+                <span v-if="nodeData.status == 'QUITTING'" class="quitting">{{
+                  nodeData.status
+                }}</span>
               </div>
               <div v-if="!isSelfNode">
                 <v-btn
@@ -147,8 +160,10 @@
               <v-col cols="12" md="6">
                 <div class="boxbackgroud ma-0 mr-md-6 rounded node-block">
                   <div class="node-block-type">Insufficient</div>
-                  <div><v-icon small>mdi-content-copy</v-icon></div>
-                  <div class="node-block-title">Staked</div>
+                  <div class="node-block-title">
+                    <v-icon v-text="'$stakeIcon'" small class="mr-2"></v-icon
+                    >Staked
+                  </div>
                   <div class="node-block-value datanum--text">
                     {{ bignumFormatter(myNodeStake) }} 4EVER
                   </div>
@@ -168,8 +183,10 @@
                   <div class="node-block-type" style="visibility: hidden">
                     Insufficient
                   </div>
-                  <div><v-icon small>mdi-content-copy</v-icon></div>
-                  <div class="node-block-title">My Reward</div>
+                  <div class="node-block-title">
+                    <v-icon v-text="'$rewardIcon'" small class="mr-2"></v-icon
+                    >My Reward
+                  </div>
                   <div class="node-block-value datanum--text">
                     {{ bignumFormatter(myReward) }} 4EVER
                   </div>
@@ -190,12 +207,14 @@
             <table-validator />
             <table-teeReport />
             <table-slash />
+            <table-apply v-if="isSelfNode" />
             <table-withdraw v-if="isSelfNode" />
           </v-card>
         </v-col>
       </v-row>
     </v-container>
     <stake-dialog ref="stakeDialog" />
+    <unstake-dialog ref="unstakeDialog" />
     <apr-dialog ref="aprDialog" />
     <voting-dialog ref="votingDialog" />
     <claim-dialog ref="claimDialog" />
@@ -215,9 +234,11 @@ import tableValidated from "./components/tableValidated.vue";
 import tableValidator from "./components/tableValidator.vue";
 import tableTeeReport from "./components/tableTeeReport.vue";
 import tableSlash from "./components/tableSlash.vue";
+import tableApply from "./components/tableApply.vue";
 import tableWithdraw from "./components/tableWithdraw.vue";
 
 import stakeDialog from "@/components/Dialog/stakeDialog.vue";
+import unstakeDialog from "@/components/Dialog/unstakeDialog.vue";
 import aprDialog from "@/components/Dialog/aprDialog.vue";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
 import claimDialog from "@/components/Dialog/claimDialog.vue";
@@ -238,8 +259,10 @@ export default {
     tableValidator,
     tableTeeReport,
     tableSlash,
+    tableApply,
     tableWithdraw,
     stakeDialog,
+    unstakeDialog,
     aprDialog,
     votingDialog,
     claimDialog,
@@ -281,7 +304,7 @@ export default {
           value: "",
         },
         {
-          name: "Voting APR",
+          name: "Voting commision rate",
           key: "apr",
           value: "",
           edit: true,
@@ -342,7 +365,7 @@ export default {
         },
         {
           icon: require("@/assets/imgs/nodeDetail/ARP.png"),
-          name: "ARP",
+          name: "Commision rate",
           tips: "",
           value: "",
           unit: "%",
@@ -390,7 +413,7 @@ export default {
     isSelfNode(newVal) {
       if (newVal) {
         this.Timer = setInterval(() => {
-          console.log("refresh reward");
+          // console.log("refresh reward");
           this.$store.dispatch("updateMyReward");
         }, 5000);
       }
@@ -461,27 +484,16 @@ export default {
       this.$refs.stakeDialog.open();
     },
     async handleUnstake() {
-      try {
-        const tx = await contracts.Stake.applyQuit({ gasLimit: 400000 });
-        console.log(tx);
-        const receipt = await tx.wait();
-        console.log(receipt);
-      } catch (error) {
-        console.log(error);
-        return this.$dialog.notify.error(error.data.message, {
-          position: "top-right",
-          timeout: 5000,
-        });
+      if (this.nodeData.status == "SLASHING") {
+        return this.$dialog.notify.error(
+          "You cannot apply for cancellation of your node while it is in the penalty publicity period.",
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
       }
-
-      // const candidateApply = await contracts.Stake.candidateApplyInfo(
-      //   this.account
-      // );
-      // candidateApply.amount
-      // const lastApplyQuitTimestamp = candidateApply.lastApplyQuitTimestamp;
-      // const stakeFrozenPeriod = await contracts.Stake.stakeFrozenPeriod();
-
-      // const tx = await contracts.Stake.quit(this.account);
+      this.$refs.unstakeDialog.open();
     },
     async handlerClaim() {
       try {
@@ -524,6 +536,13 @@ export default {
 </script>
 <style lang="less" scoped>
 .node-detail {
+  .ball {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(325deg, #79bc5a 0%, #dffcd1 100%);
+    border-radius: 50%;
+    // margin-right: 22px;
+  }
   &-block-card {
     padding: 28px 30px;
     border-radius: 15px;
@@ -548,6 +567,19 @@ export default {
       color: #43a7eb;
       text-align: center;
       display: inline-block;
+    }
+    .quitting {
+      // width: 44px;
+      height: 21px;
+      border-radius: 2px;
+      border: 1px solid #e182b9;
+      font-size: 12px;
+      font-weight: bold;
+      color: #e182b9;
+      text-align: center;
+      display: inline-block;
+      padding: 0 6px;
+      margin-left: 6px;
     }
     .voting-btn {
       width: 74px;

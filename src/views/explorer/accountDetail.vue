@@ -8,7 +8,7 @@
               v-for="item in detailOverview"
               :key="item.name"
               cols="12"
-              md="4"
+              md="6"
               class="text-center pa-8 after-border"
             >
               <div class="d-flex align-center justify-center mb-2">
@@ -29,7 +29,8 @@
             </v-col>
           </v-row>
           <table-validated />
-          <table-reward />
+          <!-- <table-reward /> -->
+          <table-apply />
           <table-withdraw />
         </v-col>
       </v-row>
@@ -46,7 +47,7 @@ import Clipboard from "clipboard";
 
 import contracts from "@/contracts";
 
-import { fetchNodeDetail } from "@/api/node.js";
+import { fetchUserAccounts } from "@/api/user.js";
 
 import Logo from "@/components/Logo.vue";
 import tableValidated from "./components/tableValidated.vue";
@@ -54,6 +55,7 @@ import tableReward from "./components/tableReward.vue";
 import tableValidator from "./components/tableValidator.vue";
 import tableTeeReport from "./components/tableTeeReport.vue";
 import tableSlash from "./components/tableSlash.vue";
+import tableApply from "./components/tableApply.vue";
 import tableWithdraw from "./components/tableWithdraw.vue";
 
 import stakeDialog from "@/components/Dialog/stakeDialog.vue";
@@ -77,6 +79,7 @@ export default {
     tableValidator,
     tableTeeReport,
     tableSlash,
+    tableApply,
     tableWithdraw,
     stakeDialog,
     aprDialog,
@@ -97,9 +100,9 @@ export default {
           value: "",
           unit: null,
           price: null,
-          key: "stake",
+          key: "totalValidated",
           format(val) {
-            return bignumFormatter(val / 1e18);
+            return val;
           },
         },
         {
@@ -109,23 +112,23 @@ export default {
           value: "",
           unit: "4EVER",
           price: null,
-          key: "validator",
-          format(val) {
-            return bignumFormatter(val);
-          },
-        },
-        {
-          icon: require("@/assets/imgs/nodeDetail/Voted.png"),
-          name: "Total Reward",
-          tips: "",
-          value: "",
-          unit: "4EVER",
-          price: null,
-          key: "vote",
+          key: "totalVoted",
           format(val) {
             return bignumFormatter(val / 1e18);
           },
         },
+        // {
+        //   icon: require("@/assets/imgs/nodeDetail/Voted.png"),
+        //   name: "Total Reward",
+        //   tips: "",
+        //   value: "",
+        //   unit: "4EVER",
+        //   price: null,
+        //   key: "vote",
+        //   format(val) {
+        //     return bignumFormatter(val / 1e18);
+        //   },
+        // },
       ],
       nodeHolder: "",
       description: null,
@@ -142,7 +145,8 @@ export default {
     //   }
     // },
     account() {
-      return this.$store.state.account;
+      const addr = localStorage.getItem("address");
+      return this.$store.state.account || addr;
     },
     myNodeStake() {
       return this.$store.state.myNodeStake;
@@ -176,23 +180,11 @@ export default {
     bignumFormatter,
     async getNodeOverview() {
       const account = await this.$store.dispatch("getAccount");
-      const id = this.$route.params.id;
-      const params = {
-        address: account,
-      };
-      fetchNodeDetail(id, params).then((res) => {
+      fetchUserAccounts(account).then((res) => {
         this.nodeData = res.data;
         this.nodeHolder = res.data.address;
         this.nodeId = res.data.nodeId;
         this.description = res.data.description;
-        this.detailMore.map((item) => {
-          if (item.format) {
-            item.value = item.format(res.data[item.key]);
-          } else {
-            item.value = res.data[item.key];
-          }
-          return item;
-        });
         this.detailOverview.map((item) => {
           item.value = item.format(res.data[item.key]);
           return item;

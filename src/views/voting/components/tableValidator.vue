@@ -9,18 +9,25 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left cardtitle--text">Node ID</th>
-                <th class="text-left cardtitle--text">Validator</th>
-                <th class="text-left cardtitle--text">Voted(4EVER)</th>
-                <th class="text-left cardtitle--text">APR</th>
-                <th class="text-left cardtitle--text">Status</th>
-                <th class="text-left cardtitle--text">Action</th>
+                <th class="text-left tableHeader--text">Node ID</th>
+                <th class="text-left tableHeader--text">Validator</th>
+                <th class="text-left tableHeader--text">Voted(4EVER)</th>
+                <th class="text-left tableHeader--text">Commision rate</th>
+                <th class="text-left tableHeader--text">Status</th>
+                <th class="text-left tableHeader--text">Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in voteList" :key="index">
-                <td class="datanum--text d-flex align-center">
+              <tr
+                v-for="(item, index) in voteList"
+                :key="index"
+                style="height: 75px"
+              >
+                <td class="datanum--text align-center py-4">
                   {{ item.nodeId }}
+                  <div>
+                    <span v-if="item.isMajor" class="major mt-2">Major</span>
+                  </div>
                 </td>
                 <td class="datanum--text">
                   {{ bignumFormatter(item.validator) }}
@@ -34,6 +41,7 @@
                 <td class="datanum--text">{{ item.status }}</td>
                 <td class="datanum--text">
                   <v-btn
+                    v-if="item.status != 'QUITTING'"
                     class="voting-btn btnColor--text"
                     x-small
                     @click.stop="handlerVoting(item)"
@@ -58,7 +66,7 @@
             </tbody>
           </template>
         </v-simple-table>
-        <template>
+        <template v-if="pageLength > 0">
           <div class="text-center">
             <v-container>
               <v-row justify="center">
@@ -77,6 +85,9 @@
             </v-container>
           </div>
         </template>
+        <div class="rounded px-4 py-2" v-if="voteList.length == 0">
+          <table-empty />
+        </div>
       </v-card>
     </v-col>
     <voting-dialog ref="votingDialog" />
@@ -91,8 +102,10 @@ import { fetchVoteList } from "@/api/vote.js";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
 import claimDialog from "@/components/Dialog/claimDialog.vue";
 import widthdrawDialog from "@/components/Dialog/widthdrawDialog.vue";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: { votingDialog, claimDialog, widthdrawDialog },
+  components: { votingDialog, claimDialog, widthdrawDialog, TableEmpty },
   data() {
     return {
       voteList: [],
@@ -171,5 +184,27 @@ export default {
   border-radius: 4px;
   display: inline-block;
   font-size: 11px;
+}
+.major {
+  width: 44px;
+  height: 21px;
+  border-radius: 2px;
+  border: 1px solid #e182b9;
+  font-size: 12px;
+  font-weight: bold;
+  color: #e182b9;
+  text-align: center;
+  display: inline-block;
+}
+.popular {
+  width: 54px;
+  height: 21px;
+  border-radius: 2px;
+  border: 1px solid #43a7eb;
+  font-size: 12px;
+  font-weight: bold;
+  color: #43a7eb;
+  text-align: center;
+  display: inline-block;
 }
 </style>

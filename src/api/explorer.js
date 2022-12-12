@@ -8,10 +8,11 @@ export function fetchTeeReportList(params) {
   });
 }
 
-export function fetchReportDetail(height) {
+export function fetchReportDetail(height, params) {
   return request({
     url: `/report/${height}`,
     method: "get",
+    params,
   });
 }
 

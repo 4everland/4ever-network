@@ -4,7 +4,7 @@
       <v-card class="pa-4 rounded">
         <v-card-title class="dialog-top">
           <span class="dialog-title cardtitle--text">Claim Your Rewards</span>
-          <v-btn icon class="close-btn" @click="dialog = false">
+          <v-btn icon class="close-btn" @click="close">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -44,12 +44,7 @@
           </div>
         </v-card-text>
         <v-card-actions class="justify-center">
-          <v-btn
-            elevation="0"
-            outlined
-            color="primary"
-            @click="dialog = false"
-            small
+          <v-btn elevation="0" outlined color="primary" @click="close" small
             >Cancel</v-btn
           >
           <v-btn
@@ -93,6 +88,10 @@ export default {
       this.getMyReward();
       this.dialog = true;
     },
+    close() {
+      this.dialog = false;
+      this.value = "";
+    },
     async onClaim() {
       this.claimLoading = true;
       const tx = await contracts.Election.claim(
@@ -103,7 +102,7 @@ export default {
       const receipt = await tx.wait();
       console.log(receipt);
       this.claimLoading = false;
-      this.dialog = false;
+      this.close();
     },
     async getMyReward() {
       const reward = await contracts.Election.pendingReward(

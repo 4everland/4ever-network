@@ -27,12 +27,12 @@
               <template v-slot:default>
                 <thead>
                   <tr>
-                    <th class="text-left cardtitle--text">Node ID</th>
-                    <th class="text-left cardtitle--text">Accuracy Rate</th>
-                    <th class="text-left cardtitle--text">
+                    <th class="text-left tableHeader--text">Node ID</th>
+                    <th class="text-left tableHeader--text">Accuracy Rate</th>
+                    <th class="text-left tableHeader--text">
                       Size of Challenge File
                     </th>
-                    <th class="text-left cardtitle--text">Elapsed Time</th>
+                    <th class="text-left tableHeader--text">Elapsed Time</th>
                   </tr>
                 </thead>
                 <tbody>

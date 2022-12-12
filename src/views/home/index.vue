@@ -136,13 +136,18 @@
               <span class="cardtitle--text">Node Location</span>
             </div>
             <template>
-              <v-simple-table root dense fixed-header height="260px">
+              <v-simple-table
+                root
+                dense
+                fixed-header
+                :height="nodeLocationList.length == 0 ? '' : '260px'"
+              >
                 <template v-slot:default>
                   <thead>
                     <tr>
-                      <th class="text-left cardtitle--text">Region</th>
-                      <th class="text-left cardtitle--text">Node</th>
-                      <th class="text-left cardtitle--text">Tokens(4EVER)</th>
+                      <th class="text-left tableHeader--text">Region</th>
+                      <th class="text-left tableHeader--text">Node</th>
+                      <th class="text-left tableHeader--text">Tokens(4EVER)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -159,6 +164,9 @@
                 </template>
               </v-simple-table>
             </template>
+            <div class="py-6" v-if="nodeLocationList.length == 0">
+              <table-empty />
+            </div>
           </v-card>
         </v-col>
         <v-col cols="12" md="8">
@@ -174,17 +182,26 @@
               </span>
             </div>
             <template>
-              <v-simple-table root dense fixed-header height="260px">
+              <v-simple-table
+                root
+                dense
+                fixed-header
+                :height="majorNodeList.length == 0 ? '' : '260px'"
+              >
                 <template v-slot:default>
                   <thead>
                     <tr>
-                      <th class="text-left cardtitle--text">Service domian</th>
-                      <th class="text-left cardtitle--text">Staked (4EVER)</th>
-                      <th class="text-left cardtitle--text">Validator</th>
-                      <th class="text-left cardtitle--text">
+                      <th class="text-left tableHeader--text">
+                        Service domian
+                      </th>
+                      <th class="text-left tableHeader--text">
+                        Staked (4EVER)
+                      </th>
+                      <th class="text-left tableHeader--text">Validator</th>
+                      <th class="text-left tableHeader--text">
                         Validators (4EVER)
                       </th>
-                      <th class="text-left cardtitle--text">Reward (4EVER)</th>
+                      <!-- <th class="text-left tableHeader--text">Reward (4EVER)</th> -->
                     </tr>
                   </thead>
                   <tbody>
@@ -199,21 +216,24 @@
                       <td class="datanum--text">
                         {{ bignumFormatter(item.validatorToken / 1e18) }}
                       </td>
-                      <td class="datanum--text">
+                      <!-- <td class="datanum--text">
                         {{ bignumFormatter(item.reward / 1e18) }}
-                      </td>
+                      </td> -->
                     </tr>
                   </tbody>
                 </template>
               </v-simple-table>
             </template>
+            <div class="py-6" v-if="majorNodeList.length == 0">
+              <table-empty />
+            </div>
           </v-card>
         </v-col>
       </v-row>
       <accuracy-rate />
       <home-voting />
-      <home-proposal />
       <home-user-rank />
+      <home-proposal />
     </v-container>
   </div>
 </template>
@@ -234,6 +254,7 @@ import accuracyRate from "./components/accuracyRate.vue";
 import homeVoting from "./components/homeVoting.vue";
 import homeProposal from "./components/homeProposal.vue";
 import homeUserRank from "./components/homeUserRank.vue";
+import TableEmpty from "@/components/TableEmpty.vue";
 
 import {
   fetchHomeOverview,
@@ -243,7 +264,14 @@ import {
 } from "@/api/home.js";
 
 export default {
-  components: { nodeMap, accuracyRate, homeVoting, homeProposal, homeUserRank },
+  components: {
+    nodeMap,
+    accuracyRate,
+    homeVoting,
+    homeProposal,
+    homeUserRank,
+    TableEmpty,
+  },
   data() {
     const that = this;
 
@@ -416,14 +444,26 @@ export default {
         xAxis: {
           label: {
             formatter(val) {
-              return formart_date(parseInt(val), "{m} {d} {y}");
+              // return formart_date(parseInt(val), "{m} {d} {y}");
+              return null;
             },
           },
         },
         yAxis: {
+          grid: {
+            line: {
+              style: {
+                stroke: "#ccc",
+                lineWidth: 1,
+                lineDash: [4, 5],
+                strokeOpacity: 0,
+              },
+            },
+          },
           label: {
             formatter(val) {
-              return nFormatter(val, 2);
+              // return nFormatter(val, 2);
+              return null;
             },
           },
         },
@@ -461,14 +501,26 @@ export default {
         xAxis: {
           label: {
             formatter(val) {
-              return formart_date(parseInt(val), "{m} {d} {y}");
+              // return formart_date(parseInt(val), "{m} {d} {y}");
+              return null;
             },
           },
         },
         yAxis: {
+          grid: {
+            line: {
+              style: {
+                stroke: "#ccc",
+                lineWidth: 1,
+                lineDash: [4, 5],
+                strokeOpacity: 0,
+              },
+            },
+          },
           label: {
             formatter(val) {
-              return nFormatter(val, 2);
+              // return nFormatter(val, 2);
+              return null;
             },
           },
         },
@@ -494,7 +546,7 @@ export default {
     },
     getNodeList() {
       const params = {
-        pageSize: 6,
+        pageSize: 9,
         type: "NODE",
       };
       fetchNodeList(params).then((res) => {
@@ -547,6 +599,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .home {
+  padding-bottom: 100px;
   .block-card {
     height: 353px;
     padding: 0 20px;

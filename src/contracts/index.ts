@@ -31,21 +31,21 @@ class Contracts {
 
   public get Token() {
     return ERC20__factory.connect(
-      "0xC9451ba109F3e8339c17d5bfA4A14602BBE8f5cd",
+      "0x73105F4AB4B6247FB8F3d9aFacFa682A1304f542",
       this.signer
     );
   }
 
   public get Stake() {
     return Stake__factory.connect(
-      "0x8950FFB67dBccbc1A0299a539300B2B83724a859",
+      "0xf1B588Bc43264CB390B5f5229128995A66B71037",
       this.signer
     );
   }
 
   public get Election() {
     return Election__factory.connect(
-      "0x59986bA1D3894cdbEf4338AFC02Dfcd2eb2f45Bb",
+      "0xb5f3788FF91ef84e590FD42A0C69b4F1409F6cd7",
       this.signer
     );
   }

@@ -7,6 +7,15 @@ import votingIcon from "@/assets/svg/voting.vue";
 import proposalIcon from "@/assets/svg/proposal.vue";
 import userRankIcon from "@/assets/svg/userRank.vue";
 import viewIcon from "@/assets/svg/viewIcon.vue";
+import stakeIcon from "@/assets/svg/stakeIcon.vue";
+import rewardIcon from "@/assets/svg/rewardIcon.vue";
+import validatedIcon from "@/assets/svg/validatedIcon.vue";
+import validatorIcon from "@/assets/svg/validatorIcon.vue";
+import slashIcon from "@/assets/svg/slashIcon.vue";
+import teereportIcon from "@/assets/svg/teereportIcon.vue";
+import applyIcon from "@/assets/svg/applyIcon.vue";
+import widthdrawIcon from "@/assets/svg/widthdrawIcon.vue";
+import empty from "@/assets/svg/empty.vue";
 
 Vue.use(Vuetify);
 
@@ -19,7 +28,8 @@ const vuetify = new Vuetify({
         datanum: "#666666",
         boxbackgroud: "#F5F7FA",
         btnColor: "#FFFFFF",
-        inputBg: "#F5F7FA",
+        inputBg: "#fff",
+        tableHeader: "#7F92A0",
       },
       dark: {
         cardtitle: "#FFFFFF",
@@ -27,6 +37,7 @@ const vuetify = new Vuetify({
         boxbackgroud: "#242627",
         btnColor: "#171819",
         inputBg: "#2C2E31",
+        tableHeader: "#7F92A0",
       },
     },
   },
@@ -37,6 +48,15 @@ const vuetify = new Vuetify({
       proposalIcon: { component: proposalIcon },
       userRankIcon: { component: userRankIcon },
       viewIcon: { component: viewIcon },
+      stakeIcon: { component: stakeIcon },
+      rewardIcon: { component: rewardIcon },
+      validatedIcon: { component: validatedIcon },
+      validatorIcon: { component: validatorIcon },
+      slashIcon: { component: slashIcon },
+      teereportIcon: { component: teereportIcon },
+      applyIcon: { component: applyIcon },
+      widthdrawIcon: { component: widthdrawIcon },
+      empty: { component: empty },
     },
   },
 });

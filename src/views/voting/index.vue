@@ -6,7 +6,12 @@
           <v-sheet class="banner pt-12 pl-16">
             <div class="banner-title">Voting</div>
             <div class="banner-tips">
-              Token holders can earn revenue by staking and voting nodes.
+              Token holders can earn revenue by staking token to vote nodes. The
+              4EVELAND node network will support 4EVER Token holders in the form
+              of stakes to vote for nodes anytime, anywhere, and get the rewards
+              based on the APR factor, stake amount and stake time set by the
+              node. Furthermore, this voting dataset is crucial for determining
+              the campaign and ranking of nodes worldwide.
             </div>
             <v-btn class="banner-btn btnColor--text" @click="onScroll"
               >Vote</v-btn
@@ -152,6 +157,7 @@ export default {
       font-size: 12px;
       font-weight: bold;
       color: #d8d8d8;
+      max-width: 500px;
     }
     .banner-btn {
       width: 90px;
@@ -160,7 +166,7 @@ export default {
       border-radius: 4px;
       font-size: 12px;
       font-weight: bold;
-      margin-top: 80px;
+      margin-top: 40px;
     }
   }
   .detail-overview {

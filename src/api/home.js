@@ -45,3 +45,10 @@ export function fetchReportList(params) {
     params,
   });
 }
+
+export function fetchSearch(input) {
+  return request({
+    url: `/search/${input}`,
+    method: "get",
+  });
+}

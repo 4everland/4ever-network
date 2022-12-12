@@ -3,8 +3,8 @@
     <v-dialog v-model="dialog" width="580">
       <v-card class="pa-4 rounded">
         <v-card-title class="dialog-top">
-          <span class="dialog-title cardtitle--text">Set APR</span>
-          <v-btn icon class="close-btn" @click="dialog = false">
+          <span class="dialog-title cardtitle--text">Set commision rate</span>
+          <v-btn icon class="close-btn" @click="close">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -15,31 +15,27 @@
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <div class="ball"></div>
-              <div>APR</div>
+              <div>Rate</div>
             </div>
             <div
-              class="int-box"
+              class="int-box d-flex align-center"
               :class="$vuetify.theme.dark ? 'dark-border' : 'light-border'"
             >
               <input type="text" class="int" v-model="value" />
+              <span class="pr-6">%</span>
               <!-- <v-btn text tile plain color="#43A7EB" @click="maxValue"
                 >Max</v-btn
               > -->
             </div>
           </div>
           <div class="d-flex justify-space-between mt-6">
-            <span>Recommended APR </span>
-            <span>5%-10%</span>
+            <span>Recommended commision rate</span>
+            <span>5%-100%</span>
           </div>
         </v-card-text>
 
         <v-card-actions class="justify-center">
-          <v-btn
-            elevation="0"
-            outlined
-            color="primary"
-            @click="dialog = false"
-            small
+          <v-btn elevation="0" outlined color="primary" @click="close" small
             >Cancel</v-btn
           >
           <v-btn
@@ -68,27 +64,33 @@ export default {
     open() {
       this.dialog = true;
     },
+    close() {
+      this.dialog = false;
+      this.value = "";
+    },
     maxValue() {
-      this.value = 10;
+      this.value = 100;
     },
     async setApr() {
-      let val = parseInt(this.value);
-      if (val > 10) {
+      let val = this.value;
+      console.log(val);
+      if (val > 100) {
         return this.$dialog.error({
           text: "Error",
           title: "Error",
         });
       }
-      let apr = (this.value / 100) * 1e6;
+      let apr = this.value * 1e4;
       try {
         const tx = await contracts.Stake.setVoteRewardCoef(apr);
         const receipt = await tx.wait(2);
         console.log(receipt);
         if (receipt) {
-          this.dialog = false;
+          this.close();
         }
       } catch (error) {
-        return this.$dialog.notify.error(error.data.message, {
+        console.log(error);
+        this.$dialog.notify.error(error.data.message || "Error", {
           position: "top-right",
           timeout: 5000,
         });

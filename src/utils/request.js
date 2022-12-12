@@ -10,6 +10,9 @@ service.interceptors.response.use(
     if (process.env.NODE_ENV == "mock") {
       return res;
     }
+    if (res.code == "409") {
+      return res;
+    }
     if (res.code.toUpperCase() !== "SUCCESS") {
       return Promise.reject(new Error(res.message || "Error"));
     } else {

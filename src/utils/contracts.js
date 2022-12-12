@@ -11,13 +11,21 @@ export async function getBalance(account) {
 export async function getMyStake(account) {
   const candidate = await contracts.Stake.candidateInfo(account);
   console.log("stake", candidate);
-  return candidate.amount.div((1e18).toString());
+  const amount = candidate.amount;
+  const locked = candidate.locked;
+  const slash = candidate.slash;
+  const total = amount.add(locked).add(slash);
+  return total;
+}
+
+export async function getMyApplyStakeInfo(account) {
+  const candidateApply = await contracts.Stake.candidateApplyInfo(account);
+  return candidateApply.amount;
 }
 
 export async function getMyReward(account) {
   const reward = await contracts.Stake.pendingReward(account);
-  console.log("reward", reward);
-  return reward.div((1e18).toString());
+  return reward.div((1e16).toString()) / 100;
 }
 
 export async function getStakeApproved(account) {

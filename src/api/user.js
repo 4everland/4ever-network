@@ -6,3 +6,10 @@ export function fetchUserNode(address) {
     method: "get",
   });
 }
+
+export function fetchUserAccounts(address) {
+  return request({
+    url: `/accounts/${address}`,
+    method: "get",
+  });
+}

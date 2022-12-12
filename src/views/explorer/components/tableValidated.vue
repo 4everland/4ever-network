@@ -3,26 +3,38 @@
     <v-col cols="12">
       <div class="common-title-box mb-8">
         <span class="d-flex align-center cardtitle--text">
-          <v-icon v-text="'$votingIcon'" small class="mr-2"></v-icon
+          <v-icon v-text="'$validatedIcon'" small class="mr-2"></v-icon
           >Validated</span
         >
+        <!-- <span>
+          <v-btn
+            class="widthdraw-btn btnColor--text mx-2"
+            x-small
+            @click.stop="handlerWidthdraw()"
+            >Widthdraw</v-btn
+          >
+        </span> -->
       </div>
       <div class="boxbackgroud rounded px-4 py-2">
-        <v-simple-table root fixed-header height="220" class="boxbackgroud">
+        <v-simple-table root fixed-header class="boxbackgroud">
           <template v-slot:default>
             <thead class="boxbackgroud">
               <tr class="boxbackgroud">
-                <th class="text-left cardtitle--text boxbackgroud">Node</th>
-                <th class="text-left cardtitle--text boxbackgroud">
+                <th class="text-left tableHeader--text boxbackgroud">Node</th>
+                <th class="text-left tableHeader--text boxbackgroud">
                   Total Voted(4EVER)
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">APR</th>
-                <th class="text-left cardtitle--text boxbackgroud">
+                <th class="text-left tableHeader--text boxbackgroud">
+                  Commision rate
+                </th>
+                <th class="text-left tableHeader--text boxbackgroud">
                   Voted(4EVER)
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">CreateAt</th>
-                <th class="text-left cardtitle--text boxbackgroud">Status</th>
-                <th class="text-left cardtitle--text boxbackgroud">Action</th>
+                <th class="text-left tableHeader--text boxbackgroud">
+                  CreateAt
+                </th>
+                <th class="text-left tableHeader--text boxbackgroud">Status</th>
+                <th class="text-left tableHeader--text boxbackgroud">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -53,6 +65,7 @@
                 <td class="datanum--text">{{ item.status }}</td>
                 <td class="datanum--text">
                   <v-btn
+                    v-if="item.status != 'QUITTING'"
                     class="voting-btn btnColor--text mx-2"
                     x-small
                     @click.stop="handlerVoting(item)"
@@ -83,7 +96,9 @@
                         >
                       </v-list-item>
                       <v-list-item>
-                        <v-btn tile text>Apply</v-btn>
+                        <v-btn tile text @click="handlerApply(item)"
+                          >Apply</v-btn
+                        >
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -112,6 +127,9 @@
           </div>
         </template>
       </div>
+      <div class="boxbackgroud rounded px-4 py-2" v-if="list.length == 0">
+        <table-empty />
+      </div>
     </v-col>
     <apr-dialog ref="aprDialog" />
     <voting-dialog ref="votingDialog" />
@@ -127,8 +145,16 @@ import aprDialog from "@/components/Dialog/aprDialog.vue";
 import votingDialog from "@/components/Dialog/votingDialog.vue";
 import claimDialog from "@/components/Dialog/claimDialog.vue";
 import widthdrawDialog from "@/components/Dialog/widthdrawDialog.vue";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: { aprDialog, votingDialog, claimDialog, widthdrawDialog },
+  components: {
+    aprDialog,
+    votingDialog,
+    claimDialog,
+    widthdrawDialog,
+    TableEmpty,
+  },
   data() {
     return {
       list: [],
@@ -139,7 +165,8 @@ export default {
   },
   computed: {
     account() {
-      return this.$store.state.account;
+      const addr = localStorage.getItem("address");
+      return this.$store.state.account || addr;
     },
   },
   watch: {},
@@ -175,8 +202,11 @@ export default {
     handlerClaim(data) {
       this.$refs.claimDialog.open(data);
     },
+    handlerApply(data) {
+      this.$refs.widthdrawDialog.open(data, "apply");
+    },
     handlerWidthdraw(data) {
-      this.$refs.widthdrawDialog.open(data);
+      this.$refs.widthdrawDialog.claim(data, "widthdraw");
     },
   },
   created() {

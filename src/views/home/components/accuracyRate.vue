@@ -8,7 +8,7 @@
             >Accuracy Rate</span
           >
           <span>
-            <v-select :items="items" label="Solo field" dense solo></v-select>
+            <!-- <v-select :items="items" label="Solo field" dense solo></v-select> -->
           </span>
         </div>
         <div id="lineChart"></div>

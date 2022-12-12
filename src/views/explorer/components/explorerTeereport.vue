@@ -3,18 +3,18 @@
     <v-col cols="12">
       <v-card elevation="0" :outlined="$vuetify.theme.dark" class="block-card">
         <template>
-          <v-simple-table root fixed-header height="80vh">
+          <v-simple-table root fixed-header>
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left cardtitle--text">ID</th>
-                  <th class="text-left cardtitle--text">Accuracy</th>
-                  <th class="text-left cardtitle--text">Storage</th>
-                  <th class="text-left cardtitle--text">
+                  <th class="text-left tableHeader--text">ID</th>
+                  <th class="text-left tableHeader--text">Accuracy</th>
+                  <th class="text-left tableHeader--text">Storage</th>
+                  <th class="text-left tableHeader--text">
                     Average challenge time
                   </th>
-                  <th class="text-left cardtitle--text">CreateAt</th>
-                  <th class="text-center cardtitle--text">Action</th>
+                  <th class="text-left tableHeader--text">CreateAt</th>
+                  <th class="text-center tableHeader--text">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -37,7 +37,7 @@
                     {{ formart_date(item.blockCreatedAt) }}
                   </td>
                   <td class="text-center datanum--text">
-                    <v-btn icon @click.stop="openTeeView(item)">
+                    <v-btn icon :to="`/teereportDetail/${item.blockNumber}`">
                       <v-icon v-text="'$viewIcon'" dense></v-icon>
                     </v-btn>
                   </td>
@@ -45,7 +45,29 @@
               </tbody>
             </template>
           </v-simple-table>
+          <template v-if="pageLength > 0">
+            <div class="text-center">
+              <v-container>
+                <v-row justify="center">
+                  <v-col cols="6">
+                    <v-container class="max-width">
+                      <v-pagination
+                        v-model="page"
+                        class="my-4"
+                        :length="pageLength"
+                        :elevation="0"
+                        @input="pageChange"
+                      ></v-pagination>
+                    </v-container>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </div>
+          </template>
         </template>
+        <div class="py-6" v-if="teeReportList.length == 0">
+          <table-empty />
+        </div>
       </v-card>
     </v-col>
     <TeereportView ref="teereportview" />
@@ -56,14 +78,19 @@
 import TeereportView from "./TeereportView.vue";
 import { formart_number, formart_date, formart_storage } from "@/utils/utils";
 import { fetchTeeReportList } from "@/api/explorer.js";
+import TableEmpty from "@/components/TableEmpty.vue";
 
 export default {
   components: {
     TeereportView,
+    TableEmpty,
   },
   data() {
     return {
       teeReportList: [],
+      page: 1,
+      pageSize: 20,
+      pageLength: 0,
     };
   },
   computed: {},
@@ -72,17 +99,30 @@ export default {
     formart_number,
     formart_date,
     formart_storage,
-    getNodeList() {
-      fetchTeeReportList().then((res) => {
+    getNodeList(params) {
+      fetchTeeReportList(params).then((res) => {
         this.teeReportList = res.data.item;
+        this.pageLength = res.data.total;
       });
+    },
+    pageChange(val) {
+      this.page = val;
+      const params = {
+        page: this.page,
+        pageSize: this.pageSize,
+      };
+      this.getNodeList(params);
     },
     openTeeView(data) {
       this.$refs.teereportview.openDialog(data);
     },
   },
   created() {
-    this.getNodeList();
+    let params = {
+      page: this.page,
+      pageSize: this.pageSize,
+    };
+    this.getNodeList(params);
   },
   mounted() {},
 };

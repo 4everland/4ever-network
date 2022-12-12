@@ -3,8 +3,13 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-sheet class="banner transparent">
+          <v-sheet class="banner transparent pt-16 pl-16">
             <div class="banner-title">Be a 4EVERLAND Node</div>
+            <div class="banner-tips">
+              Welcome to the 4EVERLAND network! All you need to do is provide
+              your node ID and stake 4EVER to become a node and enjoy the
+              benefits.
+            </div>
           </v-sheet>
         </v-col>
       </v-row>
@@ -16,33 +21,33 @@
           md="4"
           class="pa-8"
         >
-          <div
-            class="d-flex align-center"
-            :class="index == step ? 'active' : ''"
-          >
-            <div class="num-tag">{{ index + 1 }}</div>
+          <div class="text-center" :class="index == step ? 'active' : ''">
+            <span class="round-tag">{{ index + 1 }}</span>
             <span class="governance-system-text datanum--text">
               {{ formart_number(item.name) }}
             </span>
           </div>
         </v-col>
       </v-row>
-      <v-card elevation="0" class="mt-8 card-block" v-show="step == 0">
-        <div class="card-tips datanum--text">
+      <div elevation="0" class="mt-8 card-block" v-show="step == 0">
+        <!-- <div class="card-tips datanum--text">
           Welcome to the 4EVERLAND network! All you need to do is provide your
           node ID and stake 4EVER to become a node and enjoy the benefits.
-        </div>
+        </div> -->
         <div class="card-input">
-          <span>Node ID:</span>
+          <div class="input-title">Node ID:</div>
           <input
             v-model="nodeId"
             type="text"
             class="int inputBg"
+            style="width: 660px"
             placeholder="Enter"
           />
         </div>
         <div class="card-btn">
           <v-btn
+            width="660"
+            height="48"
             small
             color="#00A8F1"
             class="white--text"
@@ -51,8 +56,8 @@
             >Next</v-btn
           >
         </div>
-      </v-card>
-      <v-card elevation="0" class="mt-8 card-block" v-show="step == 1">
+      </div>
+      <div elevation="0" class="mt-8 card-block" v-show="step == 1">
         <div
           class="card-tips datanum--text text-center"
           style="max-width: 860px"
@@ -64,20 +69,20 @@
         </div>
 
         <div class="card-input">
-          <div class="d-flex justify-end mb-2" v-if="balance">
-            <span class="datanum--text" style="font-size: 14px"
+          <div class="d-flex justify-space-between align-center mb-2">
+            <div class="input-title">Stake:</div>
+            <span v-if="balance" class="datanum--text" style="font-size: 14px"
               >Balance: {{ formart_number(balance) }} 4EVER</span
             >
           </div>
-          <div class="d-flex align-center">
-            <span>Stake:</span>
-            <div class="inputBg ml-4">
+          <div>
+            <div class="inputBg" style="width: 660px">
               <input
                 v-model="stakeAmount"
                 type="text"
-                class="int ml-0"
+                class="int"
+                style="width: 580px"
                 placeholder="Enter"
-                style="width: 380px"
               />
               <v-btn text tile plain color="#43A7EB" @click="onMax">Max</v-btn>
             </div>
@@ -85,21 +90,35 @@
         </div>
         <div class="card-btn">
           <div v-if="isStakeApproved">
-            <v-btn small color="#00A8F1" @click="handelViewNow" outlined
-              >View Now</v-btn
-            >
             <v-btn
+              width="660"
+              height="48"
               small
+              block
               color="#00A8F1"
-              class="white--text ml-6"
+              class="white--text"
               :loading="stakeLoading"
               @click="handelStake"
               >Stake</v-btn
             >
+            <v-btn
+              class="mt-4"
+              width="660"
+              height="48"
+              small
+              block
+              text
+              color="#00A8F1"
+              @click="handelViewNow"
+              >View</v-btn
+            >
           </div>
           <v-btn
             v-else
+            width="660"
+            height="48"
             small
+            block
             color="#00A8F1"
             class="white--text"
             :loading="approveLoading"
@@ -107,8 +126,8 @@
             >Approve</v-btn
           >
         </div>
-      </v-card>
-      <v-card elevation="0" class="mt-8 card-block" v-show="step == 2">
+      </div>
+      <div elevation="0" class="mt-8 card-block" v-show="step == 2">
         <div class="card-tips datanum--text">
           You can add your node information on the
           <a
@@ -122,14 +141,29 @@
         </div>
         <div class="card-btn">
           <v-btn
+            width="660"
+            height="48"
             small
+            block
             color="#00A8F1"
             class="white--text"
+            href="https://github.com/liqwa1234/node"
+            target="_blank"
+            >GitHub</v-btn
+          >
+          <v-btn
+            class="mt-4"
+            width="660"
+            height="48"
+            small
+            block
+            text
+            color="#00A8F1"
             @click="handelViewNow"
-            >View Now</v-btn
+            >View</v-btn
           >
         </div>
-      </v-card>
+      </div>
     </v-container>
   </div>
 </template>
@@ -187,7 +221,8 @@ export default {
   },
   computed: {
     account() {
-      return this.$store.state.account;
+      const addr = localStorage.getItem("address");
+      return this.$store.state.account || addr;
     },
     balance() {
       return this.$store.state.balance;
@@ -284,14 +319,17 @@ export default {
         }
       }
     }
+  },
+  mounted() {
+    console.log(this.myStake);
+    console.log(this.myNodeId);
+    if (this.myStake >= 1000000 * 1e18) {
+      this.step = 2;
+    }
     if (this.myNodeId) {
       this.step = 1;
     }
-    if (this.myStake >= 500000 * 1e18) {
-      this.step = 2;
-    }
   },
-  mounted() {},
 };
 </script>
 <style lang="less" scoped>
@@ -305,14 +343,17 @@ export default {
     background-position: 0 0;
     background-size: contain;
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
     .banner-title {
       font-size: 36px;
       font-weight: bold;
       color: #ffffff;
-      text-align: center;
+    }
+    .banner-tips {
+      max-width: 530px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #d8d8d8;
     }
   }
   .governance-system {
@@ -328,15 +369,31 @@ export default {
       padding-right: 10px;
       font-size: 27px;
     }
+    .round-tag {
+      width: 38px;
+      height: 38px;
+      line-height: 38px;
+      background: linear-gradient(90deg, #ad91be 0%, #755889 100%);
+      text-align: center;
+      font-weight: bold;
+      color: #fff;
+      font-size: 23px;
+      border-radius: 50%;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+    }
     .governance-system-text {
       font-size: 18px;
       font-weight: 600;
       color: #666;
-      margin-left: 26px;
     }
     .active {
       .num-tag {
         background-image: url("../../assets/imgs/node/tag_active.png");
+      }
+      .round-tag {
+        background: linear-gradient(270deg, #c143df 0%, #ffb867 100%);
       }
       .governance-system-text {
         background: linear-gradient(270deg, #c143df 0%, #ffb867 100%);
@@ -359,19 +416,20 @@ export default {
     }
     .card-input {
       margin-top: 42px;
-      span {
+      .input-title {
         font-size: 18px;
         font-weight: 600;
         color: #7b92a2;
+        margin-bottom: 13px;
       }
       .int {
-        width: 420px;
+        max-width: 100%;
         height: 48px;
         font-size: 18px;
         font-weight: 600;
         color: #7b92a2;
-        margin-left: 16px;
         padding: 0 14px;
+        // margin-top: 13px;
         &::placeholder {
           color: #7b92a2;
         }
@@ -379,7 +437,7 @@ export default {
     }
 
     .card-btn {
-      margin-top: 67px;
+      margin-top: 60px;
       text-align: center;
     }
   }

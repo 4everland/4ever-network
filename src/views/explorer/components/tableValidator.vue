@@ -3,28 +3,22 @@
     <v-col cols="12">
       <div class="common-title-box mb-8">
         <span class="d-flex align-center cardtitle--text">
-          <v-icon v-text="'$votingIcon'" small class="mr-2"></v-icon
+          <v-icon v-text="'$validatorIcon'" small class="mr-2"></v-icon
           >Validator</span
         >
       </div>
       <div class="boxbackgroud rounded px-4 py-2">
-        <v-simple-table
-          root
-          fixed-header
-          dense
-          height="400"
-          class="boxbackgroud"
-        >
+        <v-simple-table root fixed-header dense class="boxbackgroud">
           <template v-slot:default>
             <thead class="boxbackgroud">
               <tr>
-                <th class="text-left cardtitle--text boxbackgroud">
+                <th class="text-left tableHeader--text boxbackgroud">
                   Validator
                 </th>
-                <th class="text-left cardtitle--text boxbackgroud">
+                <th class="text-left tableHeader--text boxbackgroud">
                   Voted(4EVER)
                 </th>
-                <!-- <th class="text-left cardtitle--text boxbackgroud">CreateAt</th> -->
+                <!-- <th class="text-left tableHeader--text boxbackgroud">CreateAt</th> -->
               </tr>
             </thead>
             <tbody>
@@ -62,6 +56,9 @@
           </div>
         </template>
       </div>
+      <div class="boxbackgroud rounded px-4 py-2" v-if="list.length == 0">
+        <table-empty />
+      </div>
     </v-col>
   </v-row>
 </template>
@@ -69,8 +66,10 @@
 <script>
 import { formart_number, formart_date, bignumFormatter } from "@/utils/utils";
 import { fetchNodeVoters } from "@/api/node.js";
+import TableEmpty from "@/components/TableEmpty.vue";
+
 export default {
-  components: {},
+  components: { TableEmpty },
   data() {
     return {
       list: [],

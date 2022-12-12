@@ -6,7 +6,7 @@
           <logo />
         </v-btn>
         <div>
-          <!-- <v-btn
+          <v-btn
             class="text-capitalize"
             depressed
             icon
@@ -14,7 +14,7 @@
             @click.stop="openTeeView()"
           >
             <v-icon small> mdi-magnify </v-icon>
-          </v-btn> -->
+          </v-btn>
           <v-btn
             class="text-capitalize"
             depressed
@@ -36,8 +36,45 @@
             to="/governance"
             >Governance</v-btn
           >
-          <v-btn class="text-capitalize" depressed plain text tile to="/node"
-            >Run a Node</v-btn
+          <v-btn
+            v-if="!myNodeId"
+            class="text-capitalize"
+            depressed
+            plain
+            text
+            tile
+            to="/node"
+          >
+            <span class="color-btn"> Run a Node </span>
+
+            <v-img
+              src="@/assets/imgs/header/fire.png"
+              width="9"
+              class="ml-1"
+            ></v-img>
+          </v-btn>
+          <v-btn
+            v-if="myNodeId"
+            class="text-capitalize"
+            depressed
+            plain
+            text
+            tile
+            :to="`/nodeDetail/${myNodeId}`"
+            >My Node</v-btn
+          >
+          <v-btn
+            v-if="showMyAccount"
+            class="text-capitalize"
+            depressed
+            plain
+            text
+            tile
+            :to="`/accountDetail`"
+            >My Account</v-btn
+          >
+          <v-btn class="text-capitalize" depressed plain text tile to="/docs"
+            >Docs</v-btn
           >
         </div>
         <AppSearch ref="search" />
@@ -57,7 +94,7 @@
             >
           </template>
           <v-list>
-            <v-list-item v-if="myNodeId">
+            <!-- <v-list-item v-if="myNodeId">
               <v-list-item-title>
                 <v-btn
                   text
@@ -80,7 +117,7 @@
                   >My Account</v-btn
                 >
               </v-list-item-title>
-            </v-list-item>
+            </v-list-item> -->
             <v-list-item>
               <v-list-item-title>
                 <v-btn text plain tile style="width: 100%" @click="logout"
@@ -132,7 +169,7 @@ export default {
       return this.$store.state.myNodeId;
     },
     showMyAccount() {
-      return this.$store.state.showMyAccount;
+      return this.$store.state.showMyAccount && !this.$store.state.myNodeId;
     },
   },
   data() {
@@ -230,4 +267,10 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.color-btn {
+  background: linear-gradient(90deg, #ffaedf 0%, #00cfff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+</style>
